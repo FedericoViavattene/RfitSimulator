@@ -1,0 +1,27 @@
+Quantity,Name,Type,Energy,Power,Might,Domain,Tag
+1,"Shen, Eye of Twilight",Legend,0,0,0,Calm/Order,
+1,"Shen, Kinkou",Unit,3,1,3,Order,
+1,Grove of the God-Willow,Battlefield,0,0,0,,
+1,Kinkou Temple,Battlefield,0,0,0,,
+1,Threshold of the Gray,Battlefield,0,0,0,,
+6,Calm Rune,Rune,0,0,0,Calm,
+6,Order Rune,Rune,0,0,0,Order,
+3,Affectionate Poro,Unit,3,0,3,Calm,
+3,Disciple of Shen,Unit,2,0,1,Order,
+1,"Kennen, Keeper of Balance",Unit,3,0,2,Order,
+3,Mournful Witness,Unit,2,0,2,Calm,
+2,Serene Ascetic,Unit,3,0,3,Calm,
+1,"Shen, Scourge of Shadows",Unit,5,1,6,Calm,
+3,Soulspinner,Unit,3,0,3,Order,
+3,Stalwart Poro,Unit,2,0,2,Calm,
+1,Tasty Faefolk,Unit,7,0,6,Calm,
+2,Charm,Spell,1,1,0,Calm,
+2,Discipline,Spell,2,0,0,Calm,
+1,Emperor's Divide,Spell,2,0,0,Calm,Remove:3
+3,Find Your Center,Spell,3,0,0,Calm,Draw:1
+3,Ki Barrier,Spell,2,1,0,Order,Shield:3
+3,Meditation,Spell,2,0,0,Calm,Draw:1
+2,Not So Fast,Spell,2,1,0,Calm,Remove:2
+1,Resonating Strike,Spell,2,1,0,Calm,
+1,Shadow Dash,Spell,2,1,0,Calm/Order,
+1,Wind Wall,Spell,3,2,0,Calm,Shield:2

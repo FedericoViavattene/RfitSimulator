@@ -1,0 +1,33 @@
+# This is an example decklist showing every accepted line format.
+# Lines starting with "#" (like this one) are comments and are ignored.
+#
+# Run ImportDeck.bat, pick this file, and see the report it prints - every
+# card's real Type/Energy/Power/Might/Domain comes from the card database
+# automatically, so you only need to get the card name and quantity right.
+#
+# NOTE: this particular example is short (not a full 40-card deck) just to
+# keep it easy to read - the importer will warn you that the Main Deck is
+# under the 40-card minimum, which is expected for this demo file. Delete
+# this note and keep adding cards until the warnings go away for a real one.
+
+Legend: Jinx, Loose Cannon
+
+Battlefields:
+Abandoned Hall
+Altar of Blood
+Dragon Roost
+
+Runes:
+8 Fury Rune
+4 Chaos Rune
+
+Main Deck:
+3 Blast Corps Cadet
+3x Chemtech Enforcer
+Baccai Reaper x2
+2 Bewitching Spirit
+3 Black Market Broker
+2 Armed Assailant
+3 Against the Odds
+2 Abandon
+2 Acceptable Losses

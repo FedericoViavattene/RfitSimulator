@@ -1,0 +1,25 @@
+Quantity,Name,Type,Energy,Power,Might,Domain,Tag
+1,"Sett, The Boss",Legend,0,0,0,Body/Order,
+1,"Sett, Kingpin",Unit,4,1,5,Order,
+1,Grove of the God-Willow,Battlefield,0,0,0,,
+1,Monastery of Hirana,Battlefield,0,0,0,,
+1,Valley of Idols,Battlefield,0,0,0,,
+7,Body Rune,Rune,0,0,0,Body,
+5,Order Rune,Rune,0,0,0,Order,
+2,Cithria of Cloudfield,Unit,2,0,1,Body,
+3,Irresistible Faefolk,Unit,2,0,1,Body,
+3,Pit Rookie,Unit,2,0,2,Body,
+3,First Mate,Unit,3,0,3,Body,
+2,"Lucian, Merciless",Unit,3,0,3,Body,
+3,"Fiora, Victorious",Unit,4,0,4,Order,
+1,Kinkou Monk,Unit,4,1,4,Body,
+1,"Vi, Peacekeeper",Unit,5,1,5,Order,
+2,Fae Dragon,Unit,7,1,7,Body,
+2,Arena Bar,Gear,3,0,0,Body,
+3,Punch First,Spell,1,2,0,Body,
+1,Repulse,Spell,1,1,0,Body,
+3,Sabotage,Spell,1,1,0,Body,
+3,Showstopper,Spell,1,1,0,Body/Order,Buff:2
+2,Challenge,Spell,2,1,0,Body,
+2,Hidden Blade,Spell,2,1,0,Order,Remove:2
+3,Call to Glory,Spell,3,0,0,Order,Draw:1

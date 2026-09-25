@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riftbound Deck Simulator</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Riftbound Deck Simulator</h1>
+      <p class="subtitle">Simulates 10 games of your deck vs a chosen opponent and reports a winrate plus deck-optimization feedback.</p>
+      <p class="disclaimer">Statistical / curve simulator - not a full rules engine. Runs entirely on this computer.</p>
+    </header>
+
+    <section class="picker card">
+      <div class="field">
+        <label for="myDeck">Your deck</label>
+        <select id="myDeck"></select>
+      </div>
+      <div class="field">
+        <label for="opponentDeck">Opponent deck</label>
+        <select id="opponentDeck"></select>
+      </div>
+      <button id="simulateBtn">Simulate 10 games</button>
+      <div id="statusLine" class="status"></div>
+    </section>
+
+    <details class="card" id="importDetails">
+      <summary>Import a deck from a text list</summary>
+      <p class="import-help">
+        Paste a decklist - one card per line, like <code>1 Rengar, Pridestalker</code> or
+        <code>3x Inferna</code> (section labels like <code>Legend:</code> or <code>Battlefields:</code>
+        are fine too, they're just ignored). Every card's real Type/Energy/Power/Might/Domain is
+        looked up automatically from the official card gallery data - you only need the name and
+        the quantity to be right.
+      </p>
+      <div class="field">
+        <label for="importCategory">Add to</label>
+        <select id="importCategory">
+          <option value="MyDeck">Your decks</option>
+          <option value="Aggro">Opponents - Aggro</option>
+          <option value="Midrange">Opponents - Midrange</option>
+          <option value="Control">Opponents - Control</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="importName">Deck name (used as the file name)</label>
+        <input type="text" id="importName" placeholder="e.g. Jinx, Loose Cannon">
+      </div>
+      <div class="field">
+        <label for="importText">Decklist</label>
+        <textarea id="importText" rows="10" placeholder="1 Jinx, Loose Cannon&#10;1 Grand Plaza&#10;8 Fury Rune&#10;4 Chaos Rune&#10;3 Rabble Rouser&#10;..."></textarea>
+      </div>
+      <button id="importBtn">Import deck</button>
+      <div id="importStatus" class="status"></div>
+      <div id="importResult" class="import-result hidden"></div>
+    </details>
+
+    <section id="results" class="results hidden">
+
+      <div class="card banned-warnings hidden" id="bannedWarnings"></div>
+
+      <div class="card winrate-card">
+        <div class="winrate-number" id="winrateNumber">--%</div>
+        <div class="winrate-sub" id="winrateSub"></div>
+      </div>
+
+      <div class="card">
+        <h2>Game log</h2>
+        <ul class="game-list" id="gameList"></ul>
+      </div>
+
+      <details class="card" id="lossDetails" open>
+        <summary>Loss breakdown</summary>
+        <ul class="loss-list" id="lossList"></ul>
+      </details>
+
+      <div class="card">
+        <h2>Deck curve &amp; optimization feedback</h2>
+        <div id="optimization"></div>
+      </div>
+
+      <details class="card" id="decklistDetails">
+        <summary>View opponent's full decklist</summary>
+        <div id="opponentDecklist"></div>
+      </details>
+
+    </section>
+  </div>
+
+<script src="/app.js"></script>
+</body>
+</html>

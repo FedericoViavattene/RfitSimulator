@@ -1,0 +1,314 @@
+:root {
+  --bg: #0f1115;
+  --card-bg: #171a21;
+  --border: #2a2e38;
+  --text: #e7e9ee;
+  --text-dim: #9aa1ad;
+  --accent: #6c8cff;
+  --win: #3ecf6a;
+  --loss: #ef5b5b;
+  --warn: #e8b84b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+header h1 {
+  margin: 0 0 6px;
+  font-size: 1.7rem;
+}
+
+.subtitle {
+  margin: 0 0 4px;
+  color: var(--text-dim);
+}
+
+.disclaimer {
+  margin: 0 0 24px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.picker .field {
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+select, input[type="text"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.status {
+  margin-top: 10px;
+  min-height: 1.2em;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.status.error {
+  color: var(--loss);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.winrate-card {
+  text-align: center;
+}
+
+.winrate-number {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.winrate-number.good { color: var(--win); }
+.winrate-number.bad { color: var(--loss); }
+
+.winrate-sub {
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.game-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.game-list li {
+  background: #1e222b;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.badge.win { color: var(--win); background: rgba(62, 207, 106, 0.12); }
+.badge.loss { color: var(--loss); background: rgba(239, 91, 91, 0.12); }
+
+details.card summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  list-style: none;
+}
+
+details.card summary::-webkit-details-marker { display: none; }
+
+details.card summary::before {
+  content: "\25B8  ";
+  color: var(--text-dim);
+}
+
+details.card[open] summary::before {
+  content: "\25BE  ";
+}
+
+.loss-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.loss-list li {
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.loss-list li strong {
+  color: var(--loss);
+}
+
+.opt-block {
+  margin-bottom: 14px;
+}
+
+.opt-block h3 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.opt-block ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.suggestion {
+  background: rgba(108, 140, 255, 0.1);
+  border: 1px solid rgba(108, 140, 255, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.deck-group {
+  margin-top: 14px;
+}
+
+.deck-group h4 {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+table.deck-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+table.deck-table td, table.deck-table th {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+table.deck-table th {
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+.warn-box {
+  border-left: 3px solid var(--warn);
+  color: var(--warn);
+  font-size: 0.88rem;
+}
+
+.import-help {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin: 4px 0 14px;
+}
+
+.import-help code {
+  background: #1e222b;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.85em;
+}
+
+.import-result {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #1e222b;
+  font-size: 0.88rem;
+}
+
+.import-result.success {
+  border-color: rgba(62, 207, 106, 0.4);
+}
+
+.import-result.failure {
+  border-color: rgba(239, 91, 91, 0.4);
+}
+
+.import-result h4 {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+}
+
+.import-result ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--warn);
+}
+
+.import-result .import-summary {
+  color: var(--text-dim);
+}
