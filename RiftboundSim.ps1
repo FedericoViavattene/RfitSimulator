@@ -70,7 +70,7 @@
 #  SETUP
 # ============================================================================
 $Script:GamesToSimulate  = 50
-$Script:MatchesToSimulate = 10   # for "best-of-3 match" mode
+$Script:MatchesToSimulate = 20   # for "best-of-3 match" mode
 $Script:BestOf           = 3
 $Script:RootPath         = $PSScriptRoot
 $Script:MyDeckFolder     = Join-Path $RootPath 'Decks\MyDeck'

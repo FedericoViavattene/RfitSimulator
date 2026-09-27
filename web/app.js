@@ -31,7 +31,7 @@ const matrixTable = document.getElementById('matrixTable');
 // future mode only means adding one entry here, not more branching below.
 const MODE_BUTTON_LABEL = {
   single: 'Simulate 50 games',
-  match:  'Simulate 10 best-of-3 matches',
+  match:  'Simulate 20 best-of-3 matches',
   matrix: 'Run matchup matrix',
 };
 

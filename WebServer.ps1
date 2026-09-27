@@ -34,7 +34,7 @@ $Script:OpponentFolder  = Join-Path $RootPath 'Decks\Opponents'
 $Script:BannedFile      = Join-Path $RootPath 'Banned.csv'
 $Script:CardDatabaseFile = Join-Path $RootPath 'CardDatabase.json'
 $Script:GamesToSimulate = 50
-$Script:MatchesToSimulate = 10   # for the "best-of-3 match" mode
+$Script:MatchesToSimulate = 20   # for the "best-of-3 match" mode
 $Script:BestOf            = 3
 
 Import-Module (Join-Path $PSScriptRoot 'RiftboundEngine.psm1') -Force

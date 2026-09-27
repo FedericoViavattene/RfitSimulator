@@ -28,7 +28,7 @@ After picking your deck, you're asked to choose a mode:
 ```
   1) Single opponent - 50 games (default)
   2) Matchup matrix - run vs EVERY saved opponent deck at once
-  3) Best-of-3 match simulation - 10 matches vs one opponent
+  3) Best-of-3 match simulation - 20 matches vs one opponent
 ```
 Press Enter to accept the default (mode 1), or type 2 or 3 - see "Matchup
 matrix and best-of-3 matches" below for what each mode reports.
@@ -63,7 +63,7 @@ and opens `http://localhost:8787` in your default browser.
   your decks or results leaves your machine. `localhost` only your PC can
   reach it.
 - Pick your deck from the dropdown, then choose a **Mode**: a single
-  opponent (50 games), a best-of-3 match simulation (10 matches), or a
+  opponent (50 games), a best-of-3 match simulation (20 matches), or a
   matchup matrix (every saved opponent deck at once - see "Matchup matrix
   and best-of-3 matches" below). The button label and the opponent-deck
   dropdown update automatically for whichever mode is selected.
@@ -160,7 +160,7 @@ mode" prompt, or the web UI's **Mode** dropdown:
   fastest way to see "what does my deck struggle against across the whole
   meta" instead of testing one matchup at a time.
 - **Best-of-3 match simulation** - real Riftbound tournament rounds (Nexus
-  Night/Skirmish) are best-of-3, not a single game. This mode plays out 10
+  Night/Skirmish) are best-of-3, not a single game. This mode plays out 20
   full best-of-3 matches against one chosen opponent (each match ends as
   soon as one side wins 2 games) and reports the **match** winrate - "how
   often would I actually take the round" - separately from the underlying
