@@ -312,3 +312,57 @@ table.deck-table th {
 .import-result .import-summary {
   color: var(--text-dim);
 }
+
+.matrix-group {
+  margin-top: 14px;
+}
+
+.matrix-group:first-child {
+  margin-top: 0;
+}
+
+.matrix-group h4 {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.matrix-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.matrix-row:first-of-type {
+  border-top: none;
+}
+
+.matrix-row .matrix-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matrix-row .matrix-winrate {
+  font-weight: 700;
+  min-width: 3.4em;
+  text-align: right;
+}
+
+.matrix-row .matrix-winrate.good { color: var(--win); }
+.matrix-row .matrix-winrate.bad { color: var(--loss); }
+
+.matrix-row .matrix-record {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  min-width: 4.5em;
+  text-align: right;
+}

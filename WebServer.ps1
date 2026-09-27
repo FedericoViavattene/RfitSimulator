@@ -33,7 +33,9 @@ $Script:MyDeckFolder    = Join-Path $RootPath 'Decks\MyDeck'
 $Script:OpponentFolder  = Join-Path $RootPath 'Decks\Opponents'
 $Script:BannedFile      = Join-Path $RootPath 'Banned.csv'
 $Script:CardDatabaseFile = Join-Path $RootPath 'CardDatabase.json'
-$Script:GamesToSimulate = 10
+$Script:GamesToSimulate = 50
+$Script:MatchesToSimulate = 10   # for the "best-of-3 match" mode
+$Script:BestOf            = 3
 
 Import-Module (Join-Path $PSScriptRoot 'RiftboundEngine.psm1') -Force
 
@@ -102,57 +104,35 @@ function Get-DecksPayload {
 }
 
 # ============================================================================
-#  API: POST /api/simulate
+#  SHARED PAYLOAD HELPERS
+#  (used by /api/simulate, /api/simulate-match and /api/matchup-matrix so the
+#  camelCase JSON shape - and the CSV-loading path - only lives in one place)
 # ============================================================================
-function Invoke-SimulationRequest {
-    param([object]$Body)
+function Get-OptimizationPayload {
+    param([object]$Deck, [object[]]$GameResults)
 
-    $myDeckPath = Resolve-DeckId -Id $Body.myDeckId
-    $opponentPath = Resolve-DeckId -Id $Body.opponentDeckId
-
-    $bannedList = Get-BannedList -Path $Script:BannedFile
-    $myDeck = Import-Deck -Path $myDeckPath -BannedList $bannedList
-    $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList
-
-    $results = New-Object 'System.Collections.Generic.List[object]'
-    for ($g = 1; $g -le $Script:GamesToSimulate; $g++) {
-        $results.Add((Invoke-SingleGame -DeckA $myDeck -DeckB $opponentDeck))
-    }
-
-    $wins = @($results | Where-Object { $_.Winner -eq "You" }).Count
-    $winrate = [Math]::Round(($wins / $Script:GamesToSimulate) * 100, 1)
-
-    $games = @()
-    $gameNum = 0
-    foreach ($r in $results) {
-        $gameNum++
-        $games += [PSCustomObject]@{
-            n          = $gameNum
-            win        = ($r.Winner -eq "You")
-            scoreA     = $r.ScoreA
-            scoreB     = $r.ScoreB
-            lossReason = $r.LossReason
-        }
-    }
-
-    $rawStats = Get-OptimizationStats -Deck $myDeck -GameResults $results
+    $rawStats = Get-OptimizationStats -Deck $Deck -GameResults $GameResults
     # Get-OptimizationStats (shared with the console UI) returns PascalCase
     # property names (MostPlayed, NeverPlayed, ...). The web front-end's
     # JSON API is camelCase everywhere else, and JSON property access in
     # JavaScript is case-sensitive, so this maps it to camelCase here rather
     # than changing the shared engine (which would break the console script's
     # own PascalCase usage in Show-OptimizationReport).
-    $stats = [PSCustomObject]@{
+    return [PSCustomObject]@{
         mostPlayed      = @($rawStats.MostPlayed | ForEach-Object { [PSCustomObject]@{ name = $_.Name; count = $_.Count } })
         neverPlayed     = $rawStats.NeverPlayed
         averageEnergy   = $rawStats.AverageEnergy
         curveSuggestion = $rawStats.CurveSuggestion
     }
+}
 
-    # Build a grouped decklist payload for the opponent (same grouping/order
-    # as the console's Show-Decklist), for the "view opponent decklist" panel.
+function Get-DecklistPayload {
+    param([object]$Deck)
+
+    # Same grouping/order as the console's Show-Decklist, for the "view
+    # opponent decklist" panel.
     $typeOrder = @('Legend', 'Battlefield', 'Rune', 'Unit', 'Spell', 'Gear')
-    $grouped = $opponentDeck.DisplayRows | Group-Object Type
+    $grouped = $Deck.DisplayRows | Group-Object Type
     $decklistGroups = [ordered]@{}
     foreach ($t in $typeOrder) {
         $group = $grouped | Where-Object { $_.Name -eq $t }
@@ -171,19 +151,137 @@ function Invoke-SimulationRequest {
     }
 
     return [PSCustomObject]@{
+        name   = ($Deck.Name -replace '_', ' ')
+        groups = $decklistGroups
+    }
+}
+
+function Import-DeckForRequest {
+    <#
+        Resolves a browser-supplied deck id to a real path and loads it with
+        the card database + banned list already wired in - the same three
+        lines were repeated at the top of every request handler below.
+    #>
+    param([string]$DeckId, [System.Collections.Generic.HashSet[string]]$BannedList)
+
+    $path = Resolve-DeckId -Id $DeckId
+    return Import-Deck -Path $path -BannedList $BannedList -CardDatabase $Script:CardDatabase
+}
+
+# ============================================================================
+#  API: POST /api/simulate
+# ============================================================================
+function Invoke-SimulationRequest {
+    param([object]$Body)
+
+    $bannedList = Get-BannedList -Path $Script:BannedFile
+    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
+    $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
+
+    $batch = Invoke-GameBatch -DeckA $myDeck -DeckB $opponentDeck -GameCount $Script:GamesToSimulate
+
+    $games = @()
+    $gameNum = 0
+    foreach ($r in $batch.Results) {
+        $gameNum++
+        $games += [PSCustomObject]@{
+            n          = $gameNum
+            win        = ($r.Winner -eq "You")
+            scoreA     = $r.ScoreA
+            scoreB     = $r.ScoreB
+            lossReason = $r.LossReason
+        }
+    }
+
+    return [PSCustomObject]@{
         myDeckName             = ($myDeck.Name -replace '_', ' ')
         opponentDeckName       = ($opponentDeck.Name -replace '_', ' ')
         bannedExcludedMy       = $myDeck.BannedExcluded
         bannedExcludedOpponent = $opponentDeck.BannedExcluded
-        wins                   = $wins
-        totalGames             = $Script:GamesToSimulate
-        winrate                = $winrate
+        wins                   = $batch.Wins
+        totalGames             = $batch.GameCount
+        winrate                = $batch.Winrate
         games                  = $games
-        optimization           = $stats
-        opponentDecklist       = [PSCustomObject]@{
-            name   = ($opponentDeck.Name -replace '_', ' ')
-            groups = $decklistGroups
+        optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $batch.Results)
+        opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
+    }
+}
+
+# ============================================================================
+#  API: POST /api/simulate-match
+#  Best-of-BestOf match simulation (see Invoke-MatchBatch in the engine) -
+#  reports the match-level winrate, not just the per-game winrate.
+# ============================================================================
+function Invoke-MatchSimulationRequest {
+    param([object]$Body)
+
+    $bannedList = Get-BannedList -Path $Script:BannedFile
+    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
+    $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
+
+    $matchBatch = Invoke-MatchBatch -DeckA $myDeck -DeckB $opponentDeck -MatchCount $Script:MatchesToSimulate -BestOf $Script:BestOf
+
+    $matches = @()
+    $matchNum = 0
+    $allGames = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($match in $matchBatch.Matches) {
+        $matchNum++
+        $matches += [PSCustomObject]@{
+            n          = $matchNum
+            win        = ($match.Winner -eq "You")
+            gamesWonA  = $match.GamesWonA
+            gamesWonB  = $match.GamesWonB
         }
+        foreach ($g in $match.Games) { $allGames.Add($g) }
+    }
+
+    return [PSCustomObject]@{
+        myDeckName             = ($myDeck.Name -replace '_', ' ')
+        opponentDeckName       = ($opponentDeck.Name -replace '_', ' ')
+        bannedExcludedMy       = $myDeck.BannedExcluded
+        bannedExcludedOpponent = $opponentDeck.BannedExcluded
+        bestOf                 = $matchBatch.BestOf
+        matchWins              = $matchBatch.MatchWins
+        matchCount             = $matchBatch.MatchCount
+        matchWinrate           = $matchBatch.MatchWinrate
+        matches                = $matches
+        optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $allGames)
+        opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
+    }
+}
+
+# ============================================================================
+#  API: POST /api/matchup-matrix
+#  Runs MyDeck against every saved opponent deck at once (see
+#  Get-MatchupMatrix in the engine) - a "how do I stack up against the whole
+#  meta" view instead of one matchup at a time.
+# ============================================================================
+function Invoke-MatchupMatrixRequest {
+    param([object]$Body)
+
+    $bannedList = Get-BannedList -Path $Script:BannedFile
+    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
+
+    $rows = Get-MatchupMatrix -MyDeck $myDeck -OpponentFolderPath $Script:OpponentFolder -BannedList $bannedList -CardDatabase $Script:CardDatabase -GameCount $Script:GamesToSimulate
+
+    $averageWinrate = 0
+    if ($rows.Count -gt 0) {
+        $averageWinrate = [Math]::Round((($rows | Measure-Object -Property Winrate -Average).Average), 1)
+    }
+
+    return [PSCustomObject]@{
+        myDeckName      = ($myDeck.Name -replace '_', ' ')
+        bannedExcludedMy = $myDeck.BannedExcluded
+        rows            = @($rows | ForEach-Object {
+            [PSCustomObject]@{
+                name     = $_.Name
+                category = $_.Category
+                winrate  = $_.Winrate
+                wins     = $_.Wins
+                total    = $_.Total
+            }
+        })
+        averageWinrate  = $averageWinrate
     }
 }
 
@@ -219,7 +317,7 @@ function Invoke-ImportDeckRequest {
     $targetPath = Join-Path $targetFolder ($safeName + '.csv')
     $overwritten = Test-Path $targetPath
 
-    $lines = $text -split "`r`n|`n|`r"
+    $lines = @($text -split "`r`n|`n|`r")
     $parsed = ConvertFrom-DeckText -Lines $lines
     if ($parsed.Count -eq 0) {
         throw "Couldn't find any card lines in that text - expected one card per line, like '1 Rengar, Pridestalker' or '3x Inferna'."
@@ -391,6 +489,16 @@ try {
             elseif ($method -eq 'POST' -and $path -eq '/api/simulate') {
                 $body = Get-RequestBody -Request $request
                 $result = Invoke-SimulationRequest -Body $body
+                Send-JsonResponse -Response $response -Data $result
+            }
+            elseif ($method -eq 'POST' -and $path -eq '/api/simulate-match') {
+                $body = Get-RequestBody -Request $request
+                $result = Invoke-MatchSimulationRequest -Body $body
+                Send-JsonResponse -Response $response -Data $result
+            }
+            elseif ($method -eq 'POST' -and $path -eq '/api/matchup-matrix') {
+                $body = Get-RequestBody -Request $request
+                $result = Invoke-MatchupMatrixRequest -Body $body
                 Send-JsonResponse -Response $response -Data $result
             }
             elseif ($method -eq 'POST' -and $path -eq '/api/import-deck') {

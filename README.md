@@ -1,6 +1,6 @@
 # Riftbound Deck Simulator
 
-A local tool that simulates 10 games of your deck against a chosen opponent
+A local tool that simulates 50 games of your deck against a chosen opponent
 deck, reports a winrate, and gives you deck-optimization feedback (which
 cards to cut, curve issues, etc.) to help you build a stronger deck for
 Nexus Night / Skirmish events. Comes in two front-ends that share the exact
@@ -24,6 +24,15 @@ cd "C:\path\to\RiftboundSimulator"
 .\RiftboundSim.ps1
 ```
 
+After picking your deck, you're asked to choose a mode:
+```
+  1) Single opponent - 50 games (default)
+  2) Matchup matrix - run vs EVERY saved opponent deck at once
+  3) Best-of-3 match simulation - 10 matches vs one opponent
+```
+Press Enter to accept the default (mode 1), or type 2 or 3 - see "Matchup
+matrix and best-of-3 matches" below for what each mode reports.
+
 Double-clicking the `.ps1` file also works now - at the end of each
 simulation you're given a menu:
 ```
@@ -32,10 +41,10 @@ simulation you're given a menu:
 ```
 Both options require pressing Enter, so the window will never close on its
 own before you've read the results. Choosing "1" clears the screen and lets
-you pick a new matchup without restarting the script. Even so, running it
-from an already-open console is still the more reliable habit - some Windows
-security settings block a `.ps1` from running at all when double-clicked,
-whereas running it from inside PowerShell always works.
+you pick a new matchup (and a new mode) without restarting the script. Even
+so, running it from an already-open console is still the more reliable
+habit - some Windows security settings block a `.ps1` from running at all
+when double-clicked, whereas running it from inside PowerShell always works.
 
 If Windows blocks the script with an "execution policy" error, run this once
 in PowerShell (as your normal user, not admin) and try again:
@@ -53,11 +62,14 @@ and opens `http://localhost:8787` in your default browser.
   not reachable from the internet or from other devices, and nothing about
   your decks or results leaves your machine. `localhost` only your PC can
   reach it.
-- Pick your deck and an opponent deck from two dropdowns (opponents are
-  grouped by Aggro/Midrange/Control, same as the console), hit **Simulate 10
-  games**, and the same winrate, per-game log (green WIN / red LOSS), loss
-  breakdown, optimization report, and opponent decklist as the console
-  version render as a clean page instead of terminal text.
+- Pick your deck from the dropdown, then choose a **Mode**: a single
+  opponent (50 games), a best-of-3 match simulation (10 matches), or a
+  matchup matrix (every saved opponent deck at once - see "Matchup matrix
+  and best-of-3 matches" below). The button label and the opponent-deck
+  dropdown update automatically for whichever mode is selected.
+- Hit the **Simulate** button and the same winrate, per-game/per-match log
+  (green WIN / red LOSS), optimization report, and opponent decklist as the
+  console version render as a clean page instead of terminal text.
 - If port 8787 is already taken (e.g. by a previous "Riftbound Web Server"
   window you forgot to close), it automatically tries 8788, 8789, etc. and
   tells you in the console window which port it actually used - it also
@@ -126,7 +138,7 @@ separate "web version of the rules" to keep in sync.
    they use.
 3. Checks both decks against `Banned.csv` and automatically excludes any
    banned card/Battlefield, with a warning.
-4. Simulates 10 games and prints a per-game result plus a final winrate %.
+4. Simulates 50 games and prints a per-game result plus a final winrate %.
 5. Optionally shows a one-line reason for each loss (deck-out, out-classed on
    Might, close loss, etc.) when you answer Y to the prompt.
 6. Prints a deck-optimization report: your most-played cards, any cards that
@@ -135,6 +147,59 @@ separate "web version of the rules" to keep in sync.
 7. Optionally shows the opponent's full decklist (grouped by Legend / Battlefield
    / Rune / Unit / Spell / Gear, with Energy/Power/Might/Domain per card) when
    you answer Y to the prompt at the end.
+
+## Matchup matrix and best-of-3 matches
+
+Beyond the default "50 games vs one opponent" mode, both front-ends offer two
+more ways to run the simulation - pick a mode from the console's "Choose a
+mode" prompt, or the web UI's **Mode** dropdown:
+
+- **Matchup matrix** - runs your deck against **every** saved opponent deck
+  under `Decks\Opponents\` (Aggro/Midrange/Control, recursively) in one go,
+  and reports a winrate per opponent plus an overall average. This is the
+  fastest way to see "what does my deck struggle against across the whole
+  meta" instead of testing one matchup at a time.
+- **Best-of-3 match simulation** - real Riftbound tournament rounds (Nexus
+  Night/Skirmish) are best-of-3, not a single game. This mode plays out 10
+  full best-of-3 matches against one chosen opponent (each match ends as
+  soon as one side wins 2 games) and reports the **match** winrate - "how
+  often would I actually take the round" - separately from the underlying
+  per-game results, since a deck that reliably grinds out a game 3 can have
+  a very different match winrate than its raw single-game winrate suggests.
+
+Both modes reuse the exact same `Invoke-SingleGame` logic as the default
+mode (via `Invoke-GameBatch`/`Invoke-Match`/`Invoke-MatchBatch`/
+`Get-MatchupMatrix` in `RiftboundEngine.psm1`) - there's no separate, looser
+simulation just for these views.
+
+## Legend abilities
+
+Every Legend has real rules text, but this simulator's simplified card model
+(Energy/Power/Might/Domain/Tag - see below) can't represent most of it
+faithfully: mechanics like Empower/XP thresholds, exhaust/ready states,
+Equip, and token generation aren't modeled by this engine at all, and
+guessing at an approximation would go against this project's "don't
+fabricate card behavior" rule.
+
+Rather than leave every Legend ability silently ignored, or approximate all
+of them and risk getting most wrong, **exactly two Legend abilities are
+modeled, using their real, verified rules text**, because both happen to
+fit cleanly into mechanics the engine already tracks:
+
+| Legend | Real ability | How it's modeled |
+|---|---|---|
+| Rengar, Pridestalker | "When you play a unit, give a unit +1 [S] this turn." | +1 Might to a Battlefield the moment you play a Unit there |
+| Draven, Glorious Executioner | "When you win a combat, draw 1." | Draw 1 card the moment you win a combat |
+
+Every other Legend in the saved decks (Akali, Kennen, Master Yi, Fiora, Azir,
+Kha'Zix, Irelia, Ezreal, Sett, Vex, Lillia, Shen) currently has **no**
+simulated ability - their games still run purely on Energy/Power/Might/
+Domain/Tag, same as before. This is a deliberate, honest limitation, not an
+oversight: adding a new Legend ability means adding real rules text to that
+Legend's `legendAbility` entry in `CardDatabase.json` (a small JSON object
+with `trigger`/`effect`/`amount`, read by `Invoke-LegendAbilityTrigger` in
+the engine) - no PowerShell code changes are needed, but each one still has
+to be checked against the card's actual text first rather than guessed.
 
 ## Important: what this simulator IS and ISN'T
 

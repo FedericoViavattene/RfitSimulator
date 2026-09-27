@@ -2717,6 +2717,12 @@
 ],
 "energy": 0,
 "isToken": false,
+"legendAbility": {
+"amount": 1,
+"effect": "Draw",
+"sourceText": "When you win a combat, draw 1.",
+"trigger": "OnCombatWin"
+},
 "might": 0,
 "power": 0,
 "type": "Legend"
@@ -8110,6 +8116,12 @@
 ],
 "energy": 0,
 "isToken": false,
+"legendAbility": {
+"amount": 1,
+"effect": "BuffBoardMightThisTurn",
+"sourceText": "When you play a unit, give a unit +1 [S] this turn.",
+"trigger": "OnUnitPlayed"
+},
 "might": 0,
 "power": 0,
 "type": "Legend"

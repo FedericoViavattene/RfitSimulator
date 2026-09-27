@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Riftbound TCG Deck Simulator - simulates 10 games of your deck vs a selected
+    Riftbound TCG Deck Simulator - simulates 50 games of your deck vs a selected
     opponent deck and reports a winrate plus deck-optimization feedback.
 
 .DESCRIPTION
@@ -69,13 +69,20 @@
 # ============================================================================
 #  SETUP
 # ============================================================================
-$Script:GamesToSimulate = 10
-$Script:RootPath        = $PSScriptRoot
-$Script:MyDeckFolder    = Join-Path $RootPath 'Decks\MyDeck'
-$Script:OpponentFolder  = Join-Path $RootPath 'Decks\Opponents'
-$Script:BannedFile      = Join-Path $RootPath 'Banned.csv'
+$Script:GamesToSimulate  = 50
+$Script:MatchesToSimulate = 10   # for "best-of-3 match" mode
+$Script:BestOf           = 3
+$Script:RootPath         = $PSScriptRoot
+$Script:MyDeckFolder     = Join-Path $RootPath 'Decks\MyDeck'
+$Script:OpponentFolder   = Join-Path $RootPath 'Decks\Opponents'
+$Script:BannedFile       = Join-Path $RootPath 'Banned.csv'
+$Script:CardDatabaseFile = Join-Path $RootPath 'CardDatabase.json'
 
 Import-Module (Join-Path $PSScriptRoot 'RiftboundEngine.psm1') -Force
+
+# Loaded once at startup - used to resolve each deck's real Legend ability (see
+# Invoke-LegendAbilityTrigger in the engine) when importing a deck below.
+$Script:CardDatabase = Import-CardDatabase -Path $Script:CardDatabaseFile
 
 # ============================================================================
 #  DISPLAY HELPERS
@@ -159,6 +166,55 @@ function Select-OpponentDeck {
 }
 
 # ============================================================================
+#  MATCHUP MATRIX (console)
+# ============================================================================
+function Show-MatchupMatrix {
+    param([object[]]$Rows)
+
+    Write-Title "MATCHUP MATRIX"
+    $lastCategory = ""
+    foreach ($row in $Rows) {
+        $category = if ($row.Category) { $row.Category } else { "Opponents" }
+        if ($category -ne $lastCategory) {
+            Write-Host ""
+            Write-Host ("[{0}]" -f $category.ToUpperInvariant()) -ForegroundColor Green
+            $lastCategory = $category
+        }
+        $color = "Red"
+        if ([double]$row.Winrate -ge 50) { $color = "Green" }
+        Write-Host ("  {0,-32} " -f $row.Name) -NoNewline
+        Write-Host ("{0,5}%" -f $row.Winrate) -NoNewline -ForegroundColor $color
+        Write-Host ("  ({0}/{1})" -f $row.Wins, $row.Total) -ForegroundColor DarkGray
+    }
+    Write-Host ""
+}
+
+# ============================================================================
+#  BEST-OF-N MATCH BREAKDOWN (console)
+# ============================================================================
+function Show-MatchBreakdown {
+    param([object]$MatchBatch)
+
+    Write-Title "MATCH RESULTS (Best of $($MatchBatch.BestOf))"
+    $m = 0
+    foreach ($match in $MatchBatch.Matches) {
+        $m++
+        $isWin = ($match.Winner -eq "You")
+        $outcome = if ($isWin) { "WON " } else { "LOST" }
+        $color = if ($isWin) { "Green" } else { "Red" }
+        Write-Host ("  Match {0,2}: " -f $m) -NoNewline
+        Write-Host $outcome -NoNewline -ForegroundColor $color
+        Write-Host ("  (You {0} - {1} Opponent, games)" -f $match.GamesWonA, $match.GamesWonB)
+    }
+
+    Write-Host ""
+    Write-Host ("Matches won: {0} / {1}" -f $MatchBatch.MatchWins, $MatchBatch.MatchCount)
+    $winrateColor = "Red"
+    if ([double]$MatchBatch.MatchWinrate -ge 50) { $winrateColor = "Green" }
+    Write-Host ("Match winrate: {0}%" -f $MatchBatch.MatchWinrate) -ForegroundColor $winrateColor
+}
+
+# ============================================================================
 #  OPTIMIZATION REPORT (console)
 # ============================================================================
 function Show-OptimizationReport {
@@ -200,11 +256,12 @@ try {
 
     while ($keepRunning) {
         Write-Title "RIFTBOUND DECK SIMULATOR"
-        Write-Host "This tool simulates $($Script:GamesToSimulate) games of your deck vs a chosen opponent deck"
-        Write-Host "and reports a winrate plus deck-optimization feedback."
+        Write-Host "This tool simulates games of your deck vs a chosen opponent deck (or the"
+        Write-Host "whole meta at once) and reports a winrate plus deck-optimization feedback."
         Write-Host ""
         Write-Host "NOTE: this is a statistical curve/Might simulator, not a full rules engine." -ForegroundColor DarkYellow
-        Write-Host "It does not implement individual card abilities beyond simplified tags." -ForegroundColor DarkYellow
+        Write-Host "A small, verified set of real Legend abilities is modeled (see README) -" -ForegroundColor DarkYellow
+        Write-Host "everything else reduces to simplified Energy/Might/Domain/Tag stats." -ForegroundColor DarkYellow
 
         # --- Select and load the player's deck ---
         Write-SubTitle "Your deck"
@@ -229,71 +286,123 @@ try {
             $myDeckPath = $map[$selInt]
         }
 
-        $myDeck = Import-Deck -Path $myDeckPath -BannedList $bannedList
+        $myDeck = Import-Deck -Path $myDeckPath -BannedList $bannedList -CardDatabase $Script:CardDatabase
         if ($myDeck.BannedExcluded.Count -gt 0) {
             Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from your deck: {0}" -f ($myDeck.BannedExcluded -join ', ')) -ForegroundColor Red
         }
 
-        # --- Select opponent deck ---
-        $opponentPath = Select-OpponentDeck -FolderPath $Script:OpponentFolder
-        $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList
-        if ($opponentDeck.BannedExcluded.Count -gt 0) {
-            Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from the opponent deck: {0}" -f ($opponentDeck.BannedExcluded -join ', ')) -ForegroundColor Red
-        }
+        # --- Select a mode ---
+        Write-SubTitle "Choose a mode"
+        Write-Host "  1) Single opponent - $($Script:GamesToSimulate) games (default)"
+        Write-Host "  2) Matchup matrix - run vs EVERY saved opponent deck at once"
+        Write-Host "  3) Best-of-$($Script:BestOf) match simulation - $($Script:MatchesToSimulate) matches vs one opponent"
+        $modeChoice = Read-Host "Choose an option (1, 2 or 3, Enter for 1)"
+        if (-not $modeChoice) { $modeChoice = '1' }
 
-        Write-Host ""
-        Write-Host ("Simulating: {0}  vs  {1}" -f $myDeck.Name, $opponentDeck.Name) -ForegroundColor Green
-
-        # --- Run simulations ---
-        $results = New-Object 'System.Collections.Generic.List[object]'
-        for ($g = 1; $g -le $Script:GamesToSimulate; $g++) {
-            $r = Invoke-SingleGame -DeckA $myDeck -DeckB $opponentDeck
-            $results.Add($r)
-            $isWin = ($r.Winner -eq "You")
-            $outcome = if ($isWin) { "WIN " } else { "LOSS" }
-            $outcomeColor = if ($isWin) { "Green" } else { "Red" }
-            Write-Host ("  Game {0,2}: " -f $g) -NoNewline
-            Write-Host $outcome -NoNewline -ForegroundColor $outcomeColor
-            Write-Host ("  (You {0} - {1} Opponent)" -f $r.ScoreA, $r.ScoreB)
-        }
-
-        $wins = ($results | Where-Object { $_.Winner -eq "You" }).Count
-        $winrate = [Math]::Round(($wins / $Script:GamesToSimulate) * 100, 1)
-
-        Write-Title "RESULTS"
-        Write-Host ("Wins: {0} / {1}" -f $wins, $Script:GamesToSimulate)
-        $winrateColor = "Red"
-        if ([double]$winrate -ge 50) { $winrateColor = "Green" }
-        Write-Host ("Winrate: {0}%" -f $winrate) -ForegroundColor $winrateColor
-
-        # --- Loss reasons ---
-        $losses = $results | Where-Object { $_.Winner -ne "You" }
-        if ($losses.Count -gt 0) {
+        if ($modeChoice -eq '2') {
+            # --- Mode 2: matchup matrix ---
             Write-Host ""
-            $showReasons = Read-Host "Show a short reason for each loss? (Y/N)"
-            if ($showReasons -match '^(?i)y') {
-                Write-Title "LOSS BREAKDOWN"
-                $gameNum = 0
-                foreach ($r in $results) {
-                    $gameNum++
-                    if ($r.Winner -ne "You") {
-                        Write-Host ("  Game {0,2}: {1}" -f $gameNum, $r.LossReason) -ForegroundColor Yellow
+            Write-Host ("Running {0} vs every saved opponent deck..." -f $myDeck.Name) -ForegroundColor Green
+            $matrixRows = Get-MatchupMatrix -MyDeck $myDeck -OpponentFolderPath $Script:OpponentFolder -BannedList $bannedList -CardDatabase $Script:CardDatabase -GameCount $Script:GamesToSimulate
+            Show-MatchupMatrix -Rows $matrixRows
+
+            $overallWinrate = 0
+            if ($matrixRows.Count -gt 0) {
+                $overallWinrate = [Math]::Round((($matrixRows | Measure-Object -Property Winrate -Average).Average), 1)
+            }
+            Write-Host ("Average winrate across all {0} saved opponent deck(s): {1}%" -f $matrixRows.Count, $overallWinrate) -ForegroundColor Cyan
+
+            Write-Title "DONE"
+        }
+        elseif ($modeChoice -eq '3') {
+            # --- Mode 3: best-of-N match simulation vs one opponent ---
+            $opponentPath = Select-OpponentDeck -FolderPath $Script:OpponentFolder
+            $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList -CardDatabase $Script:CardDatabase
+            if ($opponentDeck.BannedExcluded.Count -gt 0) {
+                Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from the opponent deck: {0}" -f ($opponentDeck.BannedExcluded -join ', ')) -ForegroundColor Red
+            }
+
+            Write-Host ""
+            Write-Host ("Simulating {0} best-of-{1} matches: {2}  vs  {3}" -f $Script:MatchesToSimulate, $Script:BestOf, $myDeck.Name, $opponentDeck.Name) -ForegroundColor Green
+
+            $matchBatch = Invoke-MatchBatch -DeckA $myDeck -DeckB $opponentDeck -MatchCount $Script:MatchesToSimulate -BestOf $Script:BestOf
+            Show-MatchBreakdown -MatchBatch $matchBatch
+
+            # Flatten every individual game across every match so the existing
+            # optimization report (which works off a flat game-results list)
+            # can be reused without any change to Get-OptimizationStats itself.
+            $allGames = New-Object 'System.Collections.Generic.List[object]'
+            foreach ($match in $matchBatch.Matches) {
+                foreach ($g in $match.Games) { $allGames.Add($g) }
+            }
+            Show-OptimizationReport -Deck $myDeck -GameResults $allGames
+
+            Write-Host ""
+            $showOpponentList = Read-Host "View the opponent's full decklist? (Y/N)"
+            if ($showOpponentList -match '^(?i)y') {
+                Show-Decklist -Deck $opponentDeck
+            }
+
+            Write-Title "DONE"
+        }
+        else {
+            # --- Mode 1 (default): single opponent, N games ---
+            $opponentPath = Select-OpponentDeck -FolderPath $Script:OpponentFolder
+            $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList -CardDatabase $Script:CardDatabase
+            if ($opponentDeck.BannedExcluded.Count -gt 0) {
+                Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from the opponent deck: {0}" -f ($opponentDeck.BannedExcluded -join ', ')) -ForegroundColor Red
+            }
+
+            Write-Host ""
+            Write-Host ("Simulating: {0}  vs  {1}" -f $myDeck.Name, $opponentDeck.Name) -ForegroundColor Green
+
+            $batch = Invoke-GameBatch -DeckA $myDeck -DeckB $opponentDeck -GameCount $Script:GamesToSimulate
+            $g = 0
+            foreach ($r in $batch.Results) {
+                $g++
+                $isWin = ($r.Winner -eq "You")
+                $outcome = if ($isWin) { "WIN " } else { "LOSS" }
+                $outcomeColor = if ($isWin) { "Green" } else { "Red" }
+                Write-Host ("  Game {0,2}: " -f $g) -NoNewline
+                Write-Host $outcome -NoNewline -ForegroundColor $outcomeColor
+                Write-Host ("  (You {0} - {1} Opponent)" -f $r.ScoreA, $r.ScoreB)
+            }
+
+            Write-Title "RESULTS"
+            Write-Host ("Wins: {0} / {1}" -f $batch.Wins, $batch.GameCount)
+            $winrateColor = "Red"
+            if ([double]$batch.Winrate -ge 50) { $winrateColor = "Green" }
+            Write-Host ("Winrate: {0}%" -f $batch.Winrate) -ForegroundColor $winrateColor
+
+            # --- Loss reasons ---
+            $losses = $batch.Results | Where-Object { $_.Winner -ne "You" }
+            if ($losses.Count -gt 0) {
+                Write-Host ""
+                $showReasons = Read-Host "Show a short reason for each loss? (Y/N)"
+                if ($showReasons -match '^(?i)y') {
+                    Write-Title "LOSS BREAKDOWN"
+                    $gameNum = 0
+                    foreach ($r in $batch.Results) {
+                        $gameNum++
+                        if ($r.Winner -ne "You") {
+                            Write-Host ("  Game {0,2}: {1}" -f $gameNum, $r.LossReason) -ForegroundColor Yellow
+                        }
                     }
                 }
             }
+
+            # --- Optimization report ---
+            Show-OptimizationReport -Deck $myDeck -GameResults $batch.Results
+
+            # --- View opponent decklist ---
+            Write-Host ""
+            $showOpponentList = Read-Host "View the opponent's full decklist? (Y/N)"
+            if ($showOpponentList -match '^(?i)y') {
+                Show-Decklist -Deck $opponentDeck
+            }
+
+            Write-Title "DONE"
         }
-
-        # --- Optimization report ---
-        Show-OptimizationReport -Deck $myDeck -GameResults $results
-
-        # --- View opponent decklist ---
-        Write-Host ""
-        $showOpponentList = Read-Host "View the opponent's full decklist? (Y/N)"
-        if ($showOpponentList -match '^(?i)y') {
-            Show-Decklist -Deck $opponentDeck
-        }
-
-        Write-Title "DONE"
 
         # --- Post-simulation menu ---
         Write-Host ""

@@ -1,5 +1,7 @@
 const myDeckSelect = document.getElementById('myDeck');
 const opponentDeckSelect = document.getElementById('opponentDeck');
+const opponentField = document.getElementById('opponentField');
+const simModeSelect = document.getElementById('simMode');
 const simulateBtn = document.getElementById('simulateBtn');
 const statusLine = document.getElementById('statusLine');
 const resultsSection = document.getElementById('results');
@@ -11,6 +13,27 @@ const lossDetails = document.getElementById('lossDetails');
 const lossList = document.getElementById('lossList');
 const optimization = document.getElementById('optimization');
 const opponentDecklist = document.getElementById('opponentDecklist');
+
+const matchResultsSection = document.getElementById('matchResults');
+const matchBannedWarnings = document.getElementById('matchBannedWarnings');
+const matchWinrateNumber = document.getElementById('matchWinrateNumber');
+const matchWinrateSub = document.getElementById('matchWinrateSub');
+const matchList = document.getElementById('matchList');
+const matchOptimization = document.getElementById('matchOptimization');
+const matchOpponentDecklist = document.getElementById('matchOpponentDecklist');
+
+const matrixResultsSection = document.getElementById('matrixResults');
+const matrixBannedWarnings = document.getElementById('matrixBannedWarnings');
+const matrixAverageNumber = document.getElementById('matrixAverageNumber');
+const matrixTable = document.getElementById('matrixTable');
+
+// Labels for the one shared "Simulate" button, keyed by mode - so adding a
+// future mode only means adding one entry here, not more branching below.
+const MODE_BUTTON_LABEL = {
+  single: 'Simulate 50 games',
+  match:  'Simulate 10 best-of-3 matches',
+  matrix: 'Run matchup matrix',
+};
 
 const importCategory = document.getElementById('importCategory');
 const importName = document.getElementById('importName');
@@ -64,19 +87,19 @@ async function loadDecks() {
   }
 }
 
-function renderBannedWarnings(data) {
+function renderBannedWarnings(data, target) {
   const my = data.bannedExcludedMy || [];
   const opp = data.bannedExcludedOpponent || [];
   if (my.length === 0 && opp.length === 0) {
-    bannedWarnings.classList.add('hidden');
-    bannedWarnings.innerHTML = '';
+    target.classList.add('hidden');
+    target.innerHTML = '';
     return;
   }
   let html = '<h2 class="warn-box">Banned cards excluded</h2>';
   if (my.length) html += `<p class="warn-box">Your deck: ${my.join(', ')}</p>`;
   if (opp.length) html += `<p class="warn-box">Opponent deck: ${opp.join(', ')}</p>`;
-  bannedWarnings.innerHTML = html;
-  bannedWarnings.classList.remove('hidden');
+  target.innerHTML = html;
+  target.classList.remove('hidden');
 }
 
 function renderWinrate(data) {
@@ -116,7 +139,7 @@ function renderLossBreakdown(games) {
   });
 }
 
-function renderOptimization(stats) {
+function renderOptimization(stats, target) {
   let html = '';
 
   html += '<div class="opt-block"><h3>Most played cards</h3><ul>';
@@ -143,10 +166,10 @@ function renderOptimization(stats) {
     html += `<div class="suggestion">${stats.curveSuggestion}</div>`;
   }
 
-  optimization.innerHTML = html;
+  target.innerHTML = html;
 }
 
-function renderDecklist(decklist) {
+function renderDecklist(decklist, target) {
   let html = '';
   const groups = decklist.groups || {};
   Object.keys(groups).forEach(type => {
@@ -165,47 +188,162 @@ function renderDecklist(decklist) {
     }
     html += '</table></div>';
   });
-  opponentDecklist.innerHTML = html;
+  target.innerHTML = html;
+}
+
+function renderMatchList(matches) {
+  matchList.innerHTML = '';
+  matches.forEach(m => {
+    const li = document.createElement('li');
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + (m.win ? 'win' : 'loss');
+    badge.textContent = m.win ? 'WON' : 'LOST';
+    const scoreSpan = document.createElement('span');
+    scoreSpan.textContent = `Match ${m.n}: You ${m.gamesWonA} - ${m.gamesWonB} Opponent (games)`;
+    li.appendChild(scoreSpan);
+    li.appendChild(badge);
+    matchList.appendChild(li);
+  });
+}
+
+function renderMatrix(data) {
+  matrixAverageNumber.textContent = data.averageWinrate + '%';
+  matrixAverageNumber.classList.toggle('good', data.averageWinrate >= 50);
+  matrixAverageNumber.classList.toggle('bad', data.averageWinrate < 50);
+
+  const rows = data.rows || [];
+  if (rows.length === 0) {
+    matrixTable.innerHTML = '<p>No saved opponent decks were found under Decks\\Opponents.</p>';
+    return;
+  }
+
+  const byCategory = {};
+  rows.forEach(r => {
+    const cat = r.category || 'Opponents';
+    (byCategory[cat] = byCategory[cat] || []).push(r);
+  });
+
+  let html = '';
+  Object.keys(byCategory).forEach(cat => {
+    html += `<div class="matrix-group"><h4>${cat}</h4>`;
+    byCategory[cat].forEach(r => {
+      const goodBad = r.winrate >= 50 ? 'good' : 'bad';
+      html += `<div class="matrix-row">`
+        + `<span class="matrix-name">${r.name}</span>`
+        + `<span class="matrix-winrate ${goodBad}">${r.winrate}%</span>`
+        + `<span class="matrix-record">${r.wins}/${r.total}</span>`
+        + `</div>`;
+    });
+    html += '</div>';
+  });
+  matrixTable.innerHTML = html;
+}
+
+function renderMatchWinrate(data) {
+  matchWinrateNumber.textContent = data.matchWinrate + '%';
+  matchWinrateNumber.classList.toggle('good', data.matchWinrate >= 50);
+  matchWinrateNumber.classList.toggle('bad', data.matchWinrate < 50);
+  matchWinrateSub.textContent = `${data.matchWins} / ${data.matchCount} matches won (best of ${data.bestOf}) - ${data.myDeckName} vs ${data.opponentDeckName}`;
+}
+
+async function runSingleOpponentSimulation(myDeckId, opponentDeckId) {
+  const res = await fetch('/api/simulate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ myDeckId, opponentDeckId })
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error || ('Simulation failed (' + res.status + ')'));
+  }
+  const data = await res.json();
+
+  renderBannedWarnings(data, bannedWarnings);
+  renderWinrate(data);
+  renderGameList(data.games);
+  renderLossBreakdown(data.games);
+  renderOptimization(data.optimization, optimization);
+  renderDecklist(data.opponentDecklist, opponentDecklist);
+  resultsSection.classList.remove('hidden');
+}
+
+async function runMatchSimulation(myDeckId, opponentDeckId) {
+  const res = await fetch('/api/simulate-match', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ myDeckId, opponentDeckId })
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error || ('Match simulation failed (' + res.status + ')'));
+  }
+  const data = await res.json();
+
+  renderBannedWarnings(data, matchBannedWarnings);
+  renderMatchWinrate(data);
+  renderMatchList(data.matches);
+  renderOptimization(data.optimization, matchOptimization);
+  renderDecklist(data.opponentDecklist, matchOpponentDecklist);
+  matchResultsSection.classList.remove('hidden');
+}
+
+async function runMatchupMatrix(myDeckId) {
+  const res = await fetch('/api/matchup-matrix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ myDeckId })
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error || ('Matchup matrix failed (' + res.status + ')'));
+  }
+  const data = await res.json();
+
+  renderBannedWarnings(data, matrixBannedWarnings);
+  renderMatrix(data);
+  matrixResultsSection.classList.remove('hidden');
 }
 
 async function runSimulation() {
   const myDeckId = myDeckSelect.value;
   const opponentDeckId = opponentDeckSelect.value;
-  if (!myDeckId || !opponentDeckId) {
+  const mode = simModeSelect.value;
+
+  if (!myDeckId) {
+    setStatus('Pick your deck first.', true);
+    return;
+  }
+  if (mode !== 'matrix' && !opponentDeckId) {
     setStatus('Pick both a deck and an opponent first.', true);
     return;
   }
 
   simulateBtn.disabled = true;
-  setStatus('Simulating 10 games...');
+  setStatus(mode === 'matrix' ? 'Running the matchup matrix...' : 'Simulating...');
   resultsSection.classList.add('hidden');
+  matchResultsSection.classList.add('hidden');
+  matrixResultsSection.classList.add('hidden');
 
   try {
-    const res = await fetch('/api/simulate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ myDeckId, opponentDeckId })
-    });
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      throw new Error(errBody.error || ('Simulation failed (' + res.status + ')'));
+    if (mode === 'match') {
+      await runMatchSimulation(myDeckId, opponentDeckId);
+    } else if (mode === 'matrix') {
+      await runMatchupMatrix(myDeckId);
+    } else {
+      await runSingleOpponentSimulation(myDeckId, opponentDeckId);
     }
-    const data = await res.json();
-
-    renderBannedWarnings(data);
-    renderWinrate(data);
-    renderGameList(data.games);
-    renderLossBreakdown(data.games);
-    renderOptimization(data.optimization);
-    renderDecklist(data.opponentDecklist);
-
-    resultsSection.classList.remove('hidden');
     setStatus('');
   } catch (err) {
     setStatus('Error: ' + err.message, true);
   } finally {
     simulateBtn.disabled = false;
   }
+}
+
+function applyModeToUi() {
+  const mode = simModeSelect.value;
+  simulateBtn.textContent = MODE_BUTTON_LABEL[mode] || MODE_BUTTON_LABEL.single;
+  opponentField.classList.toggle('hidden', mode === 'matrix');
 }
 
 async function importDeck() {
@@ -272,4 +410,6 @@ function renderImportResult(data) {
 
 importBtn.addEventListener('click', importDeck);
 simulateBtn.addEventListener('click', runSimulation);
+simModeSelect.addEventListener('change', applyModeToUi);
+applyModeToUi();
 loadDecks();

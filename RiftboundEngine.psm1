@@ -64,7 +64,12 @@ function Import-Deck {
     param(
         [Parameter(Mandatory)][string]$Path,
         [string]$LegendDomain = $null,
-        [System.Collections.Generic.HashSet[string]]$BannedList
+        [System.Collections.Generic.HashSet[string]]$BannedList,
+        # Optional: when supplied (from Import-CardDatabase), the deck's Legend
+        # is looked up by name and its real, verified LegendAbility (see
+        # Invoke-LegendAbilityTrigger) is attached to the returned deck. Most
+        # Legends have no entry there - see that function's comment for why.
+        [hashtable]$CardDatabase
     )
 
     if (-not (Test-Path $Path)) {
@@ -77,10 +82,16 @@ function Import-Deck {
     $skippedOffDomain = 0
     $bannedFound = New-Object 'System.Collections.Generic.List[string]'
 
-    # First pass: find the Legend's domain(s) if not supplied
-    if (-not $LegendDomain) {
-        $legendRow = $rows | Where-Object { $_.Type -eq 'Legend' } | Select-Object -First 1
-        if ($legendRow) { $LegendDomain = $legendRow.Domain }
+    # First pass: find the Legend's domain(s) if not supplied, and its name (for
+    # the optional LegendAbility lookup below)
+    $legendRow = $rows | Where-Object { $_.Type -eq 'Legend' } | Select-Object -First 1
+    if (-not $LegendDomain -and $legendRow) { $LegendDomain = $legendRow.Domain }
+    $legendName = $null
+    if ($legendRow) { $legendName = $legendRow.Name.Trim() }
+    $legendAbility = $null
+    if ($CardDatabase -and $legendName) {
+        $legendRec = $CardDatabase[$legendName.ToLowerInvariant()]
+        if ($legendRec) { $legendAbility = $legendRec.LegendAbility }
     }
     $allowedDomains = @()
     if ($LegendDomain) {
@@ -154,6 +165,8 @@ function Import-Deck {
         Cards             = $cards
         Domain            = $LegendDomain
         Name              = [System.IO.Path]::GetFileNameWithoutExtension($Path)
+        LegendName        = $legendName
+        LegendAbility     = $legendAbility
         DisplayRows       = $displayRows
         BannedExcluded    = @($bannedFound | Select-Object -Unique)
         SkippedOffDomain  = $skippedOffDomain
@@ -185,6 +198,8 @@ function New-PlayerState {
         PlayLog          = New-Object 'System.Collections.Generic.List[object]'
         PeakBoardMight   = 0      # Best total board Might this player ever held simultaneously (for loss diagnostics)
         EverLed          = $false # Was this player ever strictly ahead on points at some point in the game?
+        LegendName       = $Deck.LegendName
+        LegendAbility    = $Deck.LegendAbility  # $null unless Import-Deck was given a CardDatabase and this Legend has a modeled ability
     }
 }
 
@@ -211,6 +226,46 @@ function Invoke-Draw {
     return $true
 }
 
+# ============================================================================
+#  LEGEND ABILITIES
+#  A deliberately small, data-driven dispatcher. Most Legends are NOT listed
+#  here - their real ability relies on mechanics this simplified statistical
+#  engine doesn't model at all (Empower/XP counters, exhaust-ready state on
+#  units or the Legend itself, Equip/Gear, token generation, targeted
+#  "choose" effects...). Rather than approximate those into something that
+#  LOOKS modeled but is actually a guess, they are left unmodeled - exactly
+#  the same philosophy as the blank-Tag convention used elsewhere in this
+#  project (see README's "Legend abilities" section for the full list of
+#  what is and isn't covered, and why).
+#
+#  Adding a new one is a CardDatabase.json data entry (trigger/effect/amount
+#  on that Legend's "legendAbility" field), not new engine code - as long as
+#  its real ability maps onto one of the "effect" cases below. New effect
+#  types get added to the switch here as they come up.
+# ============================================================================
+function Invoke-LegendAbilityTrigger {
+    param(
+        [object]$Player,
+        [string]$Trigger,
+        [int]$BattlefieldIndex = -1   # only meaningful for OnUnitPlayed
+    )
+
+    $ability = $Player.LegendAbility
+    if (-not $ability -or $ability.trigger -ne $Trigger) { return }
+
+    $amount = 1
+    if ($ability.amount) { $amount = [int]$ability.amount }
+
+    switch ($ability.effect) {
+        'BuffBoardMightThisTurn' {
+            if ($BattlefieldIndex -ge 0) { $Player.BoardMight[$BattlefieldIndex] += $amount }
+        }
+        'Draw' {
+            Invoke-Draw -Player $Player -Count $amount | Out-Null
+        }
+    }
+}
+
 function Invoke-MainPhase {
     param([object]$Player, [object]$Opponent, [int]$BattlefieldCount = 3)
 
@@ -230,6 +285,10 @@ function Invoke-MainPhase {
                 if ($Player.BoardMight[$b] -lt $lowest) { $lowest = $Player.BoardMight[$b]; $targetBF = $b }
             }
             $Player.BoardMight[$targetBF] += $card.Might
+
+            if ($card.Type -eq 'Unit') {
+                Invoke-LegendAbilityTrigger -Player $Player -Trigger 'OnUnitPlayed' -BattlefieldIndex $targetBF
+            }
 
             # Apply simplified Tag effects
             if ($card.Tag) {
@@ -306,6 +365,8 @@ function Invoke-CombatStep {
             if ($winners[$b] -eq $side) { $wonIdx += $b }
         }
         if ($wonIdx.Count -eq 0) { continue }
+
+        Invoke-LegendAbilityTrigger -Player $side -Trigger 'OnCombatWin'
 
         if ($side.Score -ge ($VictoryScore - 1)) {
             # Final Point restriction (471.1.b): only scores on a full sweep, and even
@@ -506,6 +567,166 @@ function Get-OptimizationStats {
 }
 
 # ============================================================================
+#  GAME BATCHES, BEST-OF-N MATCHES, AND THE MATCHUP MATRIX
+#  One shared implementation of "run N of these" so the console and web UI
+#  can never drift apart on how a batch/match/matrix is computed - each front
+#  end only differs in how it FORMATS these results, never in how it derives
+#  them.
+# ============================================================================
+function Invoke-GameBatch {
+    <#
+        Runs GameCount single games of DeckA vs DeckB and returns the full
+        list of results plus the aggregate winrate. This is the single game
+        loop that used to be duplicated (with its own winrate math) inside
+        both RiftboundSim.ps1 and WebServer.ps1 - now there is exactly one
+        version of "what does a batch of games mean".
+    #>
+    param(
+        [Parameter(Mandatory)][object]$DeckA,
+        [Parameter(Mandatory)][object]$DeckB,
+        [int]$GameCount = 50
+    )
+
+    $results = New-Object 'System.Collections.Generic.List[object]'
+    for ($g = 1; $g -le $GameCount; $g++) {
+        $results.Add((Invoke-SingleGame -DeckA $DeckA -DeckB $DeckB))
+    }
+
+    $wins = @($results | Where-Object { $_.Winner -eq 'You' }).Count
+    $winrate = 0
+    if ($GameCount -gt 0) { $winrate = [Math]::Round(($wins / $GameCount) * 100, 1) }
+
+    return [PSCustomObject]@{
+        Results   = $results
+        Wins      = $wins
+        GameCount = $GameCount
+        Winrate   = $winrate
+    }
+}
+
+function Invoke-Match {
+    <#
+        Simulates one best-of-N match (real Riftbound tournament play, e.g.
+        Nexus Night/Skirmish, is best-of-3) by re-running Invoke-SingleGame
+        until either side has won a majority of the games needed, rather than
+        treating every game as an independent, isolated data point. Returns
+        the individual game results too, so a caller can still show a
+        per-game breakdown within the match.
+    #>
+    param(
+        [Parameter(Mandatory)][object]$DeckA,
+        [Parameter(Mandatory)][object]$DeckB,
+        [int]$BestOf = 3
+    )
+
+    $gamesToWin = [Math]::Ceiling($BestOf / 2.0)
+    $games = New-Object 'System.Collections.Generic.List[object]'
+    $winsA = 0
+    $winsB = 0
+
+    while ($winsA -lt $gamesToWin -and $winsB -lt $gamesToWin) {
+        $g = Invoke-SingleGame -DeckA $DeckA -DeckB $DeckB
+        $games.Add($g)
+        if ($g.Winner -eq 'You') { $winsA++ } else { $winsB++ }
+    }
+
+    $matchWinner = 'Opponent'
+    if ($winsA -ge $gamesToWin) { $matchWinner = 'You' }
+
+    return [PSCustomObject]@{
+        Winner    = $matchWinner
+        GamesWonA = $winsA
+        GamesWonB = $winsB
+        BestOf    = $BestOf
+        Games     = $games
+    }
+}
+
+function Invoke-MatchBatch {
+    <#
+        Runs MatchCount best-of-BestOf matches and reports the match-level
+        winrate (how often you take the MATCH, not any single game inside
+        it) - the number that actually maps to "would I have won the round
+        at a real event", which single-game winrate alone doesn't capture
+        (e.g. a deck that always goes to a decisive game 3 can have a modest
+        single-game winrate but a very different match winrate).
+    #>
+    param(
+        [Parameter(Mandatory)][object]$DeckA,
+        [Parameter(Mandatory)][object]$DeckB,
+        [int]$MatchCount = 10,
+        [int]$BestOf = 3
+    )
+
+    $matches = New-Object 'System.Collections.Generic.List[object]'
+    for ($i = 1; $i -le $MatchCount; $i++) {
+        $matches.Add((Invoke-Match -DeckA $DeckA -DeckB $DeckB -BestOf $BestOf))
+    }
+
+    $matchWins = @($matches | Where-Object { $_.Winner -eq 'You' }).Count
+    $matchWinrate = 0
+    if ($MatchCount -gt 0) { $matchWinrate = [Math]::Round(($matchWins / $MatchCount) * 100, 1) }
+
+    return [PSCustomObject]@{
+        Matches      = $matches
+        MatchWins    = $matchWins
+        MatchCount   = $MatchCount
+        MatchWinrate = $matchWinrate
+        BestOf       = $BestOf
+    }
+}
+
+function Get-MatchupMatrix {
+    <#
+        Runs MyDeck against every deck found in OpponentFolderPath (recursing
+        into the Aggro/Midrange/Control subfolders) and returns one row per
+        opponent - a "how do I stack up against the whole meta" view instead
+        of having to run one matchup at a time. Set -UseMatches to report
+        best-of-BestOf match winrate per opponent instead of single-game
+        winrate (see Invoke-MatchBatch for why those numbers can differ).
+    #>
+    param(
+        [Parameter(Mandatory)][object]$MyDeck,
+        [Parameter(Mandatory)][string]$OpponentFolderPath,
+        [System.Collections.Generic.HashSet[string]]$BannedList,
+        [hashtable]$CardDatabase,
+        [int]$GameCount = 50,
+        [switch]$UseMatches,
+        [int]$BestOf = 3,
+        [int]$MatchCount = 10
+    )
+
+    $opponentFiles = Get-DeckFileList -FolderPath $OpponentFolderPath -Recurse
+    $rows = New-Object 'System.Collections.Generic.List[object]'
+
+    foreach ($f in $opponentFiles) {
+        $oppDeck = Import-Deck -Path $f.Path -BannedList $BannedList -CardDatabase $CardDatabase
+
+        if ($UseMatches) {
+            $batch = Invoke-MatchBatch -DeckA $MyDeck -DeckB $oppDeck -MatchCount $MatchCount -BestOf $BestOf
+            $winrate = $batch.MatchWinrate
+            $wins = $batch.MatchWins
+            $total = $batch.MatchCount
+        } else {
+            $batch = Invoke-GameBatch -DeckA $MyDeck -DeckB $oppDeck -GameCount $GameCount
+            $winrate = $batch.Winrate
+            $wins = $batch.Wins
+            $total = $batch.GameCount
+        }
+
+        $rows.Add([PSCustomObject]@{
+            Name     = ($oppDeck.Name -replace '_', ' ')
+            Category = $f.Category
+            Winrate  = $winrate
+            Wins     = $wins
+            Total    = $total
+        })
+    }
+
+    return @($rows | Sort-Object Category, Name)
+}
+
+# ============================================================================
 #  TEXT-LIST DECK IMPORT
 #  Lets the user drop in a plain decklist (pasted from riftdecks.com, the
 #  official deckbuilder, or typed by hand) instead of hand-building a CSV.
@@ -514,6 +735,24 @@ function Get-OptimizationStats {
 #  trusted from the text - so the only thing the text needs to get right is
 #  the card name and how many copies.
 # ============================================================================
+function ConvertTo-NormalizedCardName {
+    <#
+        Strips commas, apostrophes and periods and collapses whitespace, so a
+        paste that dropped punctuation ("Rengar Pridestalker", "Emperors
+        Dais") can still resolve to the real card ("Rengar, Pridestalker",
+        "Emperor's Dais"). Verified against the full card database that no
+        two distinct real cards normalize to the same value, so this never
+        introduces an ambiguous match.
+    #>
+    param([string]$Name)
+    if (-not $Name) { return '' }
+    $n = $Name.ToLowerInvariant()
+    $n = $n -replace [char]0x2019, "'"
+    $n = $n -replace '[,''.!"]', ''
+    $n = $n -replace '\s+', ' '
+    return $n.Trim()
+}
+
 function Import-CardDatabase {
     param([Parameter(Mandatory)][string]$Path)
 
@@ -523,15 +762,27 @@ function Import-CardDatabase {
     $raw = Get-Content -Path $Path -Raw -Encoding UTF8 | ConvertFrom-Json
     $db = @{}
     foreach ($prop in $raw.PSObject.Properties) {
-        $db[$prop.Name.ToLowerInvariant()] = [PSCustomObject]@{
-            Name      = $prop.Name
-            Type      = $prop.Value.type
-            Energy    = $prop.Value.energy
-            Might     = $prop.Value.might
-            Power     = $prop.Value.power
-            Domains   = @($prop.Value.domains)
-            IsToken   = [bool]$prop.Value.isToken
-            Champions = @($prop.Value.champions)
+        $rec = [PSCustomObject]@{
+            Name          = $prop.Name
+            Type          = $prop.Value.type
+            Energy        = $prop.Value.energy
+            Might         = $prop.Value.might
+            Power         = $prop.Value.power
+            Domains       = @($prop.Value.domains)
+            IsToken       = [bool]$prop.Value.isToken
+            Champions     = @($prop.Value.champions)
+            # $null for every Legend except the small, verified set that has one
+            # (see Invoke-LegendAbilityTrigger) - never guessed for the rest.
+            LegendAbility = $prop.Value.legendAbility
+        }
+        $db[$prop.Name.ToLowerInvariant()] = $rec
+
+        # Also index by the punctuation-stripped form (see ConvertTo-NormalizedCardName)
+        # so pastes that drop commas/apostrophes still resolve. Never overwrites an
+        # exact-name key.
+        $normKey = ConvertTo-NormalizedCardName $prop.Name
+        if ($normKey -and -not $db.Contains($normKey)) {
+            $db[$normKey] = $rec
         }
     }
     return $db
@@ -552,7 +803,14 @@ function ConvertFrom-DeckText {
         card's real Type/stats always come from the card database, never
         from which section it was pasted under.
     #>
-    param([Parameter(Mandatory)][string[]]$Lines)
+    # NOTE: deliberately NOT [Parameter(Mandatory)] - PowerShell auto-rejects a
+    # Mandatory string/string[] argument that resolves to an empty string with a
+    # cryptic "Cannot bind argument to parameter 'Lines' because it is an empty
+    # string" error (this bit real users: e.g. Get-Content returns a bare empty
+    # string, not an array, for a file that reduces to a single blank line). We
+    # handle empty/null input ourselves below and report it through the normal
+    # "no card lines found" message instead.
+    param([AllowNull()][AllowEmptyCollection()][string[]]$Lines = @())
 
     $sectionHeaderOnly        = '^(?:Legend|Legends|Battlefield|Battlefields|Rune|Runes|Main ?Deck|Unit|Units|Spell|Spells|Gear)\s*:?\s*$'
     $sectionHeaderWithContent = '^(?:Legend|Legends|Battlefield|Battlefields|Rune|Runes|Main ?Deck|Unit|Units|Spell|Spells|Gear)\s*:\s*(.+)$'
@@ -560,6 +818,7 @@ function ConvertFrom-DeckText {
     $trailingQty = '^(.+?)\s*x\s*(\d+)$'
 
     $result = New-Object 'System.Collections.Generic.List[object]'
+    if (-not $Lines) { return $result }
     foreach ($raw in $Lines) {
         $line = $raw.Trim()
         if (-not $line) { continue }
@@ -607,13 +866,17 @@ function Resolve-DeckList {
         [int]$MaxCopies = 3
     )
 
+    # Merge by normalized name (not raw lowercase) so "Rengar, Pridestalker" and
+    # a punctuation-dropped "Rengar Pridestalker" pasted on separate lines are
+    # recognized as the same card and their quantities combined.
     $merged = [ordered]@{}
     foreach ($p in $Parsed) {
-        $key = $p.Name.ToLowerInvariant()
-        if ($merged.Contains($key)) {
-            $merged[$key].Quantity += $p.Quantity
+        $normKey = ConvertTo-NormalizedCardName $p.Name
+        if (-not $normKey) { continue }
+        if ($merged.Contains($normKey)) {
+            $merged[$normKey].Quantity += $p.Quantity
         } else {
-            $merged[$key] = [PSCustomObject]@{ Name = $p.Name; Quantity = $p.Quantity }
+            $merged[$normKey] = [PSCustomObject]@{ Name = $p.Name; Quantity = $p.Quantity }
         }
     }
 
@@ -621,7 +884,13 @@ function Resolve-DeckList {
     $warnings = New-Object 'System.Collections.Generic.List[string]'
 
     foreach ($entry in $merged.Values) {
+        # Try the exact name first, then fall back to a punctuation-stripped
+        # match - a paste that dropped commas/apostrophes ("Rengar Pridestalker",
+        # "Emperors Dais") still resolves to the real card.
         $rec = $CardDatabase[$entry.Name.ToLowerInvariant()]
+        if (-not $rec) {
+            $rec = $CardDatabase[(ConvertTo-NormalizedCardName $entry.Name)]
+        }
         if (-not $rec) {
             $warnings.Add("Not found in the card database, skipped: '$($entry.Name)'")
             continue
@@ -676,4 +945,4 @@ function Export-DeckCsv {
         Export-Csv -Path $Path -NoTypeInformation -Encoding UTF8
 }
 
-Export-ModuleMember -Function Get-BannedList, Get-DeckFileList, Import-Deck, New-PlayerState, Invoke-Draw, Invoke-MainPhase, Invoke-CombatStep, Get-LossReason, Invoke-SingleGame, Get-OptimizationStats, Import-CardDatabase, ConvertFrom-DeckText, Resolve-DeckList, Export-DeckCsv
+Export-ModuleMember -Function Get-BannedList, Get-DeckFileList, Import-Deck, New-PlayerState, Invoke-Draw, Invoke-LegendAbilityTrigger, Invoke-MainPhase, Invoke-CombatStep, Get-LossReason, Invoke-SingleGame, Get-OptimizationStats, Invoke-GameBatch, Invoke-Match, Invoke-MatchBatch, Get-MatchupMatrix, Import-CardDatabase, ConvertFrom-DeckText, Resolve-DeckList, Export-DeckCsv
