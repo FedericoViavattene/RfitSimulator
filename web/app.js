@@ -5,6 +5,26 @@ const simModeSelect = document.getElementById('simMode');
 const simulateBtn = document.getElementById('simulateBtn');
 const statusLine = document.getElementById('statusLine');
 const resultsSection = document.getElementById('results');
+
+// ---- Top-level nav (Simulate / Import) ----
+const topNav = document.getElementById('topNav');
+const topPanels = {
+  simulate: document.getElementById('panel-simulate'),
+  import: document.getElementById('panel-import'),
+};
+
+// ---- Stepper ----
+const stepper = document.getElementById('stepper');
+const stepEls = stepper ? Array.from(stepper.querySelectorAll('.step')) : [];
+const stepOpponentLi = document.getElementById('stepOpponentLi');
+
+// ---- Mode cards ----
+const modeCards = Array.from(document.querySelectorAll('.mode-card'));
+
+// ---- "New simulation" buttons ----
+const newSimBtn = document.getElementById('newSimBtn');
+const newMatchSimBtn = document.getElementById('newMatchSimBtn');
+const newMatrixSimBtn = document.getElementById('newMatrixSimBtn');
 const bannedWarnings = document.getElementById('bannedWarnings');
 const winrateNumber = document.getElementById('winrateNumber');
 const winrateSub = document.getElementById('winrateSub');
@@ -376,11 +396,19 @@ async function runSimulation() {
       await runSingleOpponentSimulation(myDeckId, opponentDeckId);
     }
     setStatus('');
+    markRunStepDone();
+    resultsForActiveMode(mode).scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
     setStatus('Error: ' + err.message, true);
   } finally {
     simulateBtn.disabled = false;
   }
+}
+
+function resultsForActiveMode(mode) {
+  if (mode === 'match') return matchResultsSection;
+  if (mode === 'matrix') return matrixResultsSection;
+  return resultsSection;
 }
 
 function applyModeToUi() {
@@ -451,8 +479,104 @@ function renderImportResult(data) {
   importResult.classList.add(ok ? 'success' : 'failure');
 }
 
+// ===================== Navigation: top-level tabs, stepper, mode cards, result pills =====================
+
+function showTopPanel(name) {
+  Object.keys(topPanels).forEach(key => {
+    topPanels[key].classList.toggle('hidden', key !== name);
+  });
+  Array.from(topNav.querySelectorAll('.top-nav-btn')).forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.panel === name);
+  });
+}
+
+function initTopNav() {
+  topNav.addEventListener('click', evt => {
+    const btn = evt.target.closest('.top-nav-btn');
+    if (!btn) return;
+    showTopPanel(btn.dataset.panel);
+  });
+}
+
+function setStep(name, state) {
+  // state: 'done' | 'active' | '' (not yet reached)
+  const el = stepEls.find(s => s.dataset.step === name);
+  if (!el) return;
+  el.classList.toggle('done', state === 'done');
+  el.classList.toggle('active', state === 'active');
+}
+
+function updateStepper() {
+  const mode = simModeSelect.value;
+  const isMatrix = mode === 'matrix';
+
+  stepOpponentLi.classList.toggle('hidden', isMatrix);
+
+  setStep('deck', myDeckSelect.value ? 'done' : 'active');
+  setStep('mode', myDeckSelect.value ? 'done' : '');
+
+  if (!isMatrix) {
+    setStep('opponent', opponentDeckSelect.value ? 'done' : (myDeckSelect.value ? 'active' : ''));
+  }
+
+  const ready = myDeckSelect.value && (isMatrix || opponentDeckSelect.value);
+  setStep('run', ready ? 'active' : '');
+}
+
+function markRunStepDone() {
+  setStep('run', 'done');
+}
+
+function selectMode(mode) {
+  simModeSelect.value = mode;
+  modeCards.forEach(card => card.classList.toggle('active', card.dataset.mode === mode));
+  simModeSelect.dispatchEvent(new Event('change'));
+}
+
+function initModeCards() {
+  modeCards.forEach(card => {
+    card.addEventListener('click', () => selectMode(card.dataset.mode));
+  });
+}
+
+function initPillNav(navEl, panelsContainer) {
+  if (!navEl || !panelsContainer) return;
+  navEl.addEventListener('click', evt => {
+    const pill = evt.target.closest('.pill');
+    if (!pill) return;
+    const tab = pill.dataset.tab;
+
+    Array.from(navEl.querySelectorAll('.pill')).forEach(p => {
+      p.classList.toggle('active', p === pill);
+    });
+    Array.from(panelsContainer.querySelectorAll('.result-panel')).forEach(panel => {
+      panel.classList.toggle('hidden', panel.dataset.tab !== tab);
+    });
+  });
+}
+
+function resetToSetup() {
+  resultsSection.classList.add('hidden');
+  matchResultsSection.classList.add('hidden');
+  matrixResultsSection.classList.add('hidden');
+  setStep('run', myDeckSelect.value && (simModeSelect.value === 'matrix' || opponentDeckSelect.value) ? 'active' : '');
+  document.querySelector('.picker').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+initTopNav();
+initModeCards();
+initPillNav(document.getElementById('resultsPillNav'), resultsSection);
+initPillNav(document.getElementById('matchResultsPillNav'), matchResultsSection);
+
+myDeckSelect.addEventListener('change', updateStepper);
+opponentDeckSelect.addEventListener('change', updateStepper);
+newSimBtn.addEventListener('click', resetToSetup);
+newMatchSimBtn.addEventListener('click', resetToSetup);
+newMatrixSimBtn.addEventListener('click', resetToSetup);
+
 importBtn.addEventListener('click', importDeck);
 simulateBtn.addEventListener('click', runSimulation);
-simModeSelect.addEventListener('change', applyModeToUi);
+simModeSelect.addEventListener('change', () => { applyModeToUi(); updateStepper(); });
 applyModeToUi();
-loadDecks();
+updateStepper();
+loadDecks().then(updateStepper);

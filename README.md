@@ -62,17 +62,27 @@ and opens `http://localhost:8787` in your default browser.
   not reachable from the internet or from other devices, and nothing about
   your decks or results leaves your machine. `localhost` only your PC can
   reach it.
-- Pick your deck from the dropdown, then choose a **Mode**: a single
-  opponent (50 games), a best-of-3 match simulation (20 matches), or a
-  matchup matrix (every saved opponent deck at once - see "Matchup matrix
-  and best-of-3 matches" below). The button label and the opponent-deck
-  dropdown update automatically for whichever mode is selected.
-- Hit the **Simulate** button and the same winrate, per-game/per-match log
-  (green WIN / red LOSS), optimization report, matchup recommendations &amp;
-  sideboard suggestions, and opponent decklist as the console version render
-  as a clean page instead of terminal text (the matchup matrix mode skips
-  the recommendation panel - see "Matchup recommendations and sideboard
-  suggestions" below).
+- The page has two tabs at the top: **Simulate** (the main flow) and
+  **Import a deck** (moved out of the way so it doesn't compete with the
+  simulation setup). A **step indicator** (Your deck → Mode → Opponent →
+  Run it) tracks your progress through the Simulate tab so it's always
+  obvious what's left to fill in before you can run anything; it collapses
+  to 3 steps in matchup-matrix mode since there's no single opponent to
+  pick.
+- Pick your deck from the dropdown, then choose a **Mode** by clicking one
+  of the three mode cards: a single opponent (50 games), a best-of-3 match
+  simulation (20 matches), or a matchup matrix (every saved opponent deck at
+  once - see "Matchup matrix and best-of-3 matches" below). The button
+  label and the opponent-deck field update automatically for whichever mode
+  is selected.
+- Hit the **Simulate** button and the page scrolls straight to your
+  results: a winrate card, then a row of tabs - **Game log**, **Curve &amp;
+  optimization**, **Recommendations**, **Opponent decklist** - so each kind
+  of feedback has its own screen instead of one long page you have to hunt
+  through (the matchup matrix mode skips the recommendations tab - see
+  "Matchup recommendations and sideboard suggestions" below). A **New
+  simulation** button at the top of the results jumps you back to the setup
+  step to try another deck or matchup.
 - If port 8787 is already taken (e.g. by a previous "Riftbound Web Server"
   window you forgot to close), it automatically tries 8788, 8789, etc. and
   tells you in the console window which port it actually used - it also
