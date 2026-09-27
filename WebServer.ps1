@@ -36,6 +36,7 @@ $Script:CardDatabaseFile = Join-Path $RootPath 'CardDatabase.json'
 $Script:GamesToSimulate = 50
 $Script:MatchesToSimulate = 20   # for the "best-of-3 match" mode
 $Script:BestOf            = 3
+$Script:SideboardSize     = 10   # max cards suggested per matchup recommendation
 
 Import-Module (Join-Path $PSScriptRoot 'RiftboundEngine.psm1') -Force
 
@@ -69,6 +70,23 @@ function Resolve-DeckId {
         throw "Deck file not found: $Id"
     }
     return $fullPath
+}
+
+function Get-CategoryFromDeckId {
+    <#
+        Pulls the archetype folder ("Aggro"/"Midrange"/"Control") straight out
+        of a deck id like "Decks/Opponents/Aggro/Foo.csv" without touching the
+        filesystem again - used to feed Get-MatchupRecommendation the same
+        category the console picks up from the folder a deck was loaded from.
+        Returns "MyDeck" (or whatever) for anything outside Decks/Opponents/*,
+        which Get-MatchupRecommendation already treats as "unrecognized" and
+        falls back to inferring from the deck's own curve.
+    #>
+    param([string]$DeckId)
+    if (-not $DeckId) { return $null }
+    $parts = @(($DeckId -replace '\\', '/') -split '/')
+    if ($parts.Count -ge 2) { return $parts[-2] }
+    return $null
 }
 
 # ============================================================================
@@ -156,6 +174,23 @@ function Get-DecklistPayload {
     }
 }
 
+function Get-RecommendationPayload {
+    param([object]$Recommendation)
+
+    return [PSCustomObject]@{
+        opponentCategory      = $Recommendation.OpponentCategory
+        opponentAverageEnergy = $Recommendation.OpponentAverageEnergy
+        primaryConcern        = $Recommendation.PrimaryConcern
+        advice                = $Recommendation.Advice
+        sideboardIn           = @($Recommendation.SideboardIn | ForEach-Object {
+            [PSCustomObject]@{ name = $_.Name; type = $_.Type; energy = $_.Energy; might = $_.Might; domain = $_.Domain }
+        })
+        sideboardOut          = @($Recommendation.SideboardOut | ForEach-Object {
+            [PSCustomObject]@{ name = $_.Name; type = $_.Type; energy = $_.Energy; might = $_.Might; domain = $_.Domain; timesPlayed = $_.TimesPlayed }
+        })
+    }
+}
+
 function Import-DeckForRequest {
     <#
         Resolves a browser-supplied deck id to a real path and loads it with
@@ -177,6 +212,7 @@ function Invoke-SimulationRequest {
     $bannedList = Get-BannedList -Path $Script:BannedFile
     $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
     $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
+    $opponentCategory = Get-CategoryFromDeckId -DeckId $Body.opponentDeckId
 
     $batch = Invoke-GameBatch -DeckA $myDeck -DeckB $opponentDeck -GameCount $Script:GamesToSimulate
 
@@ -189,7 +225,7 @@ function Invoke-SimulationRequest {
             win        = ($r.Winner -eq "You")
             scoreA     = $r.ScoreA
             scoreB     = $r.ScoreB
-            lossReason = $r.LossReason
+            lossReason = $r.LossReason.Text
         }
     }
 
@@ -204,6 +240,7 @@ function Invoke-SimulationRequest {
         games                  = $games
         optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $batch.Results)
         opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
+        recommendation         = (Get-RecommendationPayload -Recommendation (Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $batch.Results -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize))
     }
 }
 
@@ -218,6 +255,7 @@ function Invoke-MatchSimulationRequest {
     $bannedList = Get-BannedList -Path $Script:BannedFile
     $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
     $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
+    $opponentCategory = Get-CategoryFromDeckId -DeckId $Body.opponentDeckId
 
     $matchBatch = Invoke-MatchBatch -DeckA $myDeck -DeckB $opponentDeck -MatchCount $Script:MatchesToSimulate -BestOf $Script:BestOf
 
@@ -247,6 +285,7 @@ function Invoke-MatchSimulationRequest {
         matches                = $matches
         optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $allGames)
         opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
+        recommendation         = (Get-RecommendationPayload -Recommendation (Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $allGames -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize))
     }
 }
 

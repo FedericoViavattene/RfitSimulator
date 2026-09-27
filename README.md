@@ -68,8 +68,11 @@ and opens `http://localhost:8787` in your default browser.
   and best-of-3 matches" below). The button label and the opponent-deck
   dropdown update automatically for whichever mode is selected.
 - Hit the **Simulate** button and the same winrate, per-game/per-match log
-  (green WIN / red LOSS), optimization report, and opponent decklist as the
-  console version render as a clean page instead of terminal text.
+  (green WIN / red LOSS), optimization report, matchup recommendations &amp;
+  sideboard suggestions, and opponent decklist as the console version render
+  as a clean page instead of terminal text (the matchup matrix mode skips
+  the recommendation panel - see "Matchup recommendations and sideboard
+  suggestions" below).
 - If port 8787 is already taken (e.g. by a previous "Riftbound Web Server"
   window you forgot to close), it automatically tries 8788, 8789, etc. and
   tells you in the console window which port it actually used - it also
@@ -144,7 +147,10 @@ separate "web version of the rules" to keep in sync.
 6. Prints a deck-optimization report: your most-played cards, any cards that
    never got played (candidates to cut), and a curve check (average Energy
    cost) with a suggestion if it's too high or too low.
-7. Optionally shows the opponent's full decklist (grouped by Legend / Battlefield
+7. Prints matchup recommendations plus a suggested up-to-10-card sideboard
+   for that specific opponent (see "Matchup recommendations and sideboard
+   suggestions" below) - single-opponent and best-of-3 modes only.
+8. Optionally shows the opponent's full decklist (grouped by Legend / Battlefield
    / Rune / Unit / Spell / Gear, with Energy/Power/Might/Domain per card) when
    you answer Y to the prompt at the end.
 
@@ -171,6 +177,42 @@ Both modes reuse the exact same `Invoke-SingleGame` logic as the default
 mode (via `Invoke-GameBatch`/`Invoke-Match`/`Invoke-MatchBatch`/
 `Get-MatchupMatrix` in `RiftboundEngine.psm1`) - there's no separate, looser
 simulation just for these views.
+
+## Matchup recommendations and sideboard suggestions
+
+After simulating against **one specific opponent** (the default single-
+opponent mode, or the best-of-3 match mode - not the matchup matrix, which
+is deliberately breadth-first across every opponent at once), both
+front-ends show a **"Matchup recommendations & sideboard"** panel built
+entirely from that batch's own simulated games:
+
+- **Matchup shape** - the opponent's category (Aggro/Midrange/Control, read
+  from which `Decks\Opponents\` subfolder it came from, or inferred from its
+  own average Energy if that's not available) plus a plain-language note on
+  how to approach that shape of deck.
+- **Primary loss pattern** - the *most common* reason (across every
+  simulated game against this opponent, not just one) this deck lost: Burn
+  Out, out-classed on board Might, Energy left unspent, cards stuck in hand,
+  never taking the lead, a close 1-point loss, or general tempo loss - the
+  same seven categories `Get-LossReason` already diagnoses per game, now
+  aggregated across the whole batch.
+- **Suggested sideboard - up to 10 cards** - real, domain-legal cards from
+  `CardDatabase.json` that aren't already at the 3-copy legal maximum in
+  this deck, scored for what this specific matchup calls for (cheaper cards
+  when the curve or Burn Out is the issue, higher Might-per-Energy when
+  getting out-classed on the board), paired with the same number of
+  **"sideboard OUT"** picks from the maindeck - cards that never got played
+  in any simulated game against this opponent, or the current curve's
+  weakest fit otherwise.
+
+**This is a heuristic, not a rules simulation of sideboarding itself.**
+Swapping the suggested cards in and re-running the simulation is still the
+only way to know the real impact. It also inherits the same limitation as
+the rest of this simulator: a freshly-suggested card that isn't already in
+your deck has no `Tag` assigned (a card's `Tag` lives on its row in a deck
+CSV, not in `CardDatabase.json`), so scoring only ever uses that card's real
+Energy/Might/Domain numbers - never a guessed ability. It never invents what
+a card actually does.
 
 ## Legend abilities
 

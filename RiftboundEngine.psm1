@@ -401,6 +401,13 @@ function Get-LossReason {
         0 Might", which is true but meaningless and repetitive. Instead this uses
         stats tracked THROUGHOUT the game (PeakBoardMight, EverLed, leftover Energy,
         cards stuck in hand) to give a more varied and useful diagnosis.
+
+        Returns {Category; Text} rather than a bare string: Category is a short,
+        stable key (BurnOut/MightMismatch/EnergyUnspent/HandClogged/NeverLed/
+        CloseLoss/Tempo) that Get-MatchupRecommendation aggregates across a whole
+        batch of games to find the *most common* reason this deck loses a given
+        matchup, while Text stays the human-readable sentence both front-ends
+        already print per game.
     #>
     param([object]$Loser, [object]$Winner)
 
@@ -413,24 +420,45 @@ function Get-LossReason {
     $cardsStuckInHand = $Loser.Hand.Count
 
     if ($Loser.BurnOutCount -gt 0) {
-        return "Deck ran out of cards (Burn Out) and conceded a point on every subsequent draw - the deck is likely too thin for how long this game ran, or too much Energy went unspent early instead of refilling the board."
+        return [PSCustomObject]@{
+            Category = 'BurnOut'
+            Text     = "Deck ran out of cards (Burn Out) and conceded a point on every subsequent draw - the deck is likely too thin for how long this game ran, or too much Energy went unspent early instead of refilling the board."
+        }
     }
     if ($Loser.PeakBoardMight -gt 0 -and $Winner.PeakBoardMight -gt 0 -and $Loser.PeakBoardMight -lt ($Winner.PeakBoardMight * 0.7)) {
-        return "Out-classed on peak board Might (your best turn reached $($Loser.PeakBoardMight) vs the opponent's $($Winner.PeakBoardMight)) - the deck likely needs a higher average Might curve, or more Buff/Shield effects to compete for Battlefields."
+        return [PSCustomObject]@{
+            Category = 'MightMismatch'
+            Text     = "Out-classed on peak board Might (your best turn reached $($Loser.PeakBoardMight) vs the opponent's $($Winner.PeakBoardMight)) - the deck likely needs a higher average Might curve, or more Buff/Shield effects to compete for Battlefields."
+        }
     }
     if ($energyUsedPct -lt 0.75) {
-        return ("Left Energy unspent on {0:P0} of the game on average - your hand likely had too many expensive cards clogging the curve early, or not enough cheap plays to use up Channel each turn." -f (1 - $energyUsedPct))
+        return [PSCustomObject]@{
+            Category = 'EnergyUnspent'
+            Text     = ("Left Energy unspent on {0:P0} of the game on average - your hand likely had too many expensive cards clogging the curve early, or not enough cheap plays to use up Channel each turn." -f (1 - $energyUsedPct))
+        }
     }
     if ($cardsStuckInHand -ge 4) {
-        return "Ended the game with $cardsStuckInHand cards still stuck in hand - the deck may be too top-heavy (too many high-Energy cards) to reliably deploy everything before the game ends."
+        return [PSCustomObject]@{
+            Category = 'HandClogged'
+            Text     = "Ended the game with $cardsStuckInHand cards still stuck in hand - the deck may be too top-heavy (too many high-Energy cards) to reliably deploy everything before the game ends."
+        }
     }
     if (-not $Loser.EverLed -and $Winner.EverLed) {
-        return "Never took the lead in points at any stage of the game - the opponent's deck likely has a faster or more consistent early curve, forcing this deck to always play from behind."
+        return [PSCustomObject]@{
+            Category = 'NeverLed'
+            Text     = "Never took the lead in points at any stage of the game - the opponent's deck likely has a faster or more consistent early curve, forcing this deck to always play from behind."
+        }
     }
     if ($pointGap -eq 1) {
-        return "Very close loss (lost by a single point after leading or trading for most of the game) - a single extra removal, Buff, or Shield effect could likely flip this matchup."
+        return [PSCustomObject]@{
+            Category = 'CloseLoss'
+            Text     = "Very close loss (lost by a single point after leading or trading for most of the game) - a single extra removal, Buff, or Shield effect could likely flip this matchup."
+        }
     }
-    return "Fell behind on tempo across multiple turns rather than from one specific swing - review the overall curve and card count at each Energy cost for a smoother development."
+    return [PSCustomObject]@{
+        Category = 'Tempo'
+        Text     = "Fell behind on tempo across multiple turns rather than from one specific swing - review the overall curve and card count at each Energy cost for a smoother development."
+    }
 }
 
 # ============================================================================
@@ -563,6 +591,192 @@ function Get-OptimizationStats {
         NeverPlayed     = $neverPlayed
         AverageEnergy   = [Math]::Round($avgEnergy, 2)
         CurveSuggestion = $curveSuggestion
+    }
+}
+
+# ============================================================================
+#  MATCHUP RECOMMENDATIONS + SIDEBOARD SUGGESTIONS
+#  Turns a batch of already-simulated games against ONE specific opponent
+#  into plain-language advice plus a short list of real, domain-legal cards
+#  worth sideboarding in/out for that matchup - see Get-MatchupRecommendation
+#  below for exactly what this is (and isn't).
+# ============================================================================
+function Get-MatchupRecommendation {
+    <#
+        This is a heuristic built entirely from stats this engine already
+        tracks (loss-reason categories, curve, board Might) - NOT a rules
+        simulation of sideboarding itself. It never invents a card's actual
+        ability text (same "don't fabricate" rule as everywhere else in this
+        project): a freshly-suggested card that isn't already in MyDeck has
+        no Tag data to go on (Tag lives on deck CSV rows, not in
+        CardDatabase.json), so scoring only ever uses real Energy/Might/
+        Domain numbers, never a guessed effect. Swapping the suggested cards
+        in/out and re-running the simulation is still the only way to know
+        the real impact - see README's "Matchup recommendations and
+        sideboard suggestions" section.
+
+        OpponentCategory (Aggro/Midrange/Control) is normally the archetype
+        folder the opponent deck was loaded from; when that's missing or
+        unrecognized, it's inferred from the opponent's own average Energy
+        so this still works for a deck outside the usual folder layout.
+    #>
+    param(
+        [Parameter(Mandatory)][object]$MyDeck,
+        [Parameter(Mandatory)][object]$OpponentDeck,
+        [Parameter(Mandatory)][object[]]$GameResults,
+        [Parameter(Mandatory)][hashtable]$CardDatabase,
+        [string]$OpponentCategory = $null,
+        [int]$MaxSideboardCards = 10
+    )
+
+    # ---- 1. Most common reason THIS deck lost, across every simulated game
+    #         against THIS opponent (not a single game's diagnosis) ----
+    $lossCategories = @($GameResults | Where-Object { $_.Winner -ne 'You' -and $_.LossReason } | ForEach-Object { $_.LossReason.Category })
+    $primaryConcern = 'None'
+    if ($lossCategories.Count -gt 0) {
+        $primaryConcern = ($lossCategories | Group-Object | Sort-Object Count -Descending | Select-Object -First 1).Name
+    }
+
+    # ---- 2. Characterize the opponent's own curve, and fall back to
+    #         inferring Aggro/Midrange/Control from it when the caller
+    #         didn't pass a recognized category (e.g. a deck outside the
+    #         Aggro/Midrange/Control subfolders) ----
+    $oppNonBasic = @($OpponentDeck.Cards | Where-Object { $_.Type -notin @('Legend','Rune','Battlefield') })
+    $oppAvgEnergy = 0
+    if ($oppNonBasic.Count -gt 0) {
+        $oppAvgEnergy = ($oppNonBasic | Measure-Object -Property Energy -Average).Average
+    }
+    if ($OpponentCategory -notin @('Aggro', 'Midrange', 'Control')) {
+        $OpponentCategory = if ($oppAvgEnergy -lt 2.0) { 'Aggro' } elseif ($oppAvgEnergy -gt 3.0) { 'Control' } else { 'Midrange' }
+    }
+
+    # ---- 3. Plain-language advice: one line for the matchup shape, one for
+    #         the dominant loss pattern - both plain lookup tables keyed by
+    #         data already computed above, no per-deck/per-Legend branching ----
+    $categoryAdvice = @{
+        Aggro    = "Rival Aggro (curva baja, {0:N2} de Energia promedio): conviene estabilizar el tablero temprano y priorizar cartas baratas o con Shield." -f $oppAvgEnergy
+        Midrange = "Rival Midrange (curva pareja, {0:N2} de Energia promedio): busca intercambios de Might favorables y evita quedarte atras de tempo." -f $oppAvgEnergy
+        Control  = "Rival Control (curva alta, {0:N2} de Energia promedio): conviene cerrar el juego rapido, antes de que estabilice, priorizando una curva baja." -f $oppAvgEnergy
+    }
+    $concernAdvice = @{
+        BurnOut       = 'Perdes por Burn Out (te quedas sin mazo): bajar el costo promedio de la curva suele ayudar mas que sumar mas robo, que solo acelera quedarte sin cartas.'
+        MightMismatch = 'Te superan en el pico de Might del tablero: priorizar cartas con mas Might por Energia debería cerrar la brecha.'
+        EnergyUnspent = 'Te queda Energia sin gastar seguido: bajar el costo promedio de la curva deberia ayudar a usar mejor el Channel de cada turno.'
+        HandClogged   = 'Terminas con cartas trabadas en mano: la curva es demasiado top-heavy para este matchup en particular.'
+        NeverLed      = 'Nunca tomas la delantera en puntos: este rival es mas rapido o consistente temprano, priorizar jugadas de 1-2 de Energia deberia ayudar.'
+        CloseLoss     = 'Perdes por muy poco margen: una carta mas de Might o de curva baja puede alcanzar para dar vuelta este matchup.'
+        Tempo         = 'Perdes tempo de forma pareja en varios turnos, no por un swing puntual: revisa el conteo de cartas en cada costo de Energia.'
+        None          = 'Este mazo no perdio ninguna partida simulada contra este rival todavia - no hay un patron de derrota que corregir por ahora.'
+    }
+
+    $advice = New-Object 'System.Collections.Generic.List[string]'
+    $advice.Add($categoryAdvice[$OpponentCategory])
+    $advice.Add($concernAdvice[$primaryConcern])
+
+    # ---- 4. What this matchup wants from a sideboard card, derived from the
+    #         same two signals above (never hardcoded per Legend/deck) ----
+    $wantsCheap = $primaryConcern -in @('EnergyUnspent', 'HandClogged', 'NeverLed', 'BurnOut') -or $OpponentCategory -eq 'Aggro'
+    $wantsMight = $primaryConcern -eq 'MightMismatch' -or $OpponentCategory -in @('Aggro', 'Midrange')
+
+    # ---- 5. Sideboard IN: real, domain-legal cards from CardDatabase.json
+    #         that aren't already at the 3-copy legal max, scored for this
+    #         matchup's needs ----
+    $allowedDomains = @()
+    if ($MyDeck.Domain) { $allowedDomains = @($MyDeck.Domain -split '/' | ForEach-Object { $_.Trim() }) }
+
+    $currentCopies = @{}
+    foreach ($row in $MyDeck.DisplayRows) {
+        if ($row.Type -in @('Unit', 'Spell', 'Gear')) {
+            $currentCopies[$row.Name.ToLowerInvariant()] = [int]$row.Quantity
+        }
+    }
+
+    $seenNames = New-Object 'System.Collections.Generic.HashSet[string]'
+    $inCandidates = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($rec in $CardDatabase.Values) {
+        if (-not $seenNames.Add($rec.Name)) { continue }   # exact-name/normalized-name index alias for the same card
+        if ($rec.IsToken) { continue }
+        if ($rec.Type -notin @('Unit', 'Spell', 'Gear')) { continue }
+        if ($null -eq $rec.Energy) { continue }
+
+        $cardDomains = @($rec.Domains | Where-Object { $_ -and $_ -ne 'Colorless' })
+        if ($allowedDomains.Count -gt 0 -and $cardDomains.Count -gt 0) {
+            $legal = $false
+            foreach ($d in $cardDomains) { if ($allowedDomains -contains $d) { $legal = $true; break } }
+            if (-not $legal) { continue }
+        }
+
+        $existingQty = 0
+        if ($currentCopies.ContainsKey($rec.Name.ToLowerInvariant())) { $existingQty = $currentCopies[$rec.Name.ToLowerInvariant()] }
+        if ($existingQty -ge 3) { continue }
+
+        $energy = [double]$rec.Energy
+        $might  = [double]$rec.Might
+
+        # Baseline efficiency (Might per Energy) so there's always a sensible
+        # ranking even when neither wantsCheap nor wantsMight fired; the
+        # matchup-specific bonuses on top of it are what actually change the
+        # ordering per opponent.
+        $score = 0.0
+        if ($energy -gt 0) { $score += ($might / $energy) }
+        if ($wantsCheap) { $score += [Math]::Max(0, 3 - $energy) * 1.5 }
+        if ($wantsMight) { $score += ($might / [Math]::Max($energy, 1)) * 1.5 }
+        if ($existingQty -gt 0) { $score += 0.25 }   # already proven to fit this deck's domains/curve
+
+        if ($score -le 0) { continue }
+
+        $domainStr = if ($cardDomains.Count -gt 0) { $cardDomains -join '/' } else { '' }
+        $inCandidates.Add([PSCustomObject]@{
+            Name   = $rec.Name
+            Type   = $rec.Type
+            Energy = $rec.Energy
+            Might  = $rec.Might
+            Domain = $domainStr
+            Score  = [Math]::Round($score, 2)
+        })
+    }
+    $sideboardIn = @($inCandidates | Sort-Object Score -Descending | Select-Object -First $MaxSideboardCards)
+
+    # ---- 6. Sideboard OUT: the weakest maindeck cards for THIS matchup -
+    #         "never played in any simulated game against this opponent" is
+    #         the most defensible cut candidate (reuses the same PlayLogA
+    #         data Get-OptimizationStats does), broken by a curve/Might
+    #         tiebreak that matches whatever the matchup wants more of ----
+    $playedCounts = @{}
+    foreach ($r in $GameResults) {
+        foreach ($n in $r.PlayLogA) {
+            if (-not $playedCounts.ContainsKey($n)) { $playedCounts[$n] = 0 }
+            $playedCounts[$n]++
+        }
+    }
+    $myNonBasic = @($MyDeck.Cards | Where-Object { $_.Type -notin @('Legend', 'Rune', 'Battlefield') })
+    $outCandidates = @($myNonBasic | Group-Object Name | ForEach-Object {
+        $card = $_.Group[0]
+        $timesPlayed = 0
+        if ($playedCounts.ContainsKey($_.Name)) { $timesPlayed = $playedCounts[$_.Name] }
+        $tiebreak = 0.0
+        if ($wantsCheap) { $tiebreak = -1.0 * [double]$card.Energy }        # cut the most expensive cards first
+        elseif ($wantsMight) { $tiebreak = [double]$card.Might }            # cut the lowest-Might cards first
+        [PSCustomObject]@{
+            Name        = $_.Name
+            Type        = $card.Type
+            Energy      = $card.Energy
+            Might       = $card.Might
+            Domain      = $card.Domain
+            TimesPlayed = $timesPlayed
+            CutPriority = ($timesPlayed * 1000.0) + $tiebreak
+        }
+    })
+    $sideboardOutCount = [Math]::Min($MaxSideboardCards, $sideboardIn.Count)
+    $sideboardOut = @($outCandidates | Sort-Object CutPriority | Select-Object -First $sideboardOutCount)
+
+    return [PSCustomObject]@{
+        OpponentCategory      = $OpponentCategory
+        OpponentAverageEnergy = [Math]::Round($oppAvgEnergy, 2)
+        PrimaryConcern        = $primaryConcern
+        Advice                = @($advice)
+        SideboardIn           = $sideboardIn
+        SideboardOut          = $sideboardOut
     }
 }
 
@@ -945,4 +1159,4 @@ function Export-DeckCsv {
         Export-Csv -Path $Path -NoTypeInformation -Encoding UTF8
 }
 
-Export-ModuleMember -Function Get-BannedList, Get-DeckFileList, Import-Deck, New-PlayerState, Invoke-Draw, Invoke-LegendAbilityTrigger, Invoke-MainPhase, Invoke-CombatStep, Get-LossReason, Invoke-SingleGame, Get-OptimizationStats, Invoke-GameBatch, Invoke-Match, Invoke-MatchBatch, Get-MatchupMatrix, Import-CardDatabase, ConvertFrom-DeckText, Resolve-DeckList, Export-DeckCsv
+Export-ModuleMember -Function Get-BannedList, Get-DeckFileList, Import-Deck, New-PlayerState, Invoke-Draw, Invoke-LegendAbilityTrigger, Invoke-MainPhase, Invoke-CombatStep, Get-LossReason, Invoke-SingleGame, Get-OptimizationStats, Get-MatchupRecommendation, Invoke-GameBatch, Invoke-Match, Invoke-MatchBatch, Get-MatchupMatrix, Import-CardDatabase, ConvertFrom-DeckText, Resolve-DeckList, Export-DeckCsv

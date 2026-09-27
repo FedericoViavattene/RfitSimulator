@@ -72,6 +72,7 @@
 $Script:GamesToSimulate  = 50
 $Script:MatchesToSimulate = 20   # for "best-of-3 match" mode
 $Script:BestOf           = 3
+$Script:SideboardSize    = 10   # max cards suggested per matchup recommendation
 $Script:RootPath         = $PSScriptRoot
 $Script:MyDeckFolder     = Join-Path $RootPath 'Decks\MyDeck'
 $Script:OpponentFolder   = Join-Path $RootPath 'Decks\Opponents'
@@ -215,6 +216,43 @@ function Show-MatchBreakdown {
 }
 
 # ============================================================================
+#  MATCHUP RECOMMENDATION + SIDEBOARD SUGGESTIONS (console)
+# ============================================================================
+function Show-MatchupRecommendation {
+    param([object]$Recommendation)
+
+    Write-Title "MATCHUP RECOMMENDATIONS"
+    Write-Host "Heuristic feedback from this matchup's own simulated games - not a" -ForegroundColor DarkYellow
+    Write-Host "guarantee, and not based on any card's actual rules text (see README)." -ForegroundColor DarkYellow
+    Write-Host ""
+    foreach ($line in $Recommendation.Advice) {
+        Write-Host ("  - {0}" -f $line) -ForegroundColor White
+    }
+
+    if ($Recommendation.SideboardIn.Count -eq 0) {
+        Write-Host ""
+        Write-Host "No legal sideboard candidates were found for this deck's domain(s)." -ForegroundColor DarkGray
+        return
+    }
+
+    Write-Host ""
+    Write-SubTitle ("Suggested sideboard (max {0} cards)" -f $Recommendation.SideboardIn.Count)
+    Write-Host "  IN:" -ForegroundColor Green
+    foreach ($c in $Recommendation.SideboardIn) {
+        Write-Host ("    {0,-32} [{1}E / {2}M] {3}" -f $c.Name, $c.Energy, $c.Might, $c.Domain) -ForegroundColor Green
+    }
+
+    if ($Recommendation.SideboardOut.Count -gt 0) {
+        Write-Host ""
+        Write-Host "  OUT:" -ForegroundColor Red
+        foreach ($c in $Recommendation.SideboardOut) {
+            $playedNote = if ($c.TimesPlayed -eq 0) { "never played" } else { "played $($c.TimesPlayed)x" }
+            Write-Host ("    {0,-32} [{1}E / {2}M] {3} ({4})" -f $c.Name, $c.Energy, $c.Might, $c.Domain, $playedNote) -ForegroundColor Red
+        }
+    }
+}
+
+# ============================================================================
 #  OPTIMIZATION REPORT (console)
 # ============================================================================
 function Show-OptimizationReport {
@@ -317,6 +355,7 @@ try {
         elseif ($modeChoice -eq '3') {
             # --- Mode 3: best-of-N match simulation vs one opponent ---
             $opponentPath = Select-OpponentDeck -FolderPath $Script:OpponentFolder
+            $opponentCategory = Split-Path (Split-Path $opponentPath -Parent) -Leaf
             $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList -CardDatabase $Script:CardDatabase
             if ($opponentDeck.BannedExcluded.Count -gt 0) {
                 Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from the opponent deck: {0}" -f ($opponentDeck.BannedExcluded -join ', ')) -ForegroundColor Red
@@ -337,6 +376,9 @@ try {
             }
             Show-OptimizationReport -Deck $myDeck -GameResults $allGames
 
+            $recommendation = Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $allGames -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize
+            Show-MatchupRecommendation -Recommendation $recommendation
+
             Write-Host ""
             $showOpponentList = Read-Host "View the opponent's full decklist? (Y/N)"
             if ($showOpponentList -match '^(?i)y') {
@@ -348,6 +390,7 @@ try {
         else {
             # --- Mode 1 (default): single opponent, N games ---
             $opponentPath = Select-OpponentDeck -FolderPath $Script:OpponentFolder
+            $opponentCategory = Split-Path (Split-Path $opponentPath -Parent) -Leaf
             $opponentDeck = Import-Deck -Path $opponentPath -BannedList $bannedList -CardDatabase $Script:CardDatabase
             if ($opponentDeck.BannedExcluded.Count -gt 0) {
                 Write-Host ("WARNING: banned card(s)/battlefield(s) excluded from the opponent deck: {0}" -f ($opponentDeck.BannedExcluded -join ', ')) -ForegroundColor Red
@@ -385,7 +428,7 @@ try {
                     foreach ($r in $batch.Results) {
                         $gameNum++
                         if ($r.Winner -ne "You") {
-                            Write-Host ("  Game {0,2}: {1}" -f $gameNum, $r.LossReason) -ForegroundColor Yellow
+                            Write-Host ("  Game {0,2}: {1}" -f $gameNum, $r.LossReason.Text) -ForegroundColor Yellow
                         }
                     }
                 }
@@ -393,6 +436,10 @@ try {
 
             # --- Optimization report ---
             Show-OptimizationReport -Deck $myDeck -GameResults $batch.Results
+
+            # --- Matchup recommendation + sideboard suggestions ---
+            $recommendation = Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $batch.Results -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize
+            Show-MatchupRecommendation -Recommendation $recommendation
 
             # --- View opponent decklist ---
             Write-Host ""

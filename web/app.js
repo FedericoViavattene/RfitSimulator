@@ -13,6 +13,7 @@ const lossDetails = document.getElementById('lossDetails');
 const lossList = document.getElementById('lossList');
 const optimization = document.getElementById('optimization');
 const opponentDecklist = document.getElementById('opponentDecklist');
+const recommendation = document.getElementById('recommendation');
 
 const matchResultsSection = document.getElementById('matchResults');
 const matchBannedWarnings = document.getElementById('matchBannedWarnings');
@@ -21,6 +22,7 @@ const matchWinrateSub = document.getElementById('matchWinrateSub');
 const matchList = document.getElementById('matchList');
 const matchOptimization = document.getElementById('matchOptimization');
 const matchOpponentDecklist = document.getElementById('matchOpponentDecklist');
+const matchRecommendation = document.getElementById('matchRecommendation');
 
 const matrixResultsSection = document.getElementById('matrixResults');
 const matrixBannedWarnings = document.getElementById('matrixBannedWarnings');
@@ -206,6 +208,45 @@ function renderMatchList(matches) {
   });
 }
 
+function renderRecommendation(rec, target) {
+  if (!rec) {
+    target.innerHTML = '';
+    return;
+  }
+
+  let html = '<ul class="advice-list">';
+  (rec.advice || []).forEach(line => {
+    html += `<li>${line}</li>`;
+  });
+  html += '</ul>';
+
+  const sideboardIn = rec.sideboardIn || [];
+  const sideboardOut = rec.sideboardOut || [];
+
+  if (sideboardIn.length === 0) {
+    html += '<p>No legal sideboard candidates were found for this deck\'s domain(s).</p>';
+    target.innerHTML = html;
+    return;
+  }
+
+  html += `<div class="opt-block"><h3>Sideboard IN (max ${sideboardIn.length})</h3><ul class="sideboard-list">`;
+  sideboardIn.forEach(c => {
+    html += `<li><span class="sideboard-card-name">${c.name}</span> <span class="sideboard-card-stats">[${c.energy}E / ${c.might}M] ${c.domain || ''}</span></li>`;
+  });
+  html += '</ul></div>';
+
+  if (sideboardOut.length > 0) {
+    html += '<div class="opt-block"><h3>Sideboard OUT</h3><ul class="sideboard-list sideboard-out">';
+    sideboardOut.forEach(c => {
+      const playedNote = c.timesPlayed === 0 ? 'never played' : `played ${c.timesPlayed}x`;
+      html += `<li><span class="sideboard-card-name">${c.name}</span> <span class="sideboard-card-stats">[${c.energy}E / ${c.might}M] ${c.domain || ''} (${playedNote})</span></li>`;
+    });
+    html += '</ul></div>';
+  }
+
+  target.innerHTML = html;
+}
+
 function renderMatrix(data) {
   matrixAverageNumber.textContent = data.averageWinrate + '%';
   matrixAverageNumber.classList.toggle('good', data.averageWinrate >= 50);
@@ -263,6 +304,7 @@ async function runSingleOpponentSimulation(myDeckId, opponentDeckId) {
   renderGameList(data.games);
   renderLossBreakdown(data.games);
   renderOptimization(data.optimization, optimization);
+  renderRecommendation(data.recommendation, recommendation);
   renderDecklist(data.opponentDecklist, opponentDecklist);
   resultsSection.classList.remove('hidden');
 }
@@ -283,6 +325,7 @@ async function runMatchSimulation(myDeckId, opponentDeckId) {
   renderMatchWinrate(data);
   renderMatchList(data.matches);
   renderOptimization(data.optimization, matchOptimization);
+  renderRecommendation(data.recommendation, matchRecommendation);
   renderDecklist(data.opponentDecklist, matchOpponentDecklist);
   matchResultsSection.classList.remove('hidden');
 }
