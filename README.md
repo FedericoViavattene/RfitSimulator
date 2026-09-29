@@ -96,6 +96,55 @@ and opens `http://localhost:8787` in your default browser.
 - To stop it, close the "Riftbound Web Server" console window it opened, or
   press Ctrl+C in it.
 
+## Play on your phone (installable web app)
+
+The `docs/` folder is a second, independent front-end: the same simulator UI,
+but ported to run **entirely inside a phone's browser** - no PC, no
+PowerShell, no local network required once it's installed. It's meant to be
+hosted for free on GitHub Pages and opened from your phone as an installed
+app (an icon on your home screen that opens full-screen, no browser address
+bar).
+
+**How it's different from the PC web UI (`web/` + `WebServer.ps1`):**
+- The entire simulation engine (`RiftboundEngine.psm1`'s logic - drawing,
+  combat, loss diagnostics, matchup recommendations, everything) is ported
+  line-for-line into `docs/engine.js`, running as plain JavaScript in the
+  browser. There is no server at all - `docs/app.js` calls `engine.js`
+  directly instead of making `/api/...` requests.
+- Decks live in the browser's own local database (IndexedDB) instead of CSV
+  files, since a phone browser has no access to a filesystem the way a PC
+  does. The same 14 bundled decks are seeded into it the first time the app
+  opens; any deck you import afterwards is saved there too, on that device
+  only.
+- It works fully offline after the first load (a service worker,
+  `docs/sw.js`, caches everything needed) - once installed, you don't need a
+  connection to run a simulation, only to pick up a future update.
+
+**One-time setup (only needs doing once):**
+1. Push this repo to GitHub as usual (`PushToGitHub.bat`).
+2. On github.com, open the repo → **Settings → Pages** → under "Build and
+   deployment", set **Source** to "Deploy from a branch", **Branch** to
+   `main` and the folder to **`/docs`** → Save. GitHub gives you a URL like
+   `https://<your-username>.github.io/<repo-name>/` - that can take a minute
+   or two to go live the first time.
+3. Open that URL on your phone's browser (Chrome on Android, Safari on
+   iOS), then:
+   - **Android (Chrome):** tap the ⋮ menu → "Add to Home screen" / "Install
+     app".
+   - **iPhone (Safari):** tap the Share icon → "Add to Home Screen".
+4. Open it from the new icon on your home screen from now on - it launches
+   full-screen, like a real app, with no address bar.
+
+**How updates reach your phone:** any time this simulator's code changes
+(here, or on your PC), pushing to GitHub via `PushToGitHub.bat` redeploys
+the `docs/` folder to that same URL automatically, usually within a minute.
+The next time you open the app icon **with an internet connection**, it
+fetches the update in the background; a fully offline session still opens
+the last version it had cached. Bundled deck *content* (the 14 starter
+decks) is only seeded once per device on first install - a future code
+update won't retroactively change decks you've already got, only the app's
+logic/UI.
+
 ## Importing a deck from a text list
 
 Instead of hand-building a CSV, you can paste or drop in a plain decklist -

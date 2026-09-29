@@ -1,0 +1,11939 @@
+{
+"Abandon": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Abandoned Hall": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Acceleration Gate": {
+"champions": [
+"Jayce"
+],
+"domains": [
+"Mind",
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Acceptable Losses": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Adaptatron": {
+"champions": [
+"Mech",
+"Piltover"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Affectionate Poro": {
+"champions": [
+"Poro",
+"Noxus"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Against the Odds": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Ahri, Alluring": {
+"champions": [
+"Ahri",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Ahri, Inquisitive": {
+"champions": [
+"Ahri"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Ahri, Nine-Tailed Fox": {
+"champions": [
+"Ahri"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Akali, Deadly Weapon": {
+"champions": [
+"Akali"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Akali, Rogue Assassin": {
+"champions": [
+"Akali"
+],
+"domains": [
+"Fury",
+"Calm"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Akali, Silent": {
+"champions": [
+"Ionia",
+"Akali"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Akshan, Mischievous": {
+"champions": [
+"Akshan",
+"Shurima",
+"Sentinel"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Albus Ferros": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Allay, Eager Admirer": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Alpha Strike": {
+"champions": [
+"Master Yi"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Alpha Wildclaw": {
+"champions": [
+"Cat",
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Altar of Blood": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Altar of Memories": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Altar to Unity": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Amateur Recital": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Ambessa, Matriarch of War": {
+"champions": [
+"Ambessa"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Ambessa, Respected and Feared": {
+"champions": [
+"Noxus",
+"Ambessa"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Ambessa, The Wolf": {
+"champions": [
+"Ambessa"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Ancient Henge": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Ancient Warmonger": {
+"champions": [
+"Spirit",
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Angle Shot": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Angler Beast": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Anivia, Primal": {
+"champions": [
+"Bird",
+"Anivia",
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Annie, Dark Child": {
+"champions": [
+"Annie"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Annie, Fiery": {
+"champions": [
+"Annie",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Annie, Stubborn": {
+"champions": [
+"Annie",
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Aphelios, Exalted": {
+"champions": [
+"Aphelios",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Applied Researchers": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Apprentice Mage": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Apprentice Smith": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Arachnoid Horror": {
+"champions": [
+"Shadow Isles",
+"Spider"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Arcane Shift": {
+"champions": [
+"Ezreal"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Arena Bar": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Arena Kingpin": {
+"champions": [
+"Yordle",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Arise!": {
+"champions": [
+"Azir"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Armed Assailant": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Ashe, Focused": {
+"champions": [
+"Freljord",
+"Ashe"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Aspirant's Climb": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Aspiring Engineer": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Assembly Rig": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Astral Heron": {
+"champions": [
+"Bird",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 0,
+"type": "Unit"
+},
+"Atakhan": {
+"champions": [
+"Noxus",
+"Demon"
+],
+"domains": [
+"Order"
+],
+"energy": 10,
+"isToken": false,
+"might": 7,
+"power": 3,
+"type": "Unit"
+},
+"Aurok General": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Ava Achiever": {
+"champions": [
+"Yordle"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Azir, Ascendant": {
+"champions": [
+"Bird",
+"Azir",
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Azir, Emperor of the Sands": {
+"champions": [
+"Azir"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Azir, Sovereign": {
+"champions": [
+"Bird",
+"Azir",
+"Shurima"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"B": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Gear"
+},
+"Baccai Reaper": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Baccai Sandspinner": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Baccai Witherclaw": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Back Off": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Back to Back": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Back-Alley Bar": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Baited Hook": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Bandle Soldier": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Bandle Tree": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Bard, Mercurial": {
+"champions": [
+"Bard"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Baron Nashor": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Chaos"
+],
+"energy": 10,
+"isToken": false,
+"might": 12,
+"power": 3,
+"type": "Unit"
+},
+"Baron Pit": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Battering Ram": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Beast Below": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 7,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Bellows Breath": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Bewitching Spirit": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Bilgewater Bully": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Bird": {
+"champions": [
+"Bird"
+],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Black Flame Altar": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Black Market Broker": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Black Rose Dignitary": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Blade Twirler": {
+"champions": [
+"Yordle",
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Blade of the Ruined King": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Gear"
+},
+"Blast Cone": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Blast Corps Cadet": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Blast of Power": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Blastcone Fae": {
+"champions": [
+"Fae",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 1,
+"type": "Unit"
+},
+"Blazing Scorcher": {
+"champions": [
+"Dragon",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Blighted Battleaxe": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Gear"
+},
+"Blind Fury": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Blitzcrank, Impassive": {
+"champions": [
+"Mech",
+"Blitzcrank",
+"Zaun"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Block": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Blood Money": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Blood Rose": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Blood Rush": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Blue Sentinel": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Body Rune": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Bonds of Strength": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Bone Skewer": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Boneshiver": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Boots of Swiftness": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Bottled Constellation": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 10,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Gear"
+},
+"Brazen Buccaneer": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Breakneck Mech": {
+"champions": [
+"Mech",
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 8,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Brittle Steel": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Brush": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Brutal Hunter": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Brutalizer": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Brynhir Thundersong": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Bubble Bot": {
+"champions": [
+"Mech",
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Buff": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": null
+},
+"Buhru Captain": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Bullet Time": {
+"champions": [
+"Miss Fortune"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Bushwhack": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Caitlyn, Patrolling": {
+"champions": [
+"Caitlyn",
+"Piltover"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Call to Battle": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Call to Glory": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Called Shot": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Calm Rune": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Cannon Barrage": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Captain Farron": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Card Sharp": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Carnivorous Snapvine": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Carrion Dredger": {
+"champions": [
+"Mech",
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Cataclysmic Duel": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 8,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Catalyst of Aeons": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Cemetery Attendant": {
+"champions": [
+"Dog",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Chakram Dancer": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Challenge": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Chaos Rune": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Charm": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Chemtech Cask": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Chemtech Enforcer": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Cithria of Cloudfield": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Clairvoyance": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Clash of Giants": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Cleave": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Clockwork Keeper": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Cloth Armor": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Cloud Drake": {
+"champions": [
+"Dragon",
+"Demacia"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Combat Chef": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Combat Experience": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Commander Ledros": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 8,
+"power": 4,
+"type": "Unit"
+},
+"Concentrate": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Confront": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Conscription": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Consult the Past": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Consuming Curse": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Convergent Mutation": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Corina Veraza": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Corrupt Enforcer": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Corrupted Dragon": {
+"champions": [
+"Dragon",
+"Shadow Isles"
+],
+"domains": [
+"Body"
+],
+"energy": 10,
+"isToken": false,
+"might": 10,
+"power": 2,
+"type": "Unit"
+},
+"Counter Strike": {
+"champions": [
+"Jax"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Covert Informant": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Crackshot Corsair": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Crescent Guardian": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Crescent Strike": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Crimson Pigeons": {
+"champions": [
+"Bird",
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Crowd Favorite": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Cruel Patron": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Crumbling Sands": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Cull": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Cull the Weak": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Cursed Sarcophagus": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Curtain Call": {
+"champions": [
+"Jhin"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Daisy!": {
+"champions": [
+"Ivern",
+"Ionia"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 9,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Dame the Despoiler": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Dancing Grenade": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Danger Zone": {
+"champions": [
+"Rumble"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Dangerous Duo": {
+"champions": [
+"Mech",
+"Bandle City"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Daring Poro": {
+"champions": [
+"Poro"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Darius, Executioner": {
+"champions": [
+"Trifarian",
+"Darius",
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Darius, Hand of Noxus": {
+"champions": [
+"Darius"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Darius, Trifarian": {
+"champions": [
+"Trifarian",
+"Darius",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Dauntless Vanguard": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Dazzling Aurora": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 9,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Gear"
+},
+"Deadbloom Predator": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Body"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Deadly Flourish": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Death Mark": {
+"champions": [
+"Zed"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Death from Below": {
+"champions": [
+"Pyke"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Deathgrip": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Decisive Strike": {
+"champions": [
+"Garen"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Decree of Discord": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Decree of Focus": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Decree of Insight": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Decree of Rage": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Decree of Strength": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Decree of Unity": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Defiant Dance": {
+"champions": [
+"Irelia"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Defy": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Demacian Diplomat": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Desert's Call": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Determined Sentry": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Detonate": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Diana, Lunari": {
+"champions": [
+"Diana",
+"Mount Targon"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Diana, No Longer Human": {
+"champions": [
+"Diana",
+"Mount Targon"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Diana, Scorn of the Moon": {
+"champions": [
+"Diana"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Direwing": {
+"champions": [
+"Dragon",
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 0,
+"type": "Unit"
+},
+"Disarming Rake": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 1,
+"type": "Unit"
+},
+"Disciple of Shen": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Discipline": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Disintegrate": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Disposal Order": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Divine Judgment": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Divining Shells": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Dominus": {
+"champions": [
+"Renekton"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Doran's Blade": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Doran's Ring": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Doran's Shield": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Double Trouble": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Downstage Dramatics": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Downwell": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 8,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Dr": {
+"champions": [
+"Dr. Mundo",
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 8,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Drag Under": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Dragon Form": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Dragon Roost": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Dragon's Rage": {
+"champions": [
+"Lee Sin"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Dragonsoul Sage": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Dramatic Visionary": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Draven, Audacious": {
+"champions": [
+"Draven",
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Draven, Glorious Executioner": {
+"champions": [
+"Draven"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"legendAbility": {
+"amount": 1,
+"effect": "Draw",
+"sourceText": "When you win a combat, draw 1.",
+"trigger": "OnCombatWin"
+},
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Draven, Showboat": {
+"champions": [
+"Draven",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Draven, Vanquisher": {
+"champions": [
+"Draven",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Dredge Up": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Dropboarder": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Dune Drake": {
+"champions": [
+"Dragon",
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Dune Surfer": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Dunebreaker": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Fury"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Dusk Rose Lab": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Eager Apprentice": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Eager Drakehound": {
+"champions": [
+"Dog",
+"Dragon",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Eclipse": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Eclipse Dragon": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Fury"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 0,
+"type": "Unit"
+},
+"Eclipse Herald": {
+"champions": [
+"Bird",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Edge of Night": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Ekko, Recurrent": {
+"champions": [
+"Ekko",
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Elder Dragon": {
+"champions": [
+"Dragon"
+],
+"domains": [
+"Body"
+],
+"energy": 12,
+"isToken": false,
+"might": 10,
+"power": 4,
+"type": "Unit"
+},
+"Ember Monk": {
+"champions": [
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Eminent Benefactor": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Emperor's Dais": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Emperor's Divide": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"En Garde": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Endless Riches": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Energy Conduit": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Enthralling Protector": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Enthusiastic Promoter": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Escaped Grayback": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Esteemed Hierophant": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Evelynn, Entrancing": {
+"champions": [
+"Evelynn",
+"Demon"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Evershade Stalker": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Existential Dread": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Experimental Hexplate": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Eye of the Herald": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Ezreal, Dashing": {
+"champions": [
+"Ezreal",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Ezreal, Prodigal Explorer": {
+"champions": [
+"Ezreal"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Ezreal, Prodigy": {
+"champions": [
+"Ezreal",
+"Piltover"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Facebreaker": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Factory Recall": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Fading Memories": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Fae Dragon": {
+"champions": [
+"Fae",
+"Dragon",
+"Bandle City"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Fae Porter": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Faithful Manufactor": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Fallen Feline": {
+"champions": [
+"Cat",
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Falling Comet": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Falling Star": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Fate Weaver": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Feral Strength": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Ferrous Forerunner": {
+"champions": [
+"Mech",
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Field Musicians": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Fight or Flight": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Final Spark": {
+"champions": [
+"Lux"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 8,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Find Your Center": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Fiora, Grand Duelist": {
+"champions": [
+"Fiora"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Fiora, Peerless": {
+"champions": [
+"Fiora",
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Fiora, Victorious": {
+"champions": [
+"Fiora",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Fiora, Worthy": {
+"champions": [
+"Fiora",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Firestorm": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"First Mate": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Fizz, Trickster": {
+"champions": [
+"Yordle",
+"Fizz",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Flame Chompers": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Flash": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Flurry of Blades": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Flurry of Feathers": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Forbidding Waste": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Forecaster": {
+"champions": [
+"Mech",
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Forge of the Fluft": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Forge of the Future": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Forgefire Cape": {
+"champions": [
+"Ornn",
+"Equipment"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 2,
+"type": "Gear"
+},
+"Forgotten Library": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Forgotten Monument": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Forgotten Relic": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Forgotten Signpost": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Forsaken Baccai": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Fortified Position": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Fox-Fire": {
+"champions": [
+"Ahri"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Fresh Beans": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Fretful Feline": {
+"champions": [
+"Cat",
+"Piltover"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Friendship": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Frigid Jewel": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Frigid Touch": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Frisky Hunter": {
+"champions": [
+"Cat",
+"Zaun"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Frostcoat Cub": {
+"champions": [
+"Dog",
+"Freljord"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Frostcoat Mother": {
+"champions": [
+"Dog",
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Frozen Fortress": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Fury Rune": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Galio, Indefatigable": {
+"champions": [
+"Demacia",
+"Galio"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Gangplank, Naval": {
+"champions": [
+"Gangplank"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Garbage Grabber": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Gardens of Becoming": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Garen, Commander": {
+"champions": [
+"Elite",
+"Garen",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Garen, Might of Demacia": {
+"champions": [
+"Garen"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Garen, Rugged": {
+"champions": [
+"Elite",
+"Garen",
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Gearhead": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Gem Jammer": {
+"champions": [
+"Mech",
+"Bandle City"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Gemcraft Seer": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Gemhand Hunter": {
+"champions": [
+"Yordle",
+"Mount Targon"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Gentle Gemdragon": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Body"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 0,
+"type": "Unit"
+},
+"Gentlemen's Duel": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Get Excited!": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Glasc Mixologist": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Glowstone": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Gold": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Grand Strategem": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Grim Apothecary": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Grim Resolve": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Grove of the God-Willow": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Grumpy Rockbear": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Guardian Angel": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Guardian of the Passage": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Guards!": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Guerilla Warfare": {
+"champions": [
+"Teemo"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Gust": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Gust Monk": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Gustwalker": {
+"champions": [
+"Dog",
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Gutter Palace": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Guttural Roar": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Hall of Legends": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Hallowed Tomb": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Hand Hammer": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Hard Bargain": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Harnessed Dragon": {
+"champions": [
+"Dragon",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 8,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Harpoon Squad": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Heart of Dark Ice": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Heedless Resurrection": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Heimerdinger, Inventor": {
+"champions": [
+"Yordle",
+"Heimerdinger",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Heisho, Shell of the World": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Helm of Suppression": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Herald of Scales": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Herald of Spring": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Here to Help": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Heroic Charge": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Hexdrinker": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Hextech Anomaly": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Hextech Disc": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Hextech Formula": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Hextech Gauntlets": {
+"champions": [
+"Vi",
+"Equipment"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Gear"
+},
+"Hextech Ray": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Hidden Blade": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Highlander": {
+"champions": [
+"Master Yi"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Honest Broker": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Honeyfruit": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Horns of the Dragon": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Hostile Takeover": {
+"champions": [
+"Renata Glasc"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Hungry Wolf": {
+"champions": [
+"Dog",
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Hunter's Machete": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Hwei, Brooding Painter": {
+"champions": [
+"Ionia",
+"Hwei"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Iascylla": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Icathian Rain": {
+"champions": [
+"Kai'Sa"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Icevale Archer": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Illaoi, Prophet of the Great Kraken": {
+"champions": [
+"Illaoi"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Immortal Phoenix": {
+"champions": [
+"Spirit"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Imperial Decree": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Imposing Challenger": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Incinerate": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Inferna": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Insightful Investigator": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Invert Timelines": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Inviolus Vox": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Fury"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Irelia, Blade Dancer": {
+"champions": [
+"Irelia"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Irelia, Fervent": {
+"champions": [
+"Irelia",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Irelia, Graceful": {
+"champions": [
+"Irelia",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Iron Ballista": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Irresistible Faefolk": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Isolate": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Iterative Design": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Ivern, Friend to All": {
+"champions": [
+"Ivern",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Ivern, Green Father": {
+"champions": [
+"Ivern"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Ivern, Nurturer": {
+"champions": [
+"Ivern",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Jae Medarda": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 2,
+"type": "Unit"
+},
+"Jagged Cutlass": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Janna, Savior": {
+"champions": [
+"Janna",
+"Zaun"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Jaull-Fish": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Jax, Grandmaster at Arms": {
+"champions": [
+"Jax"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Jax, Unmatched": {
+"champions": [
+"Jax",
+"Icathia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Jax, Unrelenting": {
+"champions": [
+"Jax",
+"Icathia"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Jayce, Brilliant Inventor": {
+"champions": [
+"Jayce",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Jayce, Defender of Tomorrow": {
+"champions": [
+"Jayce"
+],
+"domains": [
+"Mind",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Jayce, Hammer in Hand": {
+"champions": [
+"Jayce",
+"Piltover"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Jayce, Man of Progress": {
+"champions": [
+"Jayce",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Jeweled Colossus": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Jhin, Meticulous Killer": {
+"champions": [
+"Jhin",
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Jhin, Murderous Artist": {
+"champions": [
+"Jhin",
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Jhin, Virtuoso": {
+"champions": [
+"Jhin"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Jinx, Demolitionist": {
+"champions": [
+"Jinx",
+"Zaun"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Jinx, Loose Cannon": {
+"champions": [
+"Jinx"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Jinx, Rebel": {
+"champions": [
+"Jinx",
+"Zaun"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Kadregrin the Infernal": {
+"champions": [
+"Dragon",
+"Demacia"
+],
+"domains": [
+"Fury"
+],
+"energy": 9,
+"isToken": false,
+"might": 9,
+"power": 2,
+"type": "Unit"
+},
+"Kai'Sa, Daughter of the Void": {
+"champions": [
+"Kai'Sa"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Kai'Sa, Evolutionary": {
+"champions": [
+"Kai'Sa",
+"The Void"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Kai'Sa, Survivor": {
+"champions": [
+"Kai'Sa",
+"The Void"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Karma, Channeler": {
+"champions": [
+"Vi",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Karthus, Eternal": {
+"champions": [
+"Spirit",
+"Karthus",
+"Shadow Isles"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Katarina, Reckless": {
+"champions": [
+"Katarina",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Kato the Arm": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Kayle, Justified": {
+"champions": [
+"Kayle"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Kayn, Unleashed": {
+"champions": [
+"Kayn",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Keeper of Law": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Keeper of Masks": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Keeper's Verdict": {
+"champions": [
+"Poppy"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Kennen, Heart of the Tempest": {
+"champions": [
+"Yordle",
+"Kennen"
+],
+"domains": [
+"Order",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Kennen, Keeper of Balance": {
+"champions": [
+"Yordle",
+"Kennen"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Kennen, Storm of Shuriken": {
+"champions": [
+"Yordle",
+"Ionia",
+"Kennen"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Kha'Zix, Evolving Hunter": {
+"champions": [
+"Kha'Zix",
+"The Void"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Kha'Zix, Mutating Horror": {
+"champions": [
+"Kha'Zix",
+"The Void"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Kha'Zix, Voidreaver": {
+"champions": [
+"Kha'Zix"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Kharox": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Ki Barrier": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"King's Edict": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Kinkou Initiate": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Kinkou Lifeblade": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Kinkou Monk": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Kinkou Temple": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Kog'Maw, Caustic": {
+"champions": [
+"Kog'Maw",
+"The Void"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 1,
+"type": "Unit"
+},
+"Kraken Hunter": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 5,
+"power": 2,
+"type": "Unit"
+},
+"Lacerate": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Last Breath": {
+"champions": [
+"Yasuo"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Last Rites": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Last Stand": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Laurent Bladekeeper": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Laurent Duelist": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"LeBlanc, Deceiver": {
+"champions": [
+"LeBlanc"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"LeBlanc, Everywhere at Once": {
+"champions": [
+"Noxus",
+"LeBlanc"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"LeBlanc, Fragmented": {
+"champions": [
+"Noxus",
+"LeBlanc"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Lecturing Yordle": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Lee Sin, Ascetic": {
+"champions": [
+"Lee Sin",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Lee Sin, Blind Monk": {
+"champions": [
+"Lee Sin"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Lee Sin, Centered": {
+"champions": [
+"Lee Sin",
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Legion Marauder": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Legion Quartermaster": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Legion Rearguard": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Leona, Determined": {
+"champions": [
+"Leona",
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Leona, Radiant Dawn": {
+"champions": [
+"Leona"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Leona, Zealot": {
+"champions": [
+"Leona",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Lightning Rush": {
+"champions": [
+"Kennen"
+],
+"domains": [
+"Order",
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Lillia, Bashful Bloom": {
+"champions": [
+"Lillia"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Lillia, Fae Fawn": {
+"champions": [
+"Fae",
+"Lillia",
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Lillia, Protector of Dreams": {
+"champions": [
+"Fae",
+"Lillia",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Lilting Lullaby": {
+"champions": [
+"Lillia"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Lonely Poro": {
+"champions": [
+"Poro",
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Long Sword": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 1,
+"type": "Gear"
+},
+"Lord Broadmane": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Lotus Trap": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Loyal Poro": {
+"champions": [
+"Poro",
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Loyal Pup": {
+"champions": [
+"Dog",
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Lucian, Gunslinger": {
+"champions": [
+"Lucian",
+"Demacia",
+"Sentinel"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Lucian, Merciless": {
+"champions": [
+"Lucian",
+"Demacia",
+"Sentinel"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Lucian, Purifier": {
+"champions": [
+"Lucian"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Lunar Boon": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Lux, Crownguard": {
+"champions": [
+"Lux",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Lux, Illuminated": {
+"champions": [
+"Lux",
+"Demacia"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Lux, Lady of Luminosity": {
+"champions": [
+"Lux"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Machine Evangel": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Maddened Marauder": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Maduli the Gatekeeper": {
+"champions": [
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Mageseeker Investigator": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Mageseeker Warden": {
+"champions": [
+"Demacia"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Magma Wurm": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Fury"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 1,
+"type": "Unit"
+},
+"Malzahar, Fanatic": {
+"champions": [
+"Malzahar",
+"The Void"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Marai Spire": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Marching Orders": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Masa, Crashing Thunder": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Mask Mother": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Mask of Foresight": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Master Bingwen": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Master Yi, Tempered": {
+"champions": [
+"Master Yi",
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Master Yi, Unstoppable": {
+"champions": [
+"Master Yi",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 12,
+"isToken": false,
+"might": 12,
+"power": 3,
+"type": "Unit"
+},
+"Master Yi, Wuju Bladesman": {
+"champions": [
+"Master Yi"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Master Yi, Wuju Master": {
+"champions": [
+"Master Yi"
+],
+"domains": [
+"Calm",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Meditation": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Mega-Mech": {
+"champions": [
+"Mech",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 8,
+"power": 0,
+"type": "Unit"
+},
+"Megatusk": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Mel, Defiant Soul": {
+"champions": [
+"Mel"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Mel, Newly Awakened": {
+"champions": [
+"Noxus",
+"Mel"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Mel, Soul's Reflection": {
+"champions": [
+"Mel"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Mesmerize": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Minah Swiftfoot": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Mind Rune": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Mindsplitter": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Chaos"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Minefield": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Minotaur Reckoner": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Mirror Image": {
+"champions": [
+"LeBlanc"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Mischievous Marai": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Miss Fortune, Bounty Hunter": {
+"champions": [
+"Miss Fortune"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Miss Fortune, Buccaneer": {
+"champions": [
+"Pirate",
+"Miss Fortune",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Miss Fortune, Captain": {
+"champions": [
+"Pirate",
+"Miss Fortune",
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Mister Root": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Mistfall": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Mobilize": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Monastery of Hirana": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Monch": {
+"champions": [
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Monster Harpoon": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Moonfall": {
+"champions": [
+"Diana"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Moonlight Affliction": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Morbid Return": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Morgana, Vindictive": {
+"champions": [
+"Morgana"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Mosstomper": {
+"champions": [
+"Dog",
+"Ixtal"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Mountain Drake": {
+"champions": [
+"Dragon"
+],
+"domains": [
+"Body"
+],
+"energy": 9,
+"isToken": false,
+"might": 10,
+"power": 0,
+"type": "Unit"
+},
+"Mournful Witness": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Mushroom Pouch": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Mutated Mouser": {
+"champions": [
+"Cat",
+"Bilgewater"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Mystic Poro": {
+"champions": [
+"Poro"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Mystic Reversal": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Mystic Vortex": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Nami, Headstrong": {
+"champions": [
+"Mount Targon",
+"Nami"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Nasus, Ascended": {
+"champions": [
+"Dog",
+"Shurima",
+"Nasus"
+],
+"domains": [
+"Calm"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 1,
+"type": "Unit"
+},
+"Nasus, Curator of the Sands": {
+"champions": [
+"Nasus"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Nasus, Guardian of Knowledge": {
+"champions": [
+"Dog",
+"Nasus"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Navori Fighting Pit": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Navori Scout": {
+"champions": [
+"Yordle",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Needlessly Large Yordle": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 10,
+"isToken": false,
+"might": 5,
+"power": 3,
+"type": "Unit"
+},
+"Nidalee, Cat Form": {
+"champions": [
+"Cat",
+"Ixtal",
+"Nidalee"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Nilah, Joyful Ascetic": {
+"champions": [
+"Nilah",
+"Kathkan",
+"Demon"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Nocturne, Horrifying": {
+"champions": [
+"Nocturne"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Not So Fast": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Noxian Demolitionist": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Noxian Drummer": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Noxian Emissary": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Noxian Guillotine": {
+"champions": [
+"Darius"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Noxus Hopeful": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Noxus Saboteur": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Oasis Raider": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Obelisk of Power": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Ocean Drake": {
+"champions": [
+"Dragon",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 8,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Ol' Poro": {
+"champions": [
+"Poro",
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"On the Hunt": {
+"champions": [
+"Sivir"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Onslaught": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Orb of Regret": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Order Rune": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Rune"
+},
+"Ornn's Forge": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Ornn, Blacksmith": {
+"champions": [
+"Ornn",
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Ornn, Fire Below the Mountain": {
+"champions": [
+"Ornn"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Ornn, Forge God": {
+"champions": [
+"Ornn",
+"Freljord"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Otterpus": {
+"champions": [
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Overt Operation": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Overzealous Fan": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Pack of Wonders": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Pakaa Cub": {
+"champions": [
+"Cat",
+"Ixtal"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Pakaa Protector": {
+"champions": [
+"Cat",
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Party Favors": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Patched Porobot": {
+"champions": [
+"Mech",
+"Poro",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Peak Guardian": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Pendulum Blade": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Perched Grimwyrm": {
+"champions": [
+"Dragon",
+"Shadow Isles"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Perfect Execution": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Petal Pixie": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Petricite Monument": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Petty Officer": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Pickpocket": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Piercing Light": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Piltovan Forge": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Pirate's Haven": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Pit Crew": {
+"champions": [
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Pit Rookie": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Platewyrm Egg": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Playful Phantom": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Plaza Guardian": {
+"champions": [
+"Mech",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 10,
+"isToken": false,
+"might": 8,
+"power": 0,
+"type": "Unit"
+},
+"Plundering Poro": {
+"champions": [
+"Poro",
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Poppy, Defender of the Meek": {
+"champions": [
+"Yordle",
+"Demacia",
+"Poppy"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Poppy, Keeper of the Hammer": {
+"champions": [
+"Poppy"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Poppy, Paragon": {
+"champions": [
+"Yordle",
+"Demacia",
+"Poppy"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Poro Herder": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Poro Snax": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Portal Rescue": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Possession": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 8,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Pouty Poro": {
+"champions": [
+"Poro"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Power Nexus": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Premonition": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"Prepared Neophyte": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Primal Strength": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Prize of Progress": {
+"champions": [
+"Mech",
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Production Surge": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Profiteer": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Progress Day": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Promising Future": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Protective Sands": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Public Execution": {
+"champions": [
+"Ambessa"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Punch First": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Punching Poro": {
+"champions": [
+"Poro",
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Pyke, Bloodharbor Ripper": {
+"champions": [
+"Pyke"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Pyke, Dockside Butcher": {
+"champions": [
+"Pyke",
+"Bilgewater"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Pyke, Returned": {
+"champions": [
+"Pyke",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Qiyana, Victorious": {
+"champions": [
+"Qiyana",
+"Ixtal"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Questionable Tome": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Rabadon's Deathcrown": {
+"champions": [
+"Ornn",
+"Equipment"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 2,
+"type": "Gear"
+},
+"Rage Amplifier": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Raging Firebrand": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Raging Soul": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Rally the Troops": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Rampage": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Ravenbloom Conservatory": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Ravenbloom Prefect": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Ravenbloom Student": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Ravenborn Tome": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Reaver's Row": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Rebuke": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Rebuttal": {
+"champions": [
+"Mel"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Reckoner's Arena": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Recruit (DE)": {
+"champions": [
+"Recruit"
+],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Recruit (NX)": {
+"champions": [
+"Recruit"
+],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Recruit (ZN)": {
+"champions": [
+"Recruit"
+],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Recruit the Vanguard": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Recurve Bow": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Red Brambleback": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Reflection": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 0,
+"power": 0,
+"type": "Unit"
+},
+"Reinforce": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Rek'Sai, Breacher": {
+"champions": [
+"Rek'Sai",
+"The Void"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Rek'Sai, Swarm Queen": {
+"champions": [
+"Rek'Sai",
+"The Void"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Rek'Sai, Void Burrower": {
+"champions": [
+"Rek'Sai"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Relentless Pursuit": {
+"champions": [
+"Lucian"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Rell, Magnetic": {
+"champions": [
+"Rell",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Reluctant Leader": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Renata Glasc, Chem-Baroness": {
+"champions": [
+"Renata Glasc"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Renata Glasc, Industrialist": {
+"champions": [
+"Renata Glasc",
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Renata Glasc, Mastermind": {
+"champions": [
+"Renata Glasc",
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Renekton, Brute": {
+"champions": [
+"Renekton"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Renekton, Butcher of the Sands": {
+"champions": [
+"Renekton"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Renekton, Rage Fueled": {
+"champions": [
+"Shurima",
+"Renekton"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Rengar, Pouncing": {
+"champions": [
+"Cat",
+"Rengar",
+"Ixtal"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Rengar, Pridestalker": {
+"champions": [
+"Rengar"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"legendAbility": {
+"amount": 1,
+"effect": "BuffBoardMightThisTurn",
+"sourceText": "When you play a unit, give a unit +1 [S] this turn.",
+"trigger": "OnUnitPlayed"
+},
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Rengar, Trophy Hunter": {
+"champions": [
+"Cat",
+"Rengar",
+"Ixtal"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Rengar, Unseen": {
+"champions": [
+"Cat",
+"Rengar",
+"Ixtal"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Repair Specialist": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Repulse": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Resonating Strike": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Retreat": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Revna the Lorekeeper": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Fury"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Rhasa the Sunderer": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 10,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Ribbon Dancer": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Ride the Wind": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Rift Herald": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Order"
+],
+"energy": 8,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Right of Conquest": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Riposte": {
+"champions": [
+"Fiora"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Ripper's Bay": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Riptide Rex": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Risen Altar": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Riven, Shattered": {
+"champions": [
+"Noxus",
+"Riven"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Rocket Barrage": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Rockfall Path": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Royal Entourage": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Royal Guard": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Ruin Runner": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Ruined Rex": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Rumble, Hotheaded": {
+"champions": [
+"Mech",
+"Yordle",
+"Rumble",
+"Bandle City"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Rumble, Mechanized Menace": {
+"champions": [
+"Rumble"
+],
+"domains": [
+"Fury",
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Rumble, Scrapper": {
+"champions": [
+"Mech",
+"Yordle",
+"Rumble",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Rune Prison": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Ruthless Strike": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sabotage": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Sacred Protector": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Sacred Shears": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 1,
+"type": "Gear"
+},
+"Sacrifice": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Safety Inspector": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Sai Scout": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Salvage": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Sanction": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Sandshifter": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Sandstone Chimera": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Sandswept Tomb": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Scorchclaw": {
+"champions": [
+"Dog",
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Scrapheap": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Scrapyard Champion": {
+"champions": [
+"Mech",
+"Bandle City"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Scrutinizing Sergeant": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Scryer's Bloom": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Scuttle Crab": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Unit"
+},
+"Sea Monkey": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Seal of Discord": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seal of Focus": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seal of Insight": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seal of Rage": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seal of Strength": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seal of Unity": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Seat of Power": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Sentinel Adept": {
+"champions": [
+"Shadow Isles",
+"Sentinel"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Serene Ascetic": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Serrated Dirk": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Sett, Brawler": {
+"champions": [
+"Sett",
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Sett, Kingpin": {
+"champions": [
+"Sett",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Sett, The Boss": {
+"champions": [
+"Sett"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Shadow": {
+"champions": [
+"Vex",
+"Shadow Isles"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Shadow Assassin": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Shadow Dash": {
+"champions": [
+"Shen"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Shadow Fiend": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Shadow Order Disciple": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Shadow Temple": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Shadow Watcher": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Shadow's Call": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Shadowblade Lurker": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Shadows of the Past": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Shady Spectacles": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Shakedown": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Shard of Undoing": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Sharkling": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Shen, Eye of Twilight": {
+"champions": [
+"Shen"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Shen, Kinkou": {
+"champions": [
+"Shen",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Shen, Leader of the Kinkou Order": {
+"champions": [
+"Shen",
+"Ionia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Shen, Scourge of Shadows": {
+"champions": [
+"Shen",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Shepherd's Heirloom": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Shipyard Skulker": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Shock Blast": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Show of Strength": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Showstopper": {
+"champions": [
+"Sett"
+],
+"domains": [
+"Body",
+"Order"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Shurelya's Requiem": {
+"champions": [
+"Ornn",
+"Equipment"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 2,
+"type": "Gear"
+},
+"Shuriken Flip": {
+"champions": [
+"Akali"
+],
+"domains": [
+"Fury",
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Sigil of the Storm": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Simian Ancestor": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Singularity": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Sinister Poro": {
+"champions": [
+"Poro",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 1,
+"type": "Unit"
+},
+"Siphon Power": {
+"champions": [
+"Viktor"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Siphoning Strike": {
+"champions": [
+"Nasus"
+],
+"domains": [
+"Calm",
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sivir, Ambitious": {
+"champions": [
+"Sivir",
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 7,
+"power": 3,
+"type": "Unit"
+},
+"Sivir, Battle Mistress": {
+"champions": [
+"Sivir"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Sivir, Mercenary": {
+"champions": [
+"Sivir",
+"Shurima"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Sky Cruiser": {
+"champions": [
+"Piltover"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Sky Splitter": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 8,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Skyfall of Areion": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Skyward Strike": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Smite": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Smoke Screen": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Smoke and Mirrors": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sneaky Deckhand": {
+"champions": [
+"Pirate",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Soaring Scout": {
+"champions": [
+"Bird",
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Solari Chief": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Solari Shieldbearer": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Solari Shrine": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Solari Sunhawk": {
+"champions": [
+"Bird",
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Sona, Harmonious": {
+"champions": [
+"Sona",
+"Demacia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Soraka, Wanderer": {
+"champions": [
+"Soraka",
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Soul Harvest": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Soul Shepherd": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Soul Sword": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Soulgorger": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 8,
+"isToken": false,
+"might": 5,
+"power": 2,
+"type": "Unit"
+},
+"Soulspinner": {
+"champions": [
+"Shadow Isles",
+"Spider"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Spectral Centaur": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Spectral Matron": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 2,
+"type": "Unit"
+},
+"Spiderling": {
+"champions": [
+"Shadow Isles",
+"Spider"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Spinning Axe": {
+"champions": [
+"Draven",
+"Equipment"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Gear"
+},
+"Spirit Wheel": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Spirit's Refuge": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Spoils of War": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Sprite": {
+"champions": [
+"Fae"
+],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": true,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Sprite Burst": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sprite Call": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sprite Fountain": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Sprite Mother": {
+"champions": [
+"Fae"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Sprite Queen": {
+"champions": [
+"Fae",
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Square Up": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Stacked Deck": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Stalking Wolf": {
+"champions": [
+"Dog",
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Stalwart Poro": {
+"champions": [
+"Poro"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Stand United": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Star Spring": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Star-Crossed": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Stare Down": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Stargazer": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Starhound": {
+"champions": [
+"Dog",
+"Mount Targon"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Startipped Peak": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Stealthy Pursuer": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Steel Paws": {
+"champions": [
+"Cat",
+"Piltover"
+],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Unit"
+},
+"Stellacorn Herder": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Sterak's Gage": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 2,
+"type": "Gear"
+},
+"Stormbringer": {
+"champions": [
+"Volibear"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Stormclaw Ursine": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Strike Down": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Stupefy": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sudden Storm": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Sumpworks Map": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Sun Disc": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Sunken Temple": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Sunlit Guardian": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Super Mega Death Rocket!": {
+"champions": [
+"Jinx"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Svellsongur": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Swain, Visionary": {
+"champions": [
+"Noxus",
+"Swain",
+"Demon"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Switcheroo": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Symbol of the Solari": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Syndra, Transcendent": {
+"champions": [
+"Ionia",
+"Syndra"
+],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Tactical Retreat": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Tail-Cloaked Matriarch": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Targon's Peak": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Targonian Visionary": {
+"champions": [
+"Mount Targon"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Taric, Protector": {
+"champions": [
+"Taric",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Tasty Faefolk": {
+"champions": [
+"Fae",
+"Bandle City"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Teemo, Scout": {
+"champions": [
+"Yordle",
+"Teemo",
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Teemo, Strategist": {
+"champions": [
+"Yordle",
+"Teemo",
+"Bandle City"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 1,
+"type": "Unit"
+},
+"Teemo, Swift Scout": {
+"champions": [
+"Teemo"
+],
+"domains": [
+"Mind",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Temporal Breach": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Temporal Portal": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Temptation": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"The Academy": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Arena's Greatest": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Candlelit Sanctum": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Dreaming Tree": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Grand Plaza": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Harrowing": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 6,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"The List": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"The Papertree": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"The Ruination": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 9,
+"isToken": false,
+"might": 0,
+"power": 3,
+"type": "Spell"
+},
+"The Syren": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"The Zero Drive": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Thermo Beam": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Thousand-Tailed Watcher": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 7,
+"power": 1,
+"type": "Unit"
+},
+"Threshold of the Gray": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Thrill of the Hunt": {
+"champions": [
+"Rengar"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Thwonk!": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Tianna Crownguard": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Calm"
+],
+"energy": 7,
+"isToken": false,
+"might": 4,
+"power": 2,
+"type": "Unit"
+},
+"Tibbers": {
+"champions": [
+"Annie"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 8,
+"isToken": false,
+"might": 7,
+"power": 2,
+"type": "Unit"
+},
+"Tideturner": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Time Warp": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 10,
+"isToken": false,
+"might": 0,
+"power": 4,
+"type": "Spell"
+},
+"Tomb-Raider Barbara": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Tools of Empire": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Tornado Warrior": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Towering Combatant": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Towering Pairofant": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Trapping Grounds": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Traveling Merchant": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Treasure Hoard": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Treasure Hunter": {
+"champions": [
+"Shurima"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Treasure Trove": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Trevor Snoozebottom": {
+"champions": [
+"Yordle",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Tricksy Tentacles": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Trifarian Gloryseeker": {
+"champions": [
+"Trifarian",
+"Noxus"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Trifarian War Camp": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Trinity Force": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Trove Golem": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 8,
+"isToken": false,
+"might": 9,
+"power": 2,
+"type": "Unit"
+},
+"Trusty Ramhound": {
+"champions": [
+"Dog",
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Tryndamere, Barbarian": {
+"champions": [
+"Tryndamere",
+"Freljord"
+],
+"domains": [
+"Fury"
+],
+"energy": 7,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Turn to Dust": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Twilight Reveler": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Twilight Shroud": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Twilight Step": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Twisted Fate, Gambler": {
+"champions": [
+"Twisted Fate",
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Udyr, Wildman": {
+"champions": [
+"Udyr",
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Ultrasoft Poro": {
+"champions": [
+"Poro",
+"Freljord"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Unchecked Power": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Undercover Agent": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Undertitan": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Undying Legion": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Undying Loyalty": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Unlicensed Armory": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Unsung Hero": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Unyielding Spirit": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Up from the Deep": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Upstage Comedy": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Valley of Idols": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Vanguard Armory": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Gear"
+},
+"Vanguard Attendant": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Vanguard Captain": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Vanguard Helm": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Vanguard Sergeant": {
+"champions": [
+"Elite",
+"Demacia"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Vault Breaker": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 1,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Vaults of Helia": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Vayne, Hunter": {
+"champions": [
+"Vayne",
+"Demacia"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 1,
+"type": "Unit"
+},
+"Veiled Temple": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Vengeance": {
+"champions": [],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Veteran Poro": {
+"champions": [
+"Poro",
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Vex, Apathetic": {
+"champions": [
+"Yordle",
+"Vex",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Vex, Cheerless": {
+"champions": [
+"Yordle",
+"Vex",
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Vex, Gloomist": {
+"champions": [
+"Vex"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Vex, Mocking": {
+"champions": [
+"Yordle",
+"Vex",
+"Shadow Isles"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Vi, Destructive": {
+"champions": [
+"Vi",
+"Piltover"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Vi, Hotheaded": {
+"champions": [
+"Vi",
+"Zaun"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Vi, Peacekeeper": {
+"champions": [
+"Vi",
+"Piltover"
+],
+"domains": [
+"Order"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Vi, Piltover Enforcer": {
+"champions": [
+"Vi"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Vicious Snapjaws": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Viktor, Herald of the Arcane": {
+"champions": [
+"Viktor"
+],
+"domains": [
+"Mind",
+"Order"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Viktor, Innovator": {
+"champions": [
+"Viktor",
+"Zaun"
+],
+"domains": [
+"Mind"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 1,
+"type": "Unit"
+},
+"Viktor, Leader": {
+"champions": [
+"Viktor",
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Vilemaw": {
+"champions": [
+"Shadow Isles",
+"Spider"
+],
+"domains": [
+"Calm"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Vilemaw's Lair": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Void Assault": {
+"champions": [
+"Kha'Zix"
+],
+"domains": [
+"Body",
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Void Drone": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Void Gate": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Void Hatchling": {
+"champions": [
+"The Void"
+],
+"domains": [
+"Fury"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Void Rush": {
+"champions": [
+"Rek'Sai"
+],
+"domains": [
+"Fury",
+"Order"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Void Seeker": {
+"champions": [],
+"domains": [
+"Fury"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Volibear, Furious": {
+"champions": [
+"Volibear",
+"Freljord"
+],
+"domains": [
+"Fury"
+],
+"energy": 10,
+"isToken": false,
+"might": 9,
+"power": 2,
+"type": "Unit"
+},
+"Volibear, Imposing": {
+"champions": [
+"Volibear",
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 12,
+"isToken": false,
+"might": 10,
+"power": 2,
+"type": "Unit"
+},
+"Volibear, Relentless Storm": {
+"champions": [
+"Volibear"
+],
+"domains": [
+"Fury",
+"Body"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Voracious Gromp": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Wages of Pain": {
+"champions": [],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Walking Roost": {
+"champions": [
+"Shadow Isles"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Wallop": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Spell"
+},
+"Warmog's Armor": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Body"
+],
+"energy": 1,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Gear"
+},
+"Warwick, Hunter": {
+"champions": [
+"Dog",
+"Warwick",
+"Zaun"
+],
+"domains": [
+"Body"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Watchful Sentry": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Mind"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Whirlwind": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Whiteflame Protector": {
+"champions": [
+"Dragon",
+"Mount Targon"
+],
+"domains": [
+"Calm"
+],
+"energy": 8,
+"isToken": false,
+"might": 8,
+"power": 2,
+"type": "Unit"
+},
+"Wielder of Water": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"Wild Claw": {
+"champions": [],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Wildclaw Shaman": {
+"champions": [
+"Freljord"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Wily Newtfish": {
+"champions": [
+"Bilgewater"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Wind Wall": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Wind and Ghosts": {
+"champions": [],
+"domains": [
+"Chaos"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 1,
+"type": "Spell"
+},
+"Windsinger": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 2,
+"isToken": false,
+"might": 1,
+"power": 0,
+"type": "Unit"
+},
+"Windswept Hillock": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Wizened Elder": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"World Atlas": {
+"champions": [
+"Equipment"
+],
+"domains": [
+"Mind"
+],
+"energy": 3,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Gear"
+},
+"Wraith of Echoes": {
+"champions": [
+"Spirit",
+"Shadow Isles"
+],
+"domains": [
+"Mind"
+],
+"energy": 6,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Wuju Apprentice": {
+"champions": [
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 2,
+"power": 0,
+"type": "Unit"
+},
+"XP Tracker": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": null
+},
+"Xerath, Freed": {
+"champions": [
+"Shurima",
+"Xerath"
+],
+"domains": [
+"Fury"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Xin Zhao, Vigilant": {
+"champions": [
+"Demacia",
+"Xin Zhao"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Yasuo, Remorseful": {
+"champions": [
+"Yasuo",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 2,
+"type": "Unit"
+},
+"Yasuo, Unforgiven": {
+"champions": [
+"Yasuo"
+],
+"domains": [
+"Calm",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Yasuo, Windrider": {
+"champions": [
+"Yasuo",
+"Ionia"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Yeti Brawler": {
+"champions": [
+"Noxus"
+],
+"domains": [
+"Fury"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 0,
+"type": "Unit"
+},
+"Yi, Honed": {
+"champions": [
+"Master Yi",
+"Ionia"
+],
+"domains": [
+"Body"
+],
+"energy": 7,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Yi, Meditative": {
+"champions": [
+"Master Yi",
+"Ionia"
+],
+"domains": [
+"Calm"
+],
+"energy": 5,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Yone, Blademaster": {
+"champions": [
+"Yone",
+"Ionia",
+"Demon"
+],
+"domains": [
+"Body"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+},
+"Yordle Explorer": {
+"champions": [
+"Yordle",
+"Bandle City"
+],
+"domains": [
+"Body"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 0,
+"type": "Unit"
+},
+"Yuumi, Magical Cat": {
+"champions": [
+"Fae",
+"Cat",
+"Bandle City",
+"Yuumi"
+],
+"domains": [
+"Calm"
+],
+"energy": 3,
+"isToken": false,
+"might": 1,
+"power": 1,
+"type": "Unit"
+},
+"Zaun Punk": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 3,
+"power": 0,
+"type": "Unit"
+},
+"Zaun Warrens": {
+"champions": [],
+"domains": [
+"Colorless"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Battlefield"
+},
+"Zaunite Bouncer": {
+"champions": [
+"Zaun"
+],
+"domains": [
+"Chaos"
+],
+"energy": 4,
+"isToken": false,
+"might": 2,
+"power": 2,
+"type": "Unit"
+},
+"Zed, From the Shadows": {
+"champions": [
+"Zed"
+],
+"domains": [
+"Fury"
+],
+"energy": 4,
+"isToken": false,
+"might": 4,
+"power": 1,
+"type": "Unit"
+},
+"Zed, Master of Shadows": {
+"champions": [
+"Zed"
+],
+"domains": [
+"Fury",
+"Chaos"
+],
+"energy": 0,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Legend"
+},
+"Zed, Without a Sound": {
+"champions": [
+"Zed"
+],
+"domains": [
+"Chaos"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 0,
+"type": "Unit"
+},
+"Zenith Blade": {
+"champions": [
+"Leona"
+],
+"domains": [
+"Calm",
+"Order"
+],
+"energy": 3,
+"isToken": false,
+"might": 0,
+"power": 2,
+"type": "Spell"
+},
+"Zephyr Sage": {
+"champions": [
+"Ionia",
+"Bird"
+],
+"domains": [
+"Calm"
+],
+"energy": 6,
+"isToken": false,
+"might": 6,
+"power": 1,
+"type": "Unit"
+},
+"Zhonya's Hourglass": {
+"champions": [],
+"domains": [
+"Calm"
+],
+"energy": 2,
+"isToken": false,
+"might": 0,
+"power": 0,
+"type": "Gear"
+},
+"Zilean, Time Mage": {
+"champions": [
+"Icathia",
+"Zilean"
+],
+"domains": [
+"Mind"
+],
+"energy": 5,
+"isToken": false,
+"might": 5,
+"power": 1,
+"type": "Unit"
+}
+}

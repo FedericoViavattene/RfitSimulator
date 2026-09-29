@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Riftbound Deck Simulator</title>
+<meta name="description" content="Simulates your Riftbound deck vs a chosen opponent (or the whole meta at once) and reports a winrate plus deck-optimization feedback. Runs entirely on your device.">
+<meta name="theme-color" content="#0f1115">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Riftbound Sim">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Riftbound Deck Simulator</h1>
+      <p class="subtitle">Simulates your deck vs a chosen opponent (or the whole meta at once) and reports a winrate plus deck-optimization feedback.</p>
+      <p class="disclaimer">Statistical / curve simulator - not a full rules engine. Runs entirely on this device, even offline - your decks and results never leave it.</p>
+      <p class="disclaimer hidden" id="offlineNotice">You're offline - that's fine, everything here runs locally.</p>
+    </header>
+
+    <nav class="top-nav" id="topNav">
+      <button type="button" class="top-nav-btn active" data-panel="simulate">
+        <span class="top-nav-icon">&#9658;</span> Simulate
+      </button>
+      <button type="button" class="top-nav-btn" data-panel="import">
+        <span class="top-nav-icon">&#8631;</span> Import a deck
+      </button>
+    </nav>
+
+    <!-- ============ SIMULATE PANEL ============ -->
+    <section class="top-panel" id="panel-simulate">
+
+      <ol class="stepper" id="stepper">
+        <li class="step" data-step="deck">
+          <span class="step-num"><span class="step-num-digit">1</span></span>
+          <span class="step-label">Your deck</span>
+        </li>
+        <li class="step" data-step="mode">
+          <span class="step-num"><span class="step-num-digit">2</span></span>
+          <span class="step-label">Mode</span>
+        </li>
+        <li class="step" data-step="opponent" id="stepOpponentLi">
+          <span class="step-num"><span class="step-num-digit">3</span></span>
+          <span class="step-label">Opponent</span>
+        </li>
+        <li class="step" data-step="run">
+          <span class="step-num"><span class="step-num-digit">4</span></span>
+          <span class="step-label">Run it</span>
+        </li>
+      </ol>
+
+      <section class="picker card">
+        <div class="field">
+          <label for="myDeck">1. Pick your deck</label>
+          <select id="myDeck"></select>
+        </div>
+
+        <div class="field">
+          <label id="modeLabel">2. Pick a simulation mode</label>
+          <div class="mode-cards" id="modeCards">
+            <button type="button" class="mode-card active" data-mode="single">
+              <span class="mode-card-title">Single opponent</span>
+              <span class="mode-card-desc">50 games vs one deck you choose</span>
+            </button>
+            <button type="button" class="mode-card" data-mode="match">
+              <span class="mode-card-title">Best-of-3 match</span>
+              <span class="mode-card-desc">20 best-of-3 series vs one deck you choose</span>
+            </button>
+            <button type="button" class="mode-card" data-mode="matrix">
+              <span class="mode-card-title">Matchup matrix</span>
+              <span class="mode-card-desc">Vs every saved opponent deck at once</span>
+            </button>
+          </div>
+          <select id="simMode" class="visually-hidden" tabindex="-1" aria-hidden="true">
+            <option value="single">Single opponent - 50 games</option>
+            <option value="match">Best-of-3 match - 20 matches vs one opponent</option>
+            <option value="matrix">Matchup matrix - vs every saved opponent deck</option>
+          </select>
+        </div>
+
+        <div class="field" id="opponentField">
+          <label for="opponentDeck">3. Pick the opponent deck</label>
+          <select id="opponentDeck"></select>
+        </div>
+
+        <div class="run-bar">
+          <button id="simulateBtn" disabled>Loading...</button>
+          <div id="statusLine" class="status"></div>
+        </div>
+      </section>
+
+      <section id="results" class="results hidden">
+
+        <div class="results-toolbar">
+          <button type="button" class="ghost-btn" id="newSimBtn">&#8634; New simulation</button>
+        </div>
+
+        <div class="card banned-warnings hidden" id="bannedWarnings"></div>
+
+        <div class="card winrate-card">
+          <div class="winrate-number" id="winrateNumber">--%</div>
+          <div class="winrate-sub" id="winrateSub"></div>
+        </div>
+
+        <nav class="pill-nav" id="resultsPillNav">
+          <button type="button" class="pill active" data-tab="summary">Game log</button>
+          <button type="button" class="pill" data-tab="curve">Curve &amp; optimization</button>
+          <button type="button" class="pill" data-tab="reco">Recommendations</button>
+          <button type="button" class="pill" data-tab="decklist">Opponent decklist</button>
+        </nav>
+
+        <div class="result-panel" data-tab="summary">
+          <div class="card">
+            <h2>Game log</h2>
+            <ul class="game-list" id="gameList"></ul>
+          </div>
+
+          <div class="card" id="lossDetails">
+            <h2>Loss breakdown</h2>
+            <ul class="loss-list" id="lossList"></ul>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="curve">
+          <div class="card">
+            <h2>Deck curve &amp; optimization feedback</h2>
+            <div id="optimization"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="reco">
+          <div class="card">
+            <h2>Matchup recommendations &amp; sideboard</h2>
+            <p class="import-help">Heuristic feedback from this matchup's own simulated games - not a guarantee, and not based on any card's actual rules text (see README).</p>
+            <div id="recommendation"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="decklist">
+          <div class="card">
+            <h2>Opponent's full decklist</h2>
+            <div id="opponentDecklist"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="matchResults" class="results hidden">
+
+        <div class="results-toolbar">
+          <button type="button" class="ghost-btn" id="newMatchSimBtn">&#8634; New simulation</button>
+        </div>
+
+        <div class="card banned-warnings hidden" id="matchBannedWarnings"></div>
+
+        <div class="card winrate-card">
+          <div class="winrate-number" id="matchWinrateNumber">--%</div>
+          <div class="winrate-sub" id="matchWinrateSub"></div>
+        </div>
+
+        <nav class="pill-nav" id="matchResultsPillNav">
+          <button type="button" class="pill active" data-tab="summary">Match log</button>
+          <button type="button" class="pill" data-tab="curve">Curve &amp; optimization</button>
+          <button type="button" class="pill" data-tab="reco">Recommendations</button>
+          <button type="button" class="pill" data-tab="decklist">Opponent decklist</button>
+        </nav>
+
+        <div class="result-panel" data-tab="summary">
+          <div class="card">
+            <h2>Match log</h2>
+            <ul class="game-list" id="matchList"></ul>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="curve">
+          <div class="card">
+            <h2>Deck curve &amp; optimization feedback</h2>
+            <p class="import-help">Computed across every individual game played inside all of the matches above.</p>
+            <div id="matchOptimization"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="reco">
+          <div class="card">
+            <h2>Matchup recommendations &amp; sideboard</h2>
+            <p class="import-help">Heuristic feedback from this matchup's own simulated games - not a guarantee, and not based on any card's actual rules text (see README).</p>
+            <div id="matchRecommendation"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="decklist">
+          <div class="card">
+            <h2>Opponent's full decklist</h2>
+            <div id="matchOpponentDecklist"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="matrixResults" class="results hidden">
+
+        <div class="results-toolbar">
+          <button type="button" class="ghost-btn" id="newMatrixSimBtn">&#8634; New simulation</button>
+        </div>
+
+        <div class="card banned-warnings hidden" id="matrixBannedWarnings"></div>
+
+        <div class="card winrate-card">
+          <div class="winrate-number" id="matrixAverageNumber">--%</div>
+          <div class="winrate-sub" id="matrixAverageSub">Average winrate across every saved opponent deck</div>
+        </div>
+
+        <div class="card">
+          <h2>Matchup matrix</h2>
+          <div id="matrixTable"></div>
+        </div>
+
+      </section>
+    </section>
+
+    <!-- ============ IMPORT PANEL ============ -->
+    <section class="top-panel hidden" id="panel-import">
+      <section class="card" id="importCard">
+        <h2>Import a deck from a text list</h2>
+        <p class="import-help">
+          Paste a decklist - one card per line, like <code>1 Rengar, Pridestalker</code> or
+          <code>3x Inferna</code> (section labels like <code>Legend:</code> or <code>Battlefields:</code>
+          are fine too, they're just ignored). Every card's real Type/Energy/Power/Might/Domain is
+          looked up automatically from the official card gallery data - you only need the name and
+          the quantity to be right. Imported decks are saved on this device only.
+        </p>
+        <div class="field">
+          <label for="importCategory">Add to</label>
+          <select id="importCategory">
+            <option value="MyDeck">Your decks</option>
+            <option value="Aggro">Opponents - Aggro</option>
+            <option value="Midrange">Opponents - Midrange</option>
+            <option value="Control">Opponents - Control</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="importName">Deck name</label>
+          <input type="text" id="importName" placeholder="e.g. Jinx, Loose Cannon">
+        </div>
+        <div class="field">
+          <label for="importText">Decklist</label>
+          <textarea id="importText" rows="10" placeholder="1 Jinx, Loose Cannon&#10;1 Grand Plaza&#10;8 Fury Rune&#10;4 Chaos Rune&#10;3 Rabble Rouser&#10;..."></textarea>
+        </div>
+        <button id="importBtn">Import deck</button>
+        <div id="importStatus" class="status"></div>
+        <div id="importResult" class="import-result hidden"></div>
+      </section>
+    </section>
+
+  </div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
