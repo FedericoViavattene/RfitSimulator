@@ -817,6 +817,26 @@ function updateOfflineNotice() {
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
+
+  // Without this, an update can look "stuck": sw.js's own network-first
+  // rule always hands back fresh index.html, but everything ELSE (app.js,
+  // style.css, engine.js...) is cache-first, so the FIRST time you reopen
+  // the app after an update you'd get the new HTML paired with the still-
+  // cached OLD JS - e.g. new deck-picker buttons in the markup with no old
+  // app.js code wired up to open them, which looks like the buttons just
+  // don't do anything. sw.js's install/activate handlers already call
+  // skipWaiting()/clients.claim(), so the new service worker takes over
+  // this page automatically once it's ready; 'controllerchange' fires at
+  // that exact moment, and reloading once then guarantees the page and
+  // its scripts are the same (new) version. Guarded so it only ever fires
+  // once per load, never a reload loop.
+  let reloadedForUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadedForUpdate) return;
+    reloadedForUpdate = true;
+    window.location.reload();
+  });
+
   navigator.serviceWorker.register('sw.js').catch(() => {
     // Non-fatal: the app still works without the service worker, just
     // without offline caching / the "add to home screen" prompt on some

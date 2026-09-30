@@ -9,7 +9,7 @@
   bump it means a phone that already has the app installed keeps the old
   version even after GitHub Pages has the new one.
 */
-const CACHE_NAME = 'riftbound-sim-v2';
+const CACHE_NAME = 'riftbound-sim-v3';
 
 const CORE_ASSETS = [
   '.',
