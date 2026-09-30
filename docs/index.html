@@ -57,8 +57,11 @@
 
       <section class="picker card">
         <div class="field">
-          <label for="myDeck">1. Pick your deck</label>
-          <select id="myDeck"></select>
+          <label for="myDeckTrigger">1. Pick your deck</label>
+          <button type="button" class="deck-picker-trigger" id="myDeckTrigger">
+            <span class="deck-picker-trigger-placeholder">Choose a deck&hellip;</span>
+          </button>
+          <select id="myDeck" class="visually-hidden" tabindex="-1" aria-hidden="true"></select>
         </div>
 
         <div class="field">
@@ -85,8 +88,11 @@
         </div>
 
         <div class="field" id="opponentField">
-          <label for="opponentDeck">3. Pick the opponent deck</label>
-          <select id="opponentDeck"></select>
+          <label for="opponentDeckTrigger">3. Pick the opponent deck</label>
+          <button type="button" class="deck-picker-trigger" id="opponentDeckTrigger">
+            <span class="deck-picker-trigger-placeholder">Choose a deck&hellip;</span>
+          </button>
+          <select id="opponentDeck" class="visually-hidden" tabindex="-1" aria-hidden="true"></select>
         </div>
 
         <div class="run-bar">
@@ -258,6 +264,17 @@
       </section>
     </section>
 
+  </div>
+
+  <div class="deck-picker-overlay hidden" id="deckPickerOverlay">
+    <div class="deck-picker-modal">
+      <div class="deck-picker-header">
+        <button type="button" class="deck-picker-back hidden" id="deckPickerBack">&#8592; Back</button>
+        <h3 id="deckPickerTitle">Choose a deck</h3>
+        <button type="button" class="deck-picker-close" id="deckPickerClose" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="deck-picker-body" id="deckPickerBody"></div>
+    </div>
   </div>
 
 <script type="module" src="app.js"></script>

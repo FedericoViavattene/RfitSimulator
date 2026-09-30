@@ -92,16 +92,33 @@ function Get-CategoryFromDeckId {
 # ============================================================================
 #  API: GET /api/decks
 # ============================================================================
+function Get-DeckLegendName {
+    <#
+        Peeks at a deck CSV just far enough to read its Legend row's real
+        Name (e.g. "Rengar, Pridestalker") for the web UI's deck-picker
+        mosaic, without running it through the full Import-Deck resolution
+        pipeline. Falls back to the file-derived display name if the CSV
+        has no Legend row for some reason - never breaks the deck list over
+        a missing/malformed row.
+    #>
+    param([string]$Path, [string]$FallbackName)
+    try {
+        $legendRow = Import-Csv -Path $Path -ErrorAction Stop | Where-Object { $_.Type -eq 'Legend' } | Select-Object -First 1
+        if ($legendRow -and $legendRow.Name) { return $legendRow.Name }
+    } catch { }
+    return $FallbackName
+}
+
 function Get-DecksPayload {
     $myDecks = @(Get-DeckFileList -FolderPath $Script:MyDeckFolder | ForEach-Object {
-        [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name }
+        [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
     })
 
     $opponentFiles = Get-DeckFileList -FolderPath $Script:OpponentFolder -Recurse
     $opponents = [ordered]@{}
     foreach ($cat in @('Aggro', 'Midrange', 'Control')) {
         $inCat = @($opponentFiles | Where-Object { $_.Category -eq $cat } | ForEach-Object {
-            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name }
+            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
         })
         if ($inCat.Count -gt 0) { $opponents[$cat] = $inCat }
     }
@@ -110,7 +127,7 @@ function Get-DecksPayload {
     $otherCats = $opponentFiles | Select-Object -ExpandProperty Category -Unique | Where-Object { $_ -notin @('Aggro', 'Midrange', 'Control') }
     foreach ($cat in $otherCats) {
         $inCat = @($opponentFiles | Where-Object { $_.Category -eq $cat } | ForEach-Object {
-            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name }
+            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
         })
         $opponents[$cat] = $inCat
     }

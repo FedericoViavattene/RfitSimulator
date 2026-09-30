@@ -669,3 +669,312 @@ table.deck-table th {
 .result-panel.hidden {
   display: none !important;
 }
+
+/* ===================== Deck picker (category step + legend photo mosaic) ===================== */
+
+.deck-picker-trigger {
+  width: 100%;
+  margin-top: 0;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.deck-picker-trigger:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+}
+
+.deck-picker-trigger-placeholder {
+  color: var(--text-dim);
+}
+
+.deck-picker-trigger-thumb {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--border);
+}
+
+.deck-picker-trigger-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.deck-picker-trigger-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.deck-picker-trigger-thumb.img-fallback img { display: none; }
+.deck-picker-trigger-thumb.img-fallback .deck-picker-trigger-fallback { display: flex; }
+
+.deck-picker-trigger-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-picker-trigger-chevron {
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.deck-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 10, 0.72);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.deck-picker-overlay.hidden {
+  display: none !important;
+}
+
+.deck-picker-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 640px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .deck-picker-overlay {
+    align-items: center;
+  }
+  .deck-picker-modal {
+    border-radius: 16px;
+    max-height: 80vh;
+  }
+}
+
+.deck-picker-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.deck-picker-header h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-picker-back, .deck-picker-close {
+  width: auto;
+  margin-top: 0;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.deck-picker-close {
+  padding: 6px 11px;
+  font-size: 0.9rem;
+}
+
+.deck-picker-back:hover:not(:disabled), .deck-picker-close:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.deck-picker-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.deck-picker-empty {
+  color: var(--text-dim);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.deck-picker-category-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.deck-picker-category-card {
+  width: auto;
+  margin-top: 0;
+  text-align: left;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.deck-picker-category-card:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.deck-picker-category-card.category-aggro { border-left-color: var(--loss); }
+.deck-picker-category-card.category-midrange { border-left-color: var(--accent); }
+.deck-picker-category-card.category-control { border-left-color: var(--warn); }
+
+.deck-picker-category-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.deck-picker-category-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.3;
+}
+
+.deck-picker-category-count {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 12px;
+}
+
+.legend-tile {
+  width: auto;
+  margin-top: 0;
+  background: #1e222b;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.legend-tile:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+}
+
+.legend-tile-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.legend-tile-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.legend-tile-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.legend-tile.img-fallback .legend-tile-img-wrap img { display: none; }
+.legend-tile.img-fallback .legend-tile-fallback { display: flex; }
+
+.legend-tile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 10px 2px;
+  line-height: 1.25;
+}
+
+.legend-tile-count {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 0 10px 10px;
+}
+
+.deck-picker-variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deck-picker-variant {
+  width: auto;
+  margin-top: 0;
+  text-align: left;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.deck-picker-variant:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+}
+
+body.deck-picker-open {
+  overflow: hidden;
+}

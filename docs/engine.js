@@ -160,23 +160,37 @@ class Engine {
   // --------------------------------------------------------------------
   //  DECK LISTING  (Get-DecksPayload)
   // --------------------------------------------------------------------
+
+  // The exact Legend name off a deck's own Legend row (e.g.
+  // "Rengar, Pridestalker"), falling back to the deck's display name if a
+  // record somehow has no Legend row. Used by the web UI's deck-picker
+  // mosaic to group decks by legend and look up that legend's card art -
+  // kept here (not guessed client-side) so it's always the deck's own real
+  // data, never a re-derivation of the file name.
+  legendNameOf(record) {
+    const legendRow = (record.rows || []).find(r => r.Type === 'Legend');
+    return (legendRow && legendRow.Name) || record.name;
+  }
+
   async listDecks() {
     const all = await idbGetAll(this.db, STORE_DECKS);
     all.sort((a, b) => a.name.localeCompare(b.name));
 
+    const toEntry = d => ({ id: d.id, name: d.name, legend: this.legendNameOf(d) });
+
     const myDecks = all
       .filter(d => d.isMyDeck)
-      .map(d => ({ id: d.id, name: d.name }));
+      .map(toEntry);
 
     const order = ['Aggro', 'Midrange', 'Control'];
     const opponents = {};
     for (const cat of order) {
-      const inCat = all.filter(d => !d.isMyDeck && d.category === cat).map(d => ({ id: d.id, name: d.name }));
+      const inCat = all.filter(d => !d.isMyDeck && d.category === cat).map(toEntry);
       if (inCat.length > 0) opponents[cat] = inCat;
     }
     const otherCats = [...new Set(all.filter(d => !d.isMyDeck && !order.includes(d.category)).map(d => d.category))];
     for (const cat of otherCats) {
-      opponents[cat] = all.filter(d => !d.isMyDeck && d.category === cat).map(d => ({ id: d.id, name: d.name }));
+      opponents[cat] = all.filter(d => !d.isMyDeck && d.category === cat).map(toEntry);
     }
 
     return { myDecks, opponents };

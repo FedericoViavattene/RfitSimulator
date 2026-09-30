@@ -68,6 +68,15 @@ const importBtn = document.getElementById('importBtn');
 const importStatus = document.getElementById('importStatus');
 const importResult = document.getElementById('importResult');
 
+// Cached, richer copies of the last engine.listDecks() payload (id + name +
+// legend), kept alongside the plain <select> elements above. The selects
+// stay the real source of truth for which deck is picked (every existing
+// render/simulate function still just reads myDeckSelect.value/
+// opponentDeckSelect.value) - these two just feed the deck-picker overlay
+// below without a second call into the engine.
+let myDecksCache = [];
+let opponentsCache = {};
+
 function setStatus(text, isError) {
   statusLine.textContent = text || '';
   statusLine.classList.toggle('error', !!isError);
@@ -78,8 +87,11 @@ async function loadDecks() {
   try {
     const data = await engine.listDecks();
 
+    myDecksCache = data.myDecks || [];
+    opponentsCache = data.opponents || {};
+
     myDeckSelect.innerHTML = '';
-    (data.myDecks || []).forEach(d => {
+    myDecksCache.forEach(d => {
       const opt = document.createElement('option');
       opt.value = d.id;
       opt.textContent = d.name;
@@ -87,11 +99,10 @@ async function loadDecks() {
     });
 
     opponentDeckSelect.innerHTML = '';
-    const opponents = data.opponents || {};
-    Object.keys(opponents).forEach(category => {
+    Object.keys(opponentsCache).forEach(category => {
       const group = document.createElement('optgroup');
       group.label = category;
-      opponents[category].forEach(d => {
+      opponentsCache[category].forEach(d => {
         const opt = document.createElement('option');
         opt.value = d.id;
         opt.textContent = d.name;
@@ -108,6 +119,9 @@ async function loadDecks() {
     setStatus('');
   } catch (err) {
     setStatus('Could not load decks: ' + err.message, true);
+  } finally {
+    updateTriggerPreview('my');
+    updateTriggerPreview('opponent');
   }
 }
 
@@ -475,6 +489,9 @@ function setStep(name, state) {
 }
 
 function updateStepper() {
+  updateTriggerPreview('my');
+  updateTriggerPreview('opponent');
+
   const mode = simModeSelect.value;
   const isMatrix = mode === 'matrix';
 
@@ -523,6 +540,265 @@ function initPillNav(navEl, panelsContainer) {
   });
 }
 
+// ===================== Deck picker (category step + legend photo mosaic) =====================
+//
+// Replaces the flat <select> dropdowns with a two-step picker: for the
+// opponent deck, first the 3 known archetype categories, then a mosaic of
+// legend tiles (official card art + how many saved decks exist for that
+// legend) within the chosen category; for "your deck" (no categories),
+// straight to the mosaic. The underlying <select id="myDeck">/#opponentDeck
+// stay the real, hidden source of truth - a tile click just sets .value and
+// fires 'change', same trick as selectMode() above for the mode cards.
+
+// Official card art, hotlinked from Piltover Archive's public card database
+// (https://piltoverarchive.com) - a fan-run card gallery for this game, not
+// something we host. Keyed by the exact Legend name as it appears on that
+// Legend's own row (CardDatabase.json / the deck's Legend row). If a
+// newly-added Legend has no entry here, its tile just falls back to a plain
+// initial-letter placeholder - nothing breaks, and it's a one-line add here
+// once you know the real card art URL. Add new legends here as they're added.
+// This same fetch also gets opportunistically cached by sw.js the first time
+// it's loaded online, so it keeps showing up offline afterwards too.
+const LEGEND_ART = {
+  'Rengar, Pridestalker': 'https://cdn.piltoverarchive.com/cards/UNL-183.webp?width=420',
+  'Shen, Eye of Twilight': 'https://cdn.piltoverarchive.com/cards/VEN-147.webp?width=420',
+  'Akali, Rogue Assassin': 'https://cdn.piltoverarchive.com/cards/VEN-139.webp?width=420',
+  'Fiora, Grand Duelist': 'https://cdn.piltoverarchive.com/cards/SFD-205.webp?width=420',
+  "Kha'Zix, Voidreaver": 'https://cdn.piltoverarchive.com/cards/UNL-201.webp?width=420',
+  'Master Yi, Wuju Bladesman': 'https://cdn.piltoverarchive.com/cards/OGS-019.webp?width=420',
+  'Sett, The Boss': 'https://cdn.piltoverarchive.com/cards/OGN-269.webp?width=420',
+  'Azir, Emperor of the Sands': 'https://cdn.piltoverarchive.com/cards/SFD-197.webp?width=420',
+  'Ezreal, Prodigal Explorer': 'https://cdn.piltoverarchive.com/cards/SFD-199.webp?width=420',
+  'Lillia, Bashful Bloom': 'https://cdn.piltoverarchive.com/cards/UNL-189.webp?width=420',
+  'Vex, Gloomist': 'https://cdn.piltoverarchive.com/cards/UNL-193.webp?width=420',
+  'Draven, Glorious Executioner': 'https://cdn.piltoverarchive.com/cards/SFD-185.webp?width=420',
+  'Irelia, Blade Dancer': 'https://cdn.piltoverarchive.com/cards/SFD-195.webp?width=420',
+  'Kennen, Heart of the Tempest': 'https://cdn.piltoverarchive.com/cards/VEN-155.webp?width=420',
+};
+
+function legendArtUrl(legendName) {
+  if (!legendName) return null;
+  const key = Object.keys(LEGEND_ART).find(k => k.toLowerCase() === legendName.toLowerCase());
+  return key ? LEGEND_ART[key] : null;
+}
+
+function legendInitial(legendName) {
+  return (legendName || '?').trim().charAt(0).toUpperCase();
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+// Groups a flat deck list by their Legend's name, so a future second (or
+// third...) deck sharing the same Legend collapses into one mosaic tile
+// with a "N decks available" count instead of one tile per deck.
+function groupByLegend(decks) {
+  const groups = [];
+  const byKey = new Map();
+  (decks || []).forEach(d => {
+    const legend = d.legend || d.name;
+    const key = legend.toLowerCase();
+    if (!byKey.has(key)) {
+      const group = { legend, decks: [] };
+      byKey.set(key, group);
+      groups.push(group);
+    }
+    byKey.get(key).decks.push(d);
+  });
+  groups.sort((a, b) => a.legend.localeCompare(b.legend));
+  return groups;
+}
+
+const deckPickerOverlay = document.getElementById('deckPickerOverlay');
+const deckPickerBody = document.getElementById('deckPickerBody');
+const deckPickerTitle = document.getElementById('deckPickerTitle');
+const deckPickerBack = document.getElementById('deckPickerBack');
+const deckPickerClose = document.getElementById('deckPickerClose');
+const myDeckTrigger = document.getElementById('myDeckTrigger');
+const opponentDeckTrigger = document.getElementById('opponentDeckTrigger');
+
+const CATEGORY_ORDER = ['Aggro', 'Midrange', 'Control'];
+const CATEGORY_DESC = {
+  Aggro: 'Fast, low-curve decks that race for an early lead.',
+  Midrange: 'Flexible decks that trade efficiently and scale into the mid-game.',
+  Control: 'Slow, high-value decks that win the long game.',
+};
+
+let pickerState = null; // { target: 'my'|'opponent', view: 'category'|'mosaic'|'variants', category, groups }
+
+function openDeckPicker(target) {
+  pickerState = { target, view: null, category: null, groups: [] };
+  if (target === 'opponent') {
+    renderCategoryView();
+  } else {
+    renderMosaicView(myDecksCache, null);
+  }
+  deckPickerOverlay.classList.remove('hidden');
+  document.body.classList.add('deck-picker-open');
+}
+
+function closeDeckPicker() {
+  deckPickerOverlay.classList.add('hidden');
+  document.body.classList.remove('deck-picker-open');
+  pickerState = null;
+}
+
+function renderCategoryView() {
+  pickerState.view = 'category';
+  pickerState.category = null;
+  deckPickerTitle.textContent = 'Choose a category';
+  deckPickerBack.classList.add('hidden');
+
+  const cats = Object.keys(opponentsCache);
+  const ordered = CATEGORY_ORDER.filter(c => cats.includes(c))
+    .concat(cats.filter(c => !CATEGORY_ORDER.includes(c)));
+
+  if (ordered.length === 0) {
+    deckPickerBody.innerHTML = '<p class="deck-picker-empty">No opponent decks found yet.</p>';
+    return;
+  }
+
+  let html = '<div class="deck-picker-category-grid">';
+  ordered.forEach(cat => {
+    const legendCount = groupByLegend(opponentsCache[cat] || []).length;
+    html += `
+      <button type="button" class="deck-picker-category-card category-${cat.toLowerCase()}" data-category="${escapeAttr(cat)}">
+        <span class="deck-picker-category-name">${cat}</span>
+        <span class="deck-picker-category-desc">${CATEGORY_DESC[cat] || ''}</span>
+        <span class="deck-picker-category-count">${legendCount} legend${legendCount === 1 ? '' : 's'}</span>
+      </button>`;
+  });
+  html += '</div>';
+  deckPickerBody.innerHTML = html;
+}
+
+function renderMosaicView(decks, category) {
+  pickerState.view = 'mosaic';
+  pickerState.category = category || null;
+  deckPickerTitle.textContent = category ? `${category} - choose a legend` : 'Choose your legend';
+  deckPickerBack.classList.toggle('hidden', !category);
+
+  const groups = groupByLegend(decks);
+  pickerState.groups = groups;
+
+  if (groups.length === 0) {
+    deckPickerBody.innerHTML = '<p class="deck-picker-empty">No decks found here yet.</p>';
+    return;
+  }
+
+  let html = '<div class="legend-grid">';
+  groups.forEach(g => {
+    const art = legendArtUrl(g.legend);
+    const count = g.decks.length;
+    html += `
+      <button type="button" class="legend-tile" data-legend="${escapeAttr(g.legend)}">
+        <span class="legend-tile-img-wrap">
+          ${art ? `<img src="${art}" alt="${escapeAttr(g.legend)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.legend-tile').classList.add('img-fallback')">` : ''}
+          <span class="legend-tile-fallback">${legendInitial(g.legend)}</span>
+        </span>
+        <span class="legend-tile-name">${g.legend}</span>
+        <span class="legend-tile-count">${count} deck${count === 1 ? '' : 's'} available</span>
+      </button>`;
+  });
+  html += '</div>';
+  deckPickerBody.innerHTML = html;
+}
+
+function renderVariantsView(group) {
+  pickerState.view = 'variants';
+  deckPickerTitle.textContent = group.legend;
+  deckPickerBack.classList.remove('hidden');
+
+  let html = '<div class="deck-picker-variant-list">';
+  group.decks.forEach(d => {
+    html += `<button type="button" class="deck-picker-variant" data-deck-id="${escapeAttr(d.id)}">${d.name}</button>`;
+  });
+  html += '</div>';
+  deckPickerBody.innerHTML = html;
+}
+
+function selectDeckId(target, deckId) {
+  const select = target === 'my' ? myDeckSelect : opponentDeckSelect;
+  select.value = deckId;
+  select.dispatchEvent(new Event('change'));
+  closeDeckPicker();
+}
+
+function updateTriggerPreview(target) {
+  const select = target === 'my' ? myDeckSelect : opponentDeckSelect;
+  const trigger = target === 'my' ? myDeckTrigger : opponentDeckTrigger;
+  if (!select || !trigger) return;
+  const flatCache = target === 'my' ? myDecksCache : Object.values(opponentsCache).flat();
+  const deck = flatCache.find(d => d.id === select.value);
+
+  if (!deck) {
+    trigger.innerHTML = '<span class="deck-picker-trigger-placeholder">Choose a deck&hellip;</span>';
+    trigger.classList.remove('has-selection');
+    return;
+  }
+  const art = legendArtUrl(deck.legend);
+  trigger.classList.add('has-selection');
+  trigger.innerHTML = `
+    <span class="deck-picker-trigger-thumb">
+      ${art ? `<img src="${art}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.deck-picker-trigger-thumb').classList.add('img-fallback')">` : ''}
+      <span class="deck-picker-trigger-fallback">${legendInitial(deck.legend)}</span>
+    </span>
+    <span class="deck-picker-trigger-text">${deck.name}</span>
+    <span class="deck-picker-trigger-chevron">&#9662;</span>`;
+}
+
+function initDeckPicker() {
+  if (!deckPickerOverlay) return;
+
+  myDeckTrigger.addEventListener('click', () => openDeckPicker('my'));
+  opponentDeckTrigger.addEventListener('click', () => openDeckPicker('opponent'));
+  deckPickerClose.addEventListener('click', closeDeckPicker);
+  deckPickerOverlay.addEventListener('click', evt => {
+    if (evt.target === deckPickerOverlay) closeDeckPicker();
+  });
+  document.addEventListener('keydown', evt => {
+    if (evt.key === 'Escape' && pickerState) closeDeckPicker();
+  });
+
+  deckPickerBack.addEventListener('click', () => {
+    if (!pickerState) return;
+    if (pickerState.view === 'variants') {
+      if (pickerState.target === 'opponent' && pickerState.category) {
+        renderMosaicView(opponentsCache[pickerState.category] || [], pickerState.category);
+      } else {
+        renderMosaicView(myDecksCache, null);
+      }
+    } else if (pickerState.view === 'mosaic' && pickerState.target === 'opponent') {
+      renderCategoryView();
+    }
+  });
+
+  deckPickerBody.addEventListener('click', evt => {
+    const catBtn = evt.target.closest('.deck-picker-category-card');
+    if (catBtn) {
+      const cat = catBtn.dataset.category;
+      renderMosaicView(opponentsCache[cat] || [], cat);
+      return;
+    }
+    const tile = evt.target.closest('.legend-tile');
+    if (tile && pickerState) {
+      const group = (pickerState.groups || []).find(g => g.legend === tile.dataset.legend);
+      if (!group) return;
+      if (group.decks.length === 1) {
+        selectDeckId(pickerState.target, group.decks[0].id);
+      } else {
+        renderVariantsView(group);
+      }
+      return;
+    }
+    const variantBtn = evt.target.closest('.deck-picker-variant');
+    if (variantBtn && pickerState) {
+      selectDeckId(pickerState.target, variantBtn.dataset.deckId);
+    }
+  });
+}
+
 function resetToSetup() {
   resultsSection.classList.add('hidden');
   matchResultsSection.classList.add('hidden');
@@ -553,6 +829,7 @@ function registerServiceWorker() {
 async function start() {
   initTopNav();
   initModeCards();
+  initDeckPicker();
   initPillNav(document.getElementById('resultsPillNav'), resultsSection);
   initPillNav(document.getElementById('matchResultsPillNav'), matchResultsSection);
 

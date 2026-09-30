@@ -69,12 +69,20 @@ and opens `http://localhost:8787` in your default browser.
   obvious what's left to fill in before you can run anything; it collapses
   to 3 steps in matchup-matrix mode since there's no single opponent to
   pick.
-- Pick your deck from the dropdown, then choose a **Mode** by clicking one
-  of the three mode cards: a single opponent (50 games), a best-of-3 match
-  simulation (20 matches), or a matchup matrix (every saved opponent deck at
-  once - see "Matchup matrix and best-of-3 matches" below). The button
-  label and the opponent-deck field update automatically for whichever mode
-  is selected.
+- **Picking a deck** opens a photo picker instead of a plain dropdown: for
+  the opponent deck, first pick one of the 3 archetype categories (Aggro /
+  Midrange / Control), then tap a tile in the mosaic of that category's
+  Legends - each tile shows the Legend's official card art and how many
+  saved decks exist for it, so adding a second deck for the same Legend
+  later just adds a "2 decks available" step instead of a new tile. Picking
+  your own deck skips the category step and goes straight to the mosaic. A
+  tile with no matching art yet (or no network) falls back to a plain
+  initial-letter placeholder rather than breaking - nothing to configure.
+- Then choose a **Mode** by clicking one of the three mode cards: a single
+  opponent (50 games), a best-of-3 match simulation (20 matches), or a
+  matchup matrix (every saved opponent deck at once - see "Matchup matrix
+  and best-of-3 matches" below). The button label and the opponent-deck
+  field update automatically for whichever mode is selected.
 - Hit the **Simulate** button and the page scrolls straight to your
   results: a winrate card, then a row of tabs - **Game log**, **Curve &amp;
   optimization**, **Recommendations**, **Opponent decklist** - so each kind
@@ -118,7 +126,12 @@ bar).
   only.
 - It works fully offline after the first load (a service worker,
   `docs/sw.js`, caches everything needed) - once installed, you don't need a
-  connection to run a simulation, only to pick up a future update.
+  connection to run a simulation, only to pick up a future update. The one
+  exception is the deck picker's Legend photos (see below): those are
+  hotlinked from a third-party card gallery, so a Legend's art only shows up
+  offline after you've opened its tile at least once with a connection -
+  until then it just shows a plain initial-letter placeholder instead,
+  never a broken app.
 
 **One-time setup (only needs doing once):**
 1. Push this repo to GitHub as usual (`PushToGitHub.bat`).
