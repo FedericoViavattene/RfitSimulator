@@ -28,8 +28,11 @@
       <button type="button" class="top-nav-btn active" data-panel="simulate">
         <span class="top-nav-icon">&#9658;</span> Simulate
       </button>
+      <button type="button" class="top-nav-btn" data-panel="decks">
+        <span class="top-nav-icon">&#9998;</span> Decks
+      </button>
       <button type="button" class="top-nav-btn" data-panel="import">
-        <span class="top-nav-icon">&#8631;</span> Import a deck
+        <span class="top-nav-icon">&#8631;</span> Import
       </button>
     </nav>
 
@@ -69,21 +72,21 @@
           <div class="mode-cards" id="modeCards">
             <button type="button" class="mode-card active" data-mode="single">
               <span class="mode-card-title">Single opponent</span>
-              <span class="mode-card-desc">50 games vs one deck you choose</span>
+              <span class="mode-card-desc"><span data-run-size="single"></span> games vs one deck you choose</span>
             </button>
             <button type="button" class="mode-card" data-mode="match">
               <span class="mode-card-title">Best-of-3 match</span>
-              <span class="mode-card-desc">20 best-of-3 series vs one deck you choose</span>
+              <span class="mode-card-desc"><span data-run-size="match"></span> best-of-3 series vs one deck you choose</span>
             </button>
             <button type="button" class="mode-card" data-mode="matrix">
               <span class="mode-card-title">Matchup matrix</span>
-              <span class="mode-card-desc">Vs every saved opponent deck at once</span>
+              <span class="mode-card-desc"><span data-run-size="matrix"></span> games vs every saved opponent deck</span>
             </button>
           </div>
           <select id="simMode" class="visually-hidden" tabindex="-1" aria-hidden="true">
-            <option value="single">Single opponent - 50 games</option>
-            <option value="match">Best-of-3 match - 20 matches vs one opponent</option>
-            <option value="matrix">Matchup matrix - vs every saved opponent deck</option>
+            <option value="single">Single opponent</option>
+            <option value="match">Best-of-3 match</option>
+            <option value="matrix">Matchup matrix</option>
           </select>
         </div>
 
@@ -93,6 +96,11 @@
             <span class="deck-picker-trigger-placeholder">Choose a deck&hellip;</span>
           </button>
           <select id="opponentDeck" class="visually-hidden" tabindex="-1" aria-hidden="true"></select>
+        </div>
+
+        <div class="field seed-field">
+          <label for="seedInput">Seed <span class="field-hint">(optional - enter a seed from an earlier result to repeat that exact run)</span></label>
+          <input type="text" id="seedInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Random">
         </div>
 
         <div class="run-bar">
@@ -112,6 +120,7 @@
         <div class="card winrate-card">
           <div class="winrate-number" id="winrateNumber">--%</div>
           <div class="winrate-sub" id="winrateSub"></div>
+          <div class="winrate-meta" id="winrateMeta"></div>
         </div>
 
         <nav class="pill-nav" id="resultsPillNav">
@@ -122,14 +131,15 @@
         </nav>
 
         <div class="result-panel" data-tab="summary">
-          <div class="card">
-            <h2>Game log</h2>
-            <ul class="game-list" id="gameList"></ul>
+          <div class="card" id="lossDetails">
+            <h2>Why the losses happened</h2>
+            <ul class="loss-list" id="lossList"></ul>
           </div>
 
-          <div class="card" id="lossDetails">
-            <h2>Loss breakdown</h2>
-            <ul class="loss-list" id="lossList"></ul>
+          <div class="card">
+            <h2>Game log</h2>
+            <p class="import-help" id="gameListNote"></p>
+            <ul class="game-list" id="gameList"></ul>
           </div>
         </div>
 
@@ -168,6 +178,7 @@
         <div class="card winrate-card">
           <div class="winrate-number" id="matchWinrateNumber">--%</div>
           <div class="winrate-sub" id="matchWinrateSub"></div>
+          <div class="winrate-meta" id="matchWinrateMeta"></div>
         </div>
 
         <nav class="pill-nav" id="matchResultsPillNav">
@@ -220,6 +231,7 @@
         <div class="card winrate-card">
           <div class="winrate-number" id="matrixAverageNumber">--%</div>
           <div class="winrate-sub" id="matrixAverageSub">Average winrate across every saved opponent deck</div>
+          <div class="winrate-meta" id="matrixMeta"></div>
         </div>
 
         <div class="card">
@@ -227,6 +239,60 @@
           <div id="matrixTable"></div>
         </div>
 
+      </section>
+    </section>
+
+    <!-- ============ DECKS PANEL (deck editor) ============ -->
+    <section class="top-panel hidden" id="panel-decks">
+      <section class="card" id="editorCard">
+        <h2>Edit a deck</h2>
+        <p class="import-help">
+          Change card counts, add or remove cards, and fill in Tags
+          (<code>Remove:2</code>, <code>Buff:2</code>, <code>Draw:1</code>, <code>Shield:2</code>) -
+          the simplified card effects the simulator understands.
+          <span id="editorStorageNote">Changes are saved on this device.</span>
+        </p>
+        <div class="field">
+          <label for="editorDeck">Deck</label>
+          <select id="editorDeck"></select>
+        </div>
+
+        <div id="editorBody" class="hidden">
+          <div class="editor-counts" id="editorCounts"></div>
+          <ul class="editor-problems hidden" id="editorProblems"></ul>
+          <div id="editorRows"></div>
+
+          <div class="field editor-add">
+            <label for="cardSearch">Add a card</label>
+            <input type="text" id="cardSearch" autocomplete="off" placeholder="Search by card name">
+            <ul class="card-results" id="cardResults"></ul>
+          </div>
+
+          <div class="editor-actions">
+            <button type="button" id="editorSave">Save changes</button>
+            <button type="button" class="ghost-btn" id="editorSaveAsToggle">Save as a new deck&hellip;</button>
+            <button type="button" class="ghost-btn danger" id="editorDelete">Delete this deck</button>
+          </div>
+
+          <div class="editor-save-as hidden" id="editorSaveAs">
+            <div class="field">
+              <label for="saveAsName">New deck name</label>
+              <input type="text" id="saveAsName" placeholder="e.g. Rengar Aggro v2">
+            </div>
+            <div class="field">
+              <label for="saveAsCategory">Add to</label>
+              <select id="saveAsCategory">
+                <option value="MyDeck">Your decks</option>
+                <option value="Aggro">Opponents - Aggro</option>
+                <option value="Midrange">Opponents - Midrange</option>
+                <option value="Control">Opponents - Control</option>
+              </select>
+            </div>
+            <button type="button" id="saveAsBtn">Save as new deck</button>
+          </div>
+
+          <div id="editorStatus" class="status"></div>
+        </div>
       </section>
     </section>
 

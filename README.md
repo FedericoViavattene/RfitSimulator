@@ -46,9 +46,9 @@ and opens `http://localhost:8787` in your default browser.
 
 ## Using the app
 
-- The page has two tabs at the top: **Simulate** (the main flow) and
-  **Import a deck** (moved out of the way so it doesn't compete with the
-  simulation setup). A **step indicator** (Your deck → Mode → Opponent →
+- The page has three tabs at the top: **Simulate** (the main flow),
+  **Decks** (the deck editor - see "Editing a deck" below) and **Import**
+  (paste a text decklist). A **step indicator** (Your deck → Mode → Opponent →
   Run it) tracks your progress through the Simulate tab so it's always
   obvious what's left to fill in before you can run anything; it collapses
   to 3 steps in matchup-matrix mode since there's no single opponent to
@@ -63,18 +63,26 @@ and opens `http://localhost:8787` in your default browser.
   tile with no matching art yet (or no network) falls back to a plain
   initial-letter placeholder rather than breaking - nothing to configure.
 - Then choose a **Mode** by clicking one of the three mode cards: a single
-  opponent (50 games), a best-of-3 match simulation (20 matches), or a
-  matchup matrix (every saved opponent deck at once - see "Matchup matrix
-  and best-of-3 matches" below). The button label and the opponent-deck
-  field update automatically for whichever mode is selected.
+  opponent (1000 games), a best-of-3 match simulation (200 matches), or a
+  matchup matrix (500 games against every saved opponent deck - see
+  "Matchup matrix and best-of-3 matches" below). The button label and the
+  opponent-deck field update automatically for whichever mode is selected.
+  The run sizes live in one place, `RUN_SIZES` in `docs/engine.js`.
+- **Seed (optional):** every run is driven by a seed, shown under the
+  winrate. Leave the field blank for a fresh random run, or type a seed from
+  an earlier result to replay that exact run - handy to compare a deck
+  change against the same luck.
 - Hit the **Simulate** button and the page scrolls straight to your
-  results: a winrate card, then a row of tabs - **Game log**, **Curve &amp;
+  results: a winrate card with its **95% range** (on another run of the
+  same size the winrate would almost always land inside it - with 1000 games
+  that's about ±3 points), then a row of tabs - **Game log**, **Curve &amp;
   optimization**, **Recommendations**, **Opponent decklist** - so each kind
   of feedback has its own screen instead of one long page you have to hunt
   through (the matchup matrix mode skips the recommendations tab - see
-  "Matchup recommendations and sideboard suggestions" below). A **New
-  simulation** button at the top of the results jumps you back to the setup
-  step to try another deck or matchup.
+  "Matchup recommendations and sideboard suggestions" below). The game log
+  tab groups the losses by reason (with one example each) and lists the
+  first 50 games. A **New simulation** button at the top of the results
+  jumps you back to the setup step to try another deck or matchup.
 
 ## Play on your phone (installable web app)
 
@@ -85,11 +93,14 @@ installed.
 
 **What's different on the phone:**
 - Decks live in the browser's own local database (IndexedDB) instead of CSV
-  files, since a phone browser has no filesystem to read `Decks\` from. The
-  first time the app opens on a device it's seeded from `docs/decks.json` - a
-  snapshot of the `Decks\*.csv` files that `PushToGitHub.bat` refreshes on
-  every push (via `UpdatePhoneDecks.ps1`). Any deck you import on the phone
-  is saved there too, on that device only.
+  files, since a phone browser has no filesystem to read `Decks\` from. They
+  come from `docs/decks.json` - a snapshot of the `Decks\*.csv` files that
+  `PushToGitHub.bat` refreshes on every push (via `UpdatePhoneDecks.ps1`).
+  Every time the app opens it compares that snapshot with the phone's decks:
+  a deck that's new on the PC gets added, a deck changed on the PC gets
+  updated **unless you edited it on the phone**, and a deck you deleted on
+  the phone stays deleted. Decks you import or edit on the phone stay on
+  that device only.
 - It works fully offline after the first load (a service worker,
   `docs/sw.js`, caches everything needed) - once installed, you don't need a
   connection to run a simulation, only to pick up a future update. The one
@@ -118,9 +129,8 @@ installed.
 redeploys the `docs/` folder to that same URL automatically, usually within
 a minute. The next time you open the app icon **with an internet
 connection**, it fetches the update in the background; a fully offline
-session still opens the last version it had cached. Deck *content* is only
-seeded once per device, on first install - a later update won't add new
-decks to a phone that already has the app, only the app's logic/UI.
+session still opens the last version it had cached. New or changed decks
+from the PC arrive the same way (see "What's different on the phone").
 
 ## Importing a deck from a text list
 
@@ -147,15 +157,35 @@ skipped, along with blank lines and `#` comment lines. A card's Type always
 comes from the database, never from which section you pasted it under, so
 you can't accidentally mislabel one.
 
-Open the **Import a deck** tab, choose where it should go (your decks, or an
+Open the **Import** tab, choose where it should go (your decks, or an
 opponent archetype), give it a name, paste the list, and hit **Import
 deck**. The result panel shows what matched and any warnings, and the deck
 pickers refresh immediately so you can simulate with it right away.
 
 On the PC the result is a normal CSV in `Decks\MyDeck\` or
-`Decks\Opponents\<Aggro|Midrange|Control>\` - if you ever want to hand-edit
-it afterward (say, to fill in a `Tag`), it works exactly like every other
-deck file described below. On the phone it's saved on that device.
+`Decks\Opponents\<Aggro|Midrange|Control>\`, which works exactly like every
+other deck file described below. On the phone it's saved on that device.
+
+## Editing a deck
+
+The **Decks** tab edits any saved deck (yours or an opponent's):
+
+- Pick the deck, then use **−/+** on each card to change its count (down to
+  0 removes it), and type a **Tag** next to any Unit/Spell/Gear (`Remove:2`,
+  `Buff:2`, `Draw:1`, `Shield:2` - see "Supported Tags" below). Filling in
+  Tags is the main way to make the simulation more faithful to what the
+  cards really do.
+- **Add a card** searches the card database by name. It only offers Main
+  Deck cards and Runes from the deck's Legend domains (Legends and
+  Battlefields always show), with each card's real stats filled in.
+- The counts at the top (Legend 1, Battlefields 3, Runes 12, Main deck 40+)
+  and the list of problems (unknown or banned cards, more than 3 copies,
+  off-domain cards, malformed Tags) update as you edit.
+- **Save changes** overwrites the deck; **Save as a new deck** keeps the
+  original and saves your version under a new name (and destination);
+  **Delete this deck** removes it after asking. On the PC these write or
+  delete the deck's CSV under `Decks\`; on the phone they only affect that
+  device. Nothing is written until you save.
 
 ## What it does
 
@@ -164,9 +194,10 @@ deck file described below. On the phone it's saved on that device.
    by the Legend they use).
 2. Both decks are checked against the banned list (`docs/banned.json`) and
    any banned card/Battlefield is excluded automatically, with a warning.
-3. Simulates 50 games and shows each game's result plus a final winrate %.
-4. The game log shows a one-line reason for each loss (deck-out,
-   out-classed on Might, close loss, etc.).
+3. Simulates 1000 games and shows the winrate % with its 95% range and the
+   seed that replays the run.
+4. Groups the losses by reason (Burn Out, out-classed on Might, close loss,
+   etc.) and lists the first games.
 5. A deck-optimization report: your most-played cards, any cards that never
    got played (candidates to cut), and a curve check (average Energy cost)
    with a suggestion if it's too high or too low.
@@ -178,15 +209,17 @@ deck file described below. On the phone it's saved on that device.
 
 ## Matchup matrix and best-of-3 matches
 
-Beyond the default "50 games vs one opponent" mode, there are two more ways
-to run the simulation - pick one from the **Mode** cards:
+Beyond the default "1000 games vs one opponent" mode, there are two more
+ways to run the simulation - pick one from the **Mode** cards:
 
 - **Matchup matrix** - runs your deck against **every** saved opponent deck
-  in one go, and reports a winrate per opponent plus an overall average.
-  This is the fastest way to see "what does my deck struggle against across
-  the whole meta" instead of testing one matchup at a time.
+  in one go (500 games each), and reports a winrate per opponent with its
+  95% range, plus an overall average. Every opponent is played from the same
+  seed, so the differences between rows come from the decks rather than
+  from luck. This is the fastest way to see "what does my deck struggle
+  against across the whole meta" instead of testing one matchup at a time.
 - **Best-of-3 match simulation** - real Riftbound tournament rounds (Nexus
-  Night/Skirmish) are best-of-3, not a single game. This mode plays out 20
+  Night/Skirmish) are best-of-3, not a single game. This mode plays out 200
   full best-of-3 matches against one chosen opponent (each match ends as
   soon as one side wins 2 games) and reports the **match** winrate - "how
   often would I actually take the round" - separately from the underlying
@@ -249,7 +282,7 @@ fit cleanly into mechanics the engine already tracks:
 
 | Legend | Real ability | How it's modeled |
 |---|---|---|
-| Rengar, Pridestalker | "When you play a unit, give a unit +1 [S] this turn." | +1 Might to a Battlefield the moment you play a Unit there |
+| Rengar, Pridestalker | "When you play a unit, give a unit +1 [S] this turn." | +1 Might until end of turn to a unit that can still attack (else the unit just played) |
 | Draven, Glorious Executioner | "When you win a combat, draw 1." | Draw 1 card the moment you win a combat |
 
 Every other Legend in the saved decks (Akali, Kennen, Master Yi, Fiora, Azir,
@@ -282,39 +315,48 @@ every card is reduced to:
 
 ### Supported Tags
 
-- `Remove:N` - removes up to N Might of the opponent's board presence when played (approximates removal spells).
-- `Buff:N` - adds N Might to your own board total when played (approximates pump/combat tricks).
+- `Remove:N` - destroys enemy units worth up to N Might in total, biggest that fits first, units holding a battlefield before units in base (approximates removal).
+- `Buff:N` - +N Might until end of turn on a unit that can still attack (approximates pump/combat tricks).
 - `Draw:N` - draws N extra cards when played.
-- `Shield:N` - adds N Might to a Battlefield, but **only while you are defending it** (models the real Shield keyword, Core Rules 814).
+- `Shield:N` - +N Might **only while defending** (the real Shield keyword, Core Rules 814). On a unit it's that unit's own keyword; on a spell it protects one of your units holding a battlefield until your next turn; on gear it goes on the unit carrying the gear.
 
-Cards with no relevant effect for simulation purposes (most vanilla units,
-flavor spells, etc.) can just leave `Tag` blank.
+A Spell whose only Tag has nothing to hit (removal with no enemy units, a
+pump or shield with no unit of yours) stays in hand. Cards with no relevant
+effect for simulation purposes (most vanilla units, flavor spells, etc.) can
+just leave `Tag` blank - an untagged spell is still cast, so its Energy cost
+counts, but its effect isn't modeled.
 
 ### Rules actually modeled
 
-- **Victory Score 8** (Core Rules 194.3): first to 8 points, with strictly more points than any opponent, wins.
-- **Legend / Rune Deck / Battlefield Zone are separate from the Main Deck** (rules 103.3, 107.2, 107.4): `Legend`, `Rune`, and `Battlefield` rows in your CSV are set up once at the start of the game and are **never drawn or "played"** - so they never show up in the optimization report's play stats. Only `Unit`/`Spell`/`Gear` cards are in the drawable deck. This also means your Rune count doesn't need to add up to a specific deck-size target - it's tracked separately, same as the real Rune Deck (12 cards).
-- **Channel**: +2 Energy per turn per player, from the (separate) Rune Deck (430.4.a / 315.3.b); the player going second channels 1 extra Rune on their first turn to offset going first (485.7).
-- **Combat**: 3 shared, neutral Battlefields are used so two different decks can be compared fairly - a side Conquers a Battlefield by having strictly more Might than the opponent there (469.1.a).
-- **Final Point restriction** (471.1.b): once a player is 1 point from Victory Score or higher, a Conquer only scores if they swept **every** Battlefield that turn - otherwise they draw a card instead.
-- **Hard cap at 8**: the score can never exceed the Victory Score. In real Riftbound the only thing that raises Victory Score above 8 is a specific Battlefield effect, and that Battlefield is on the banned list - so with a legal decklist, games should never end on 9 or 10.
-- **Burn Out** (431): drawing from an empty deck recycles the trash; if the trash is also empty, the player burns out and gives up a point every subsequent draw until someone hits Victory Score (this point also respects the 8-point cap).
+A 1v1 duel, following the Core Rules / Quick Start:
+
+- **Setup:** 2 battlefields, one per player (battlefield abilities aren't modeled). Each player draws an opening hand of **4** and may mulligan up to 2 cards (the AI sets aside cards costing 5+ Energy). The first player is random.
+- **Legend / Rune Deck / Battlefield Zone are separate from the Main Deck** (rules 103.3, 107.2, 107.4): `Legend`, `Rune`, and `Battlefield` rows are set up once and are **never drawn or "played"**, so they never show up in the optimization report's play stats. Only `Unit`/`Spell`/`Gear` cards are in the drawable deck.
+- **Channel:** 2 runes per turn (430.4.a / 315.3.b), 3 on the second player's first turn (485.7), up to the deck's Rune count (12). Every rune channeled so far is 1 Energy each turn. **Power costs aren't modeled yet** - a card's Energy is its whole cost.
+- **Units** are played exhausted, either to base or to a battlefield you control (the AI reinforces a held battlefield the opponent could take next turn). A ready unit exhausts to move from base to a battlefield, so a unit can attack from the turn after it's played. Units stay on the board until they die - only then do they go to the trash.
+- **Gear** stays in play. Gear with Might (equipment) or a Shield tag goes on your strongest unit and moves to another one when that unit dies - the Equip cost isn't modeled.
+- **Combat:** moving into a battlefield with no enemy units conquers it. Otherwise damage is simultaneous (each side deals its total Might; damage kills the weakest units first). If only attackers remain they conquer; if defenders remain, surviving attackers go back to base.
+- **Scoring:** **Conquer** +1 point; **Hold** +1 point for each battlefield you control at the start of your turn. Each battlefield scores at most once per turn, and only the player whose turn it is scores.
+- **Final point** (471.1.b): the winning point can't come from a conquer unless every battlefield scored this turn - the player draws 1 instead. A hold can always score it.
+- **Victory Score 8** (194.3): first to 8 wins; the score never goes above 8. A game still unfinished after 40 rounds is a draw (it doesn't count as a win).
+- **Burn Out** (431): drawing from an empty deck shuffles the trash back in and the opponent gains 1 point - which can be the winning point.
+- **The AI** (same for both players): plays the most expensive affordable card first until it runs out of Energy, then attacks every battlefield it doesn't control that its ready units can beat (easiest first, with the smallest force that wins), then guards a threatened battlefield with what's left. It doesn't hold cards for the opponent's turn (no Reactions).
+- **Seeded randomness:** shuffles and the first player come from a seeded generator, so a seed replays a run exactly.
 
 ### Loss diagnostics
 
-Board Might resets to 0 at any Battlefield you just lost, so by the moment a
-game ends your *final* board Might is almost always zero - that's real, but
-comparing it every time just says "you had 0 Might" over and over, which
-isn't useful. The loss-reason feature instead tracks stats **throughout** the
-game and picks the most relevant one:
+Each lost game gets the single most relevant reason, checked in this order:
 
-1. Burn Out (deck ran out of cards)
+1. Burn Out (ran through the whole deck)
 2. Out-classed on **peak** board Might (your best turn vs theirs, not your last turn)
-3. Energy left unspent too often (curve too expensive / clogged hand)
+3. Energy left unspent over your first 3 turns (curve too expensive / clogged hand - later on, 12 runes outpace any hand, so those turns aren't counted)
 4. Too many cards still stuck in hand at game end (top-heavy curve)
 5. Never took the lead in points at any point in the game (they're just faster)
 6. Very close (1-point) loss
 7. Generic multi-turn tempo loss (fallback)
+
+The results group the losses by reason, most common first, with one game's
+full explanation as the example.
 
 ### Viewing the opponent's decklist
 
@@ -452,13 +494,15 @@ into a new CSV.
 
 ## Adding more decks
 
-Easiest: use the **Import a deck** tab (see "Importing a deck from a text
-list" above) - paste a decklist and it writes the CSV for you with real
-stats. Or drop a new CSV following the schema above directly into
-`Decks\MyDeck\` (for your own decks) or the right archetype subfolder under
-`Decks\Opponents\` (for opponents) by hand. Either way the PC app picks up
-any `.csv` file automatically (reload the page) - no code changes needed.
+Easiest: use the **Import** tab (see "Importing a deck from a text list"
+above) - paste a decklist and it writes the CSV for you with real stats -
+or start from an existing deck in the **Decks** tab and use **Save as a new
+deck**. You can also drop a new CSV following the schema above directly
+into `Decks\MyDeck\` (for your own decks) or the right archetype subfolder
+under `Decks\Opponents\` (for opponents) by hand. Either way the PC app
+picks up any `.csv` file automatically (reload the page) - no code changes
+needed.
 
-The next `PushToGitHub.bat` adds it to `docs/decks.json` for the phone - a
-phone that already has the app keeps the decks it was first seeded with,
-though (see "How updates reach your phone").
+The next `PushToGitHub.bat` adds it to `docs/decks.json`, and the phone
+picks it up the next time the app opens online (see "What's different on
+the phone").

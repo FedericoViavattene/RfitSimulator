@@ -1,4 +1,4 @@
-import { engine } from './engine.js';
+import { engine, RUN_SIZES } from './engine.js';
 
 const myDeckSelect = document.getElementById('myDeck');
 const opponentDeckSelect = document.getElementById('opponentDeck');
@@ -12,6 +12,7 @@ const resultsSection = document.getElementById('results');
 const topNav = document.getElementById('topNav');
 const topPanels = {
   simulate: document.getElementById('panel-simulate'),
+  decks: document.getElementById('panel-decks'),
   import: document.getElementById('panel-import'),
 };
 
@@ -28,9 +29,12 @@ const newSimBtn = document.getElementById('newSimBtn');
 const newMatchSimBtn = document.getElementById('newMatchSimBtn');
 const newMatrixSimBtn = document.getElementById('newMatrixSimBtn');
 const bannedWarnings = document.getElementById('bannedWarnings');
+const seedInput = document.getElementById('seedInput');
 const winrateNumber = document.getElementById('winrateNumber');
 const winrateSub = document.getElementById('winrateSub');
+const winrateMeta = document.getElementById('winrateMeta');
 const gameList = document.getElementById('gameList');
+const gameListNote = document.getElementById('gameListNote');
 const lossDetails = document.getElementById('lossDetails');
 const lossList = document.getElementById('lossList');
 const optimization = document.getElementById('optimization');
@@ -41,6 +45,7 @@ const matchResultsSection = document.getElementById('matchResults');
 const matchBannedWarnings = document.getElementById('matchBannedWarnings');
 const matchWinrateNumber = document.getElementById('matchWinrateNumber');
 const matchWinrateSub = document.getElementById('matchWinrateSub');
+const matchWinrateMeta = document.getElementById('matchWinrateMeta');
 const matchList = document.getElementById('matchList');
 const matchOptimization = document.getElementById('matchOptimization');
 const matchOpponentDecklist = document.getElementById('matchOpponentDecklist');
@@ -50,15 +55,31 @@ const matrixResultsSection = document.getElementById('matrixResults');
 const matrixBannedWarnings = document.getElementById('matrixBannedWarnings');
 const matrixAverageNumber = document.getElementById('matrixAverageNumber');
 const matrixTable = document.getElementById('matrixTable');
+const matrixMeta = document.getElementById('matrixMeta');
 
 const offlineNotice = document.getElementById('offlineNotice');
 
 // Labels for the one shared "Simulate" button, keyed by mode - so adding a
 // future mode only means adding one entry here, not more branching below.
+// The counts come from engine.js (RUN_SIZES).
 const MODE_BUTTON_LABEL = {
-  single: 'Simulate 50 games',
-  match:  'Simulate 20 best-of-3 matches',
+  single: `Simulate ${RUN_SIZES.single} games`,
+  match:  `Simulate ${RUN_SIZES.match} best-of-3 matches`,
   matrix: 'Run matchup matrix',
+};
+
+// The game log only lists the first games; the winrate and the loss
+// breakdown always cover all of them.
+const GAME_LOG_LIMIT = 50;
+
+const LOSS_CATEGORY_LABEL = {
+  BurnOut: 'Burn Out',
+  MightMismatch: 'Out-classed on board Might',
+  EnergyUnspent: 'Energy left unspent early',
+  HandClogged: 'Cards stuck in hand',
+  NeverLed: 'Never took the lead',
+  CloseLoss: 'Lost by a single point',
+  Tempo: 'Fell behind on tempo',
 };
 
 const importCategory = document.getElementById('importCategory');
@@ -91,6 +112,11 @@ async function loadDecks() {
     myDecksCache = data.myDecks || [];
     opponentsCache = data.opponents || {};
 
+    // Keep the current picks when the list is refreshed (after an import or
+    // an edit), as long as those decks still exist.
+    const previousMy = myDeckSelect.value;
+    const previousOpponent = opponentDeckSelect.value;
+
     myDeckSelect.innerHTML = '';
     myDecksCache.forEach(d => {
       const opt = document.createElement('option');
@@ -112,8 +138,11 @@ async function loadDecks() {
       opponentDeckSelect.appendChild(group);
     });
 
+    if (myDecksCache.some(d => d.id === previousMy)) myDeckSelect.value = previousMy;
+    if (Object.values(opponentsCache).flat().some(d => d.id === previousOpponent)) opponentDeckSelect.value = previousOpponent;
+
     if (!myDeckSelect.options.length || !opponentDeckSelect.options.length) {
-      setStatus('No decks found - import one from the "Import a deck" tab.', true);
+      setStatus('No decks found - import one from the "Import" tab.', true);
       simulateBtn.disabled = true;
       return;
     }
@@ -123,6 +152,7 @@ async function loadDecks() {
   } finally {
     updateTriggerPreview('my');
     updateTriggerPreview('opponent');
+    populateEditorDeckSelect();
   }
 }
 
@@ -141,41 +171,74 @@ function renderBannedWarnings(data, target) {
   target.classList.remove('hidden');
 }
 
+// "95% range 51.8% - 58% · seed 123" - how far this winrate could move on
+// another run, and the seed that replays this one exactly.
+function runMetaText(low, high, seed, extra) {
+  const parts = [];
+  if (low !== undefined) parts.push(`95% range ${low}% - ${high}%`);
+  if (extra) parts.push(extra);
+  parts.push(`seed ${seed}`);
+  return parts.join(' · ');
+}
+
 function renderWinrate(data) {
   winrateNumber.textContent = data.winrate + '%';
   winrateNumber.classList.toggle('good', data.winrate >= 50);
   winrateNumber.classList.toggle('bad', data.winrate < 50);
-  winrateSub.textContent = `${data.wins} / ${data.totalGames} wins - ${data.myDeckName} vs ${data.opponentDeckName}`;
+  const drawsText = data.draws ? `, ${data.draws} draws` : '';
+  winrateSub.textContent = `${data.wins} / ${data.totalGames} wins${drawsText} - ${data.myDeckName} vs ${data.opponentDeckName}`;
+  winrateMeta.textContent = runMetaText(data.winrateLow, data.winrateHigh, data.seed);
+}
+
+function resultBadge(win, draw, labels) {
+  const badge = document.createElement('span');
+  badge.className = 'badge ' + (draw ? 'draw' : (win ? 'win' : 'loss'));
+  badge.textContent = draw ? labels[2] : (win ? labels[0] : labels[1]);
+  return badge;
 }
 
 function renderGameList(games) {
   gameList.innerHTML = '';
-  games.forEach(g => {
+  const shown = games.slice(0, GAME_LOG_LIMIT);
+  gameListNote.textContent = games.length > shown.length
+    ? `Showing the first ${shown.length} of ${games.length} games.`
+    : '';
+  shown.forEach(g => {
     const li = document.createElement('li');
-    const badge = document.createElement('span');
-    badge.className = 'badge ' + (g.win ? 'win' : 'loss');
-    badge.textContent = g.win ? 'WIN' : 'LOSS';
     const scoreSpan = document.createElement('span');
     scoreSpan.textContent = `Game ${g.n}: You ${g.scoreA} - ${g.scoreB} Opponent`;
     li.appendChild(scoreSpan);
-    li.appendChild(badge);
+    li.appendChild(resultBadge(g.win, g.draw, ['WIN', 'LOSS', 'DRAW']));
     gameList.appendChild(li);
   });
 }
 
+// One line per loss reason: how many losses it explains, with the first
+// game's full explanation as the example.
 function renderLossBreakdown(games) {
-  const losses = games.filter(g => !g.win);
+  const losses = games.filter(g => !g.win && !g.draw && g.lossCategory);
   if (losses.length === 0) {
     lossDetails.classList.add('hidden');
     return;
   }
+  const byCategory = new Map();
+  losses.forEach(g => {
+    if (!byCategory.has(g.lossCategory)) byCategory.set(g.lossCategory, { count: 0, example: g });
+    byCategory.get(g.lossCategory).count++;
+  });
+
   lossDetails.classList.remove('hidden');
   lossList.innerHTML = '';
-  losses.forEach(g => {
-    const li = document.createElement('li');
-    li.innerHTML = `<strong>Game ${g.n}:</strong> ${g.lossReason}`;
-    lossList.appendChild(li);
-  });
+  [...byCategory.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .forEach(([category, info]) => {
+      const pct = Math.round((info.count / losses.length) * 100);
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${LOSS_CATEGORY_LABEL[category] || category}</strong>`
+        + ` <span class="loss-share">${info.count} of ${losses.length} losses (${pct}%)</span>`
+        + `<div class="loss-example">e.g. game ${info.example.n}: ${info.example.lossReason}</div>`;
+      lossList.appendChild(li);
+    });
 }
 
 function renderOptimization(stats, target) {
@@ -234,13 +297,10 @@ function renderMatchList(matches) {
   matchList.innerHTML = '';
   matches.forEach(m => {
     const li = document.createElement('li');
-    const badge = document.createElement('span');
-    badge.className = 'badge ' + (m.win ? 'win' : 'loss');
-    badge.textContent = m.win ? 'WON' : 'LOST';
     const scoreSpan = document.createElement('span');
     scoreSpan.textContent = `Match ${m.n}: You ${m.gamesWonA} - ${m.gamesWonB} Opponent (games)`;
     li.appendChild(scoreSpan);
-    li.appendChild(badge);
+    li.appendChild(resultBadge(m.win, m.draw, ['WON', 'LOST', 'DRAW']));
     matchList.appendChild(li);
   });
 }
@@ -288,10 +348,11 @@ function renderMatrix(data) {
   matrixAverageNumber.textContent = data.averageWinrate + '%';
   matrixAverageNumber.classList.toggle('good', data.averageWinrate >= 50);
   matrixAverageNumber.classList.toggle('bad', data.averageWinrate < 50);
+  matrixMeta.textContent = runMetaText(undefined, undefined, data.seed, `${data.gamesPerOpponent} games per opponent, same seed for each`);
 
   const rows = data.rows || [];
   if (rows.length === 0) {
-    matrixTable.innerHTML = '<p>No saved opponent decks were found. Import one from the "Import a deck" tab.</p>';
+    matrixTable.innerHTML = '<p>No saved opponent decks were found. Import one from the "Import" tab.</p>';
     return;
   }
 
@@ -309,6 +370,7 @@ function renderMatrix(data) {
       html += `<div class="matrix-row">`
         + `<span class="matrix-name">${r.name}</span>`
         + `<span class="matrix-winrate ${goodBad}">${r.winrate}%</span>`
+        + `<span class="matrix-range" title="95% range">${r.winrateLow}-${r.winrateHigh}%</span>`
         + `<span class="matrix-record">${r.wins}/${r.total}</span>`
         + `</div>`;
     });
@@ -322,10 +384,19 @@ function renderMatchWinrate(data) {
   matchWinrateNumber.classList.toggle('good', data.matchWinrate >= 50);
   matchWinrateNumber.classList.toggle('bad', data.matchWinrate < 50);
   matchWinrateSub.textContent = `${data.matchWins} / ${data.matchCount} matches won (best of ${data.bestOf}) - ${data.myDeckName} vs ${data.opponentDeckName}`;
+  matchWinrateMeta.textContent = runMetaText(data.matchWinrateLow, data.matchWinrateHigh, data.seed);
 }
 
-async function runSingleOpponentSimulation(myDeckId, opponentDeckId) {
-  const data = await engine.simulate(myDeckId, opponentDeckId);
+// Blank -> undefined (the engine picks a random seed); otherwise the number.
+function seedFromInput() {
+  const raw = (seedInput.value || '').trim();
+  if (!raw) return undefined;
+  if (!/^\d+$/.test(raw)) throw new Error('The seed must be a whole number (or leave it blank).');
+  return Number(raw);
+}
+
+async function runSingleOpponentSimulation(myDeckId, opponentDeckId, seed) {
+  const data = await engine.simulate(myDeckId, opponentDeckId, { seed });
 
   renderBannedWarnings(data, bannedWarnings);
   renderWinrate(data);
@@ -337,8 +408,8 @@ async function runSingleOpponentSimulation(myDeckId, opponentDeckId) {
   resultsSection.classList.remove('hidden');
 }
 
-async function runMatchSimulation(myDeckId, opponentDeckId) {
-  const data = await engine.simulateMatch(myDeckId, opponentDeckId);
+async function runMatchSimulation(myDeckId, opponentDeckId, seed) {
+  const data = await engine.simulateMatch(myDeckId, opponentDeckId, { seed });
 
   renderBannedWarnings(data, matchBannedWarnings);
   renderMatchWinrate(data);
@@ -349,8 +420,8 @@ async function runMatchSimulation(myDeckId, opponentDeckId) {
   matchResultsSection.classList.remove('hidden');
 }
 
-async function runMatchupMatrix(myDeckId) {
-  const data = await engine.matchupMatrix(myDeckId);
+async function runMatchupMatrix(myDeckId, seed) {
+  const data = await engine.matchupMatrix(myDeckId, { seed });
 
   renderBannedWarnings(data, matrixBannedWarnings);
   renderMatrix(data);
@@ -371,6 +442,14 @@ async function runSimulation() {
     return;
   }
 
+  let seed;
+  try {
+    seed = seedFromInput();
+  } catch (err) {
+    setStatus(err.message, true);
+    return;
+  }
+
   simulateBtn.disabled = true;
   setStatus(mode === 'matrix' ? 'Running the matchup matrix...' : 'Simulating...');
   resultsSection.classList.add('hidden');
@@ -378,12 +457,14 @@ async function runSimulation() {
   matrixResultsSection.classList.add('hidden');
 
   try {
+    // Let the status line paint before the (synchronous) simulation runs.
+    await new Promise(resolve => setTimeout(resolve, 30));
     if (mode === 'match') {
-      await runMatchSimulation(myDeckId, opponentDeckId);
+      await runMatchSimulation(myDeckId, opponentDeckId, seed);
     } else if (mode === 'matrix') {
-      await runMatchupMatrix(myDeckId);
+      await runMatchupMatrix(myDeckId, seed);
     } else {
-      await runSingleOpponentSimulation(myDeckId, opponentDeckId);
+      await runSingleOpponentSimulation(myDeckId, opponentDeckId, seed);
     }
     setStatus('');
     markRunStepDone();
@@ -808,6 +889,317 @@ function resetToSetup() {
   document.querySelector('.picker').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ===================== Deck editor ("Decks" tab) =====================
+//
+// Edits one deck's rows in memory (`editor.rows`), re-checking legality on
+// every change, and only writes through engine.saveDeck when asked - so on
+// the PC nothing touches the CSV until "Save changes".
+
+const editorDeckSelect = document.getElementById('editorDeck');
+const editorBody = document.getElementById('editorBody');
+const editorCounts = document.getElementById('editorCounts');
+const editorProblems = document.getElementById('editorProblems');
+const editorRowsEl = document.getElementById('editorRows');
+const cardSearch = document.getElementById('cardSearch');
+const cardResults = document.getElementById('cardResults');
+const editorSaveBtn = document.getElementById('editorSave');
+const editorSaveAsToggle = document.getElementById('editorSaveAsToggle');
+const editorDeleteBtn = document.getElementById('editorDelete');
+const editorSaveAsPanel = document.getElementById('editorSaveAs');
+const saveAsName = document.getElementById('saveAsName');
+const saveAsCategory = document.getElementById('saveAsCategory');
+const saveAsBtn = document.getElementById('saveAsBtn');
+const editorStatus = document.getElementById('editorStatus');
+const editorStorageNote = document.getElementById('editorStorageNote');
+
+const EDITOR_TYPE_ORDER = ['Legend', 'Battlefield', 'Rune', 'Unit', 'Spell', 'Gear'];
+const EDITOR_TYPE_TITLE = { Legend: 'Legend', Battlefield: 'Battlefields', Rune: 'Runes', Unit: 'Units', Spell: 'Spells', Gear: 'Gear' };
+const TAGGABLE_TYPES = ['Unit', 'Spell', 'Gear'];
+
+let editor = null; // { id, name, category, rows, dirty }
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function setEditorStatus(text, isError) {
+  editorStatus.textContent = text || '';
+  editorStatus.classList.toggle('error', !!isError);
+}
+
+function allDeckEntries() {
+  const opponents = Object.keys(opponentsCache).flatMap(cat => opponentsCache[cat].map(d => ({ ...d, group: `Opponents - ${cat}` })));
+  return myDecksCache.map(d => ({ ...d, group: 'Your decks' })).concat(opponents);
+}
+
+function populateEditorDeckSelect() {
+  if (!editorDeckSelect) return;
+  const keep = editor ? editor.id : editorDeckSelect.value;
+  editorDeckSelect.innerHTML = '<option value="">Choose a deck&hellip;</option>';
+  const groups = new Map();
+  allDeckEntries().forEach(d => {
+    if (!groups.has(d.group)) {
+      const og = document.createElement('optgroup');
+      og.label = d.group;
+      groups.set(d.group, og);
+      editorDeckSelect.appendChild(og);
+    }
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name;
+    groups.get(d.group).appendChild(opt);
+  });
+  editorDeckSelect.value = allDeckEntries().some(d => d.id === keep) ? keep : '';
+}
+
+function confirmDiscardEdits() {
+  return !editor || !editor.dirty || window.confirm(`Discard your unsaved changes to "${editor.name}"?`);
+}
+
+async function openEditorDeck(id) {
+  setEditorStatus('');
+  editorSaveAsPanel.classList.add('hidden');
+  cardSearch.value = '';
+  cardResults.innerHTML = '';
+  if (!id) {
+    editor = null;
+    editorBody.classList.add('hidden');
+    return;
+  }
+  try {
+    const deck = await engine.getDeck(id);
+    editor = { ...deck, dirty: false };
+    editorBody.classList.remove('hidden');
+    renderEditor();
+  } catch (err) {
+    editor = null;
+    editorBody.classList.add('hidden');
+    setEditorStatus('Could not open the deck: ' + err.message, true);
+  }
+}
+
+function markEditorDirty() {
+  editor.dirty = true;
+  setEditorStatus('Unsaved changes.');
+}
+
+function legendDomains() {
+  const legend = editor && editor.rows.find(r => r.Type === 'Legend');
+  return legend && legend.Domain ? legend.Domain.split('/').map(s => s.trim()) : [];
+}
+
+function cardStatsText(r) {
+  if (TAGGABLE_TYPES.includes(r.Type)) {
+    return [`${r.Energy ?? 0}E`, Number(r.Power) ? `${r.Power}P` : null, `${r.Might ?? 0}M`, r.Domain || null].filter(Boolean).join(' · ');
+  }
+  return r.Domain || '';
+}
+
+function renderEditorChecks() {
+  const check = engine.checkDeck(editor.rows);
+  const chip = (label, value, ok) => `<span class="count-chip ${ok ? 'ok' : 'bad'}">${label} <strong>${value}</strong></span>`;
+  editorCounts.innerHTML =
+    chip('Legend', `${check.legendCount}/1`, check.legendCount === 1)
+    + chip('Battlefields', `${check.battlefieldCount}/3`, check.battlefieldCount === 3)
+    + chip('Runes', `${check.runeTotal}/12`, check.runeTotal === 12)
+    + chip('Main deck', `${check.mainDeckTotal}/40+`, check.mainDeckTotal >= 40);
+  editorProblems.innerHTML = check.problems.map(p => `<li>${escapeHtml(p)}</li>`).join('');
+  editorProblems.classList.toggle('hidden', check.problems.length === 0);
+}
+
+function renderEditor() {
+  let html = '';
+  EDITOR_TYPE_ORDER.forEach(type => {
+    const indexes = editor.rows
+      .map((r, i) => i)
+      .filter(i => editor.rows[i].Type === type)
+      .sort((a, b) => editor.rows[a].Name.localeCompare(editor.rows[b].Name));
+    if (indexes.length === 0) return;
+    const total = indexes.reduce((s, i) => s + (parseInt(editor.rows[i].Quantity, 10) || 0), 0);
+    html += `<div class="editor-group"><h4>${EDITOR_TYPE_TITLE[type]} <span class="editor-group-count">${total}</span></h4>`;
+    indexes.forEach(i => {
+      const r = editor.rows[i];
+      const tagInput = TAGGABLE_TYPES.includes(r.Type)
+        ? `<input type="text" class="editor-tag" data-index="${i}" value="${escapeHtml(r.Tag)}" placeholder="Tag" aria-label="Tag for ${escapeHtml(r.Name)}" autocomplete="off">`
+        : '';
+      html += `<div class="editor-row${tagInput ? ' has-tag' : ''}">`
+        + `<div class="editor-card"><span class="editor-card-name">${escapeHtml(r.Name)}</span>`
+        + `<span class="editor-card-stats">${escapeHtml(cardStatsText(r))}</span></div>`
+        + tagInput
+        + `<div class="qty-control">`
+        + `<button type="button" class="qty-btn" data-action="dec" data-index="${i}" aria-label="One less ${escapeHtml(r.Name)}">&minus;</button>`
+        + `<span class="qty-value">${r.Quantity}</span>`
+        + `<button type="button" class="qty-btn" data-action="inc" data-index="${i}" aria-label="One more ${escapeHtml(r.Name)}">+</button>`
+        + `</div></div>`;
+    });
+    html += '</div>';
+  });
+  editorRowsEl.innerHTML = html || '<p class="import-help">This deck has no cards yet - add some below.</p>';
+  renderEditorChecks();
+}
+
+function changeQuantity(index, delta) {
+  const row = editor.rows[index];
+  row.Quantity = (parseInt(row.Quantity, 10) || 0) + delta;
+  if (row.Quantity <= 0) editor.rows.splice(index, 1);
+  markEditorDirty();
+  renderEditor();
+}
+
+function addCardToDeck(name) {
+  const existing = editor.rows.find(r => r.Name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    existing.Quantity = (parseInt(existing.Quantity, 10) || 0) + 1;
+  } else {
+    editor.rows.push(engine.cardRow(name));
+  }
+  markEditorDirty();
+  renderEditor();
+}
+
+function renderCardResults() {
+  const q = cardSearch.value.trim();
+  if (q.length < 2) {
+    cardResults.innerHTML = '';
+    return;
+  }
+  const results = engine.searchCards(q, { domains: legendDomains(), limit: 15 });
+  if (results.length === 0) {
+    cardResults.innerHTML = '<li class="card-results-empty">No matching card in this Legend\'s domains.</li>';
+    return;
+  }
+  cardResults.innerHTML = results.map(c => {
+    const stats = cardStatsText({ Type: c.type, Energy: c.energy, Power: c.power, Might: c.might, Domain: c.domain });
+    return `<li><button type="button" class="card-result" data-name="${escapeHtml(c.name)}">`
+      + `<span class="card-result-name">${escapeHtml(c.name)}</span>`
+      + `<span class="card-result-meta">${escapeHtml(c.type)}${stats ? ' · ' + escapeHtml(stats) : ''}</span>`
+      + `<span class="card-result-add">+ Add</span></button></li>`;
+  }).join('');
+}
+
+async function saveEditorDeck() {
+  setEditorStatus('Saving...');
+  editorSaveBtn.disabled = true;
+  try {
+    await engine.saveDeck({ id: editor.id, rows: editor.rows });
+    editor.dirty = false;
+    await loadDecks();
+    setEditorStatus(engine.storageKind === 'files' ? `Saved to Decks/${editor.id}.csv.` : 'Saved.');
+  } catch (err) {
+    setEditorStatus('Error: ' + err.message, true);
+  } finally {
+    editorSaveBtn.disabled = false;
+  }
+}
+
+async function saveEditorDeckAsNew() {
+  const category = saveAsCategory.value;
+  const name = saveAsName.value;
+  if (!name.trim()) {
+    setEditorStatus('Give the new deck a name first.', true);
+    return;
+  }
+  let target;
+  try {
+    target = engine.deckIdFor(category, name, 'New Deck');
+  } catch (err) {
+    setEditorStatus('Error: ' + err.message, true);
+    return;
+  }
+  if (allDeckEntries().some(d => d.id === target.id) &&
+      !window.confirm(`A deck called "${target.name}" already exists there. Replace it?`)) {
+    return;
+  }
+  setEditorStatus('Saving...');
+  saveAsBtn.disabled = true;
+  try {
+    const saved = await engine.saveDeck({ category, name, rows: editor.rows });
+    editor.dirty = false;
+    await loadDecks();
+    editorDeckSelect.value = saved.id;
+    await openEditorDeck(saved.id);
+    setEditorStatus(`Saved as "${saved.name}".`);
+  } catch (err) {
+    setEditorStatus('Error: ' + err.message, true);
+  } finally {
+    saveAsBtn.disabled = false;
+  }
+}
+
+async function deleteEditorDeck() {
+  const where = engine.storageKind === 'files'
+    ? `This deletes Decks/${editor.id}.csv on this PC.`
+    : 'This removes it from this device.';
+  if (!window.confirm(`Delete "${editor.name}"? ${where}`)) return;
+  try {
+    const name = editor.name;
+    await engine.deleteDeck(editor.id);
+    editor = null;
+    await loadDecks();
+    await openEditorDeck('');
+    setEditorStatus(`Deleted "${name}".`);
+  } catch (err) {
+    setEditorStatus('Error: ' + err.message, true);
+  }
+}
+
+function initDeckEditor() {
+  if (!editorDeckSelect) return;
+
+  editorDeckSelect.addEventListener('change', () => {
+    if (!confirmDiscardEdits()) {
+      editorDeckSelect.value = editor.id;
+      return;
+    }
+    openEditorDeck(editorDeckSelect.value);
+  });
+
+  editorRowsEl.addEventListener('click', evt => {
+    const btn = evt.target.closest('.qty-btn');
+    if (!btn) return;
+    changeQuantity(Number(btn.dataset.index), btn.dataset.action === 'inc' ? 1 : -1);
+  });
+
+  // Tags are typed in place: update the row and the checks, but don't
+  // re-render the rows (that would steal the input's focus).
+  editorRowsEl.addEventListener('input', evt => {
+    const input = evt.target.closest('.editor-tag');
+    if (!input) return;
+    editor.rows[Number(input.dataset.index)].Tag = input.value;
+    markEditorDirty();
+    renderEditorChecks();
+  });
+
+  let searchTimer = null;
+  cardSearch.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderCardResults, 150);
+  });
+  cardResults.addEventListener('click', evt => {
+    const btn = evt.target.closest('.card-result');
+    if (btn) addCardToDeck(btn.dataset.name);
+  });
+
+  editorSaveBtn.addEventListener('click', saveEditorDeck);
+  editorSaveAsToggle.addEventListener('click', () => {
+    editorSaveAsPanel.classList.toggle('hidden');
+    if (!editorSaveAsPanel.classList.contains('hidden')) {
+      saveAsName.value = `${editor.name} copy`;
+      saveAsCategory.value = editor.category || 'MyDeck';
+      saveAsName.focus();
+    }
+  });
+  saveAsBtn.addEventListener('click', saveEditorDeckAsNew);
+  editorDeleteBtn.addEventListener('click', deleteEditorDeck);
+
+  window.addEventListener('beforeunload', evt => {
+    if (editor && editor.dirty) {
+      evt.preventDefault();
+      evt.returnValue = '';
+    }
+  });
+}
+
 // ===================== Offline indicator =====================
 
 function updateOfflineNotice() {
@@ -859,17 +1251,26 @@ function unregisterServiceWorkers() {
 // ===================== Storage-specific wording =====================
 
 function applyStorageKindToUi() {
-  if (engine.storageKind === 'files' && importStorageNote) {
-    importStorageNote.textContent = 'Imported decks are saved as CSV files under the Decks folder on this PC.';
-  }
+  if (engine.storageKind !== 'files') return;
+  if (importStorageNote) importStorageNote.textContent = 'Imported decks are saved as CSV files under the Decks folder on this PC.';
+  if (editorStorageNote) editorStorageNote.textContent = 'Changes are saved to the deck\'s CSV file under the Decks folder on this PC.';
 }
 
 // ===================== Startup =====================
 
+// Mode-card descriptions show the run sizes from engine.js.
+function applyRunSizes() {
+  document.querySelectorAll('[data-run-size]').forEach(el => {
+    el.textContent = RUN_SIZES[el.dataset.runSize];
+  });
+}
+
 async function start() {
+  applyRunSizes();
   initTopNav();
   initModeCards();
   initDeckPicker();
+  initDeckEditor();
   initPillNav(document.getElementById('resultsPillNav'), resultsSection);
   initPillNav(document.getElementById('matchResultsPillNav'), matchResultsSection);
 

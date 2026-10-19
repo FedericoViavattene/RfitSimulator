@@ -8,9 +8,10 @@
     exact same code the phone app runs from GitHub Pages. This server only
     does two things:
     - serves the docs/ folder (index.html, app.js, engine.js, card data...)
-    - GET /api/decks returns every deck CSV under Decks\ and PUT /api/decks
-      saves one (used by "Import a deck"), so on the PC the CSV files stay the
-      source of truth instead of the browser's own storage.
+    - GET /api/decks returns every deck CSV under Decks\, PUT /api/decks
+      saves one and DELETE /api/decks?id=... deletes one (used by "Import a
+      deck" and the deck editor), so on the PC the CSV files stay the source
+      of truth instead of the browser's own storage.
     engine.js detects /api/decks and uses it; on the phone it isn't there, so
     decks live in the browser's IndexedDB instead.
 
@@ -199,6 +200,11 @@ try {
                 if (-not $record) { throw "No deck was sent." }
                 $overwritten = Save-DeckRecord -DecksRoot $Script:DecksRoot -Record $record
                 Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ saved = $true; id = $record.id; overwritten = $overwritten })
+            }
+            elseif ($method -eq 'DELETE' -and $path -eq '/api/decks') {
+                $id = $request.QueryString['id']
+                $deleted = Remove-DeckRecord -DecksRoot $Script:DecksRoot -Id $id
+                Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ deleted = $deleted; id = $id })
             }
             elseif ($method -eq 'GET' -and $path -eq '/favicon.ico') {
                 # No .ico is shipped (index.html points at icons/icon-192.png);

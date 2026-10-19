@@ -79,4 +79,14 @@ function Save-DeckRecord {
     return $overwritten
 }
 
-Export-ModuleMember -Function Resolve-DeckPath, Get-DeckRecords, Save-DeckRecord
+function Remove-DeckRecord {
+    <# Deletes a deck's CSV. Returns $true if there was one to delete. #>
+    param([string]$DecksRoot, [string]$Id)
+
+    $path = Resolve-DeckPath -DecksRoot $DecksRoot -Id $Id
+    if (-not (Test-Path $path)) { return $false }
+    Remove-Item -Path $path
+    return $true
+}
+
+Export-ModuleMember -Function Resolve-DeckPath, Get-DeckRecords, Save-DeckRecord, Remove-DeckRecord

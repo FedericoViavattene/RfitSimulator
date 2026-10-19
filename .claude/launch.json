@@ -5,7 +5,8 @@
       "name": "pc-webserver",
       "runtimeExecutable": "powershell",
       "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "WebServer.ps1", "-NoBrowser"],
-      "port": 8787
+      "port": 8787,
+      "autoPort": false
     }
   ]
 }

@@ -140,6 +140,22 @@ button:hover:not(:disabled) {
   margin-top: 6px;
 }
 
+.winrate-meta {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.winrate-meta:empty {
+  display: none;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
 .game-list {
   list-style: none;
   margin: 0;
@@ -170,6 +186,7 @@ button:hover:not(:disabled) {
 
 .badge.win { color: var(--win); background: rgba(62, 207, 106, 0.12); }
 .badge.loss { color: var(--loss); background: rgba(239, 91, 91, 0.12); }
+.badge.draw { color: var(--warn); background: rgba(232, 184, 75, 0.12); }
 
 details.card summary {
   cursor: pointer;
@@ -204,6 +221,20 @@ details.card[open] summary::before {
 
 .loss-list li strong {
   color: var(--loss);
+}
+
+.loss-list li:first-child {
+  border-top: none;
+}
+
+.loss-share {
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.loss-example {
+  margin-top: 3px;
+  font-size: 0.82rem;
 }
 
 .opt-block {
@@ -411,6 +442,19 @@ table.deck-table th {
   font-size: 0.82rem;
   min-width: 4.5em;
   text-align: right;
+}
+
+.matrix-row .matrix-range {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  min-width: 6.5em;
+  text-align: right;
+}
+
+@media (max-width: 420px) {
+  .matrix-row .matrix-record {
+    display: none;
+  }
 }
 
 /* ===================== Top-level nav (Simulate / Import) ===================== */
@@ -977,4 +1021,218 @@ table.deck-table th {
 
 body.deck-picker-open {
   overflow: hidden;
+}
+
+/* ===================== Deck editor ("Decks" tab) ===================== */
+
+.editor-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.count-chip {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.count-chip.ok strong { color: var(--win); }
+.count-chip.bad { border-color: rgba(239, 91, 91, 0.5); }
+.count-chip.bad strong { color: var(--loss); }
+
+.editor-problems {
+  margin: 0 0 12px;
+  padding: 8px 12px 8px 28px;
+  border-left: 3px solid var(--warn);
+  color: var(--warn);
+  font-size: 0.85rem;
+}
+
+.editor-group {
+  margin-bottom: 14px;
+}
+
+.editor-group h4 {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.editor-group-count {
+  color: var(--text-dim);
+  margin-left: 4px;
+}
+
+.editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.editor-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-card-name {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.editor-card-stats {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+input[type="text"].editor-tag {
+  width: 92px;
+  flex-shrink: 0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.qty-btn {
+  width: 30px;
+  height: 30px;
+  margin-top: 0;
+  padding: 0;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.qty-btn:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+}
+
+.qty-value {
+  min-width: 1.6em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.editor-add {
+  margin-top: 6px;
+}
+
+.card-results {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.card-result {
+  width: 100%;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.card-result:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+}
+
+.card-result-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.card-result-meta {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.card-result-add {
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.card-results-empty {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 6px 0;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.editor-actions button {
+  margin-top: 0;
+}
+
+.editor-actions #editorSave {
+  flex: 1 1 100%;
+}
+
+.ghost-btn.danger:hover:not(:disabled) {
+  color: var(--loss);
+  border-color: var(--loss);
+}
+
+.editor-save-as {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+  .editor-row.has-tag {
+    flex-wrap: wrap;
+  }
+
+  .editor-row.has-tag .editor-card {
+    flex-basis: 100%;
+  }
+
+  input[type="text"].editor-tag {
+    flex: 1;
+    width: auto;
+  }
+
+  .card-result {
+    flex-wrap: wrap;
+  }
+
+  .card-result-meta {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
