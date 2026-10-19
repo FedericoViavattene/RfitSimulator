@@ -191,6 +191,7 @@
         <div class="result-panel" data-tab="summary">
           <div class="card">
             <h2>Match log</h2>
+            <p class="import-help">Tap a match to replay its games turn by turn.</p>
             <ul class="game-list" id="matchList"></ul>
           </div>
         </div>
@@ -340,6 +341,27 @@
         <button type="button" class="deck-picker-close" id="deckPickerClose" aria-label="Close">&#10005;</button>
       </div>
       <div class="deck-picker-body" id="deckPickerBody"></div>
+    </div>
+  </div>
+
+  <div class="deck-picker-overlay hidden" id="replayOverlay">
+    <div class="deck-picker-modal replay-modal" role="dialog" aria-labelledby="replayTitle">
+      <div class="deck-picker-header">
+        <h3 id="replayTitle">Replay</h3>
+        <button type="button" class="deck-picker-close" id="replayClose" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="replay-tabs hidden" id="replayTabs"></div>
+      <div class="deck-picker-body replay-body" id="replayBody"></div>
+    </div>
+  </div>
+
+  <div class="deck-picker-overlay hidden" id="cardOverlay">
+    <div class="deck-picker-modal card-modal" role="dialog" aria-labelledby="cardTitle">
+      <div class="deck-picker-header">
+        <h3 id="cardTitle">Card</h3>
+        <button type="button" class="deck-picker-close" id="cardClose" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="deck-picker-body" id="cardBody"></div>
     </div>
   </div>
 

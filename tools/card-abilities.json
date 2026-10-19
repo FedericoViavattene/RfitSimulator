@@ -1,0 +1,1137 @@
+{
+  "_about": [
+    "Hand-curated, structured versions of real card abilities, read by tools/build-card-data.mjs and copied into docs/carddatabase.json as each card's `ability`.",
+    "Every entry is written from the card's official text in the Riot card gallery. `hash` fingerprints that text: the builder fills it in the first time and warns (and drops the ability) if the official text later changes, so an errata can't silently leave a stale ability behind.",
+    "Only what the engine can actually do is listed; the rest of a card's text is simply not modeled (see `partial`). The ops, triggers and statics are documented in docs/engine.js (CARD ABILITIES)."
+  ],
+  "cards": {
+    "Against the Odds": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 2,
+            "perEnemyHere": true
+          }
+        ]
+      },
+      "hash": "3b62df30"
+    },
+    "Arcane Shift": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "349549b0"
+    },
+    "Back Off": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "stun"
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "f8c9431d"
+    },
+    "Back to Back": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 2,
+            "count": 2
+          }
+        ]
+      },
+      "hash": "cc25c515"
+    },
+    "Bellows Breath": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damageMulti",
+            "n": 1,
+            "count": 3
+          }
+        ]
+      },
+      "hash": "f4aec22e"
+    },
+    "Block": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "shield",
+            "n": 3,
+            "tank": true
+          }
+        ]
+      },
+      "hash": "dd3ebde5"
+    },
+    "Blood Money": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "kill",
+            "maxMight": 2
+          }
+        ]
+      },
+      "hash": "6926741"
+    },
+    "Blood Rush": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "assault",
+            "n": 2,
+            "permanent": true
+          }
+        ]
+      },
+      "hash": "eafa06b3"
+    },
+    "Bonds of Strength": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 1,
+            "count": 2
+          }
+        ]
+      },
+      "hash": "2392dd6"
+    },
+    "Call to Glory": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "ee42915c"
+    },
+    "Cannon Barrage": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damageAll",
+            "n": 2,
+            "scope": "enemyCombat"
+          }
+        ]
+      },
+      "hash": "daadb375"
+    },
+    "Challenge": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "fight"
+          }
+        ]
+      },
+      "hash": "853ba69c"
+    },
+    "Cleave": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "assault",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "80394de3"
+    },
+    "Combat Experience": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "d1349607"
+    },
+    "Crescent Strike": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 4,
+            "splash": 1
+          }
+        ]
+      },
+      "hash": "385d953b"
+    },
+    "Crumbling Sands": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter",
+            "requiresPriorSpell": true
+          }
+        ]
+      },
+      "hash": "6b33c0d6"
+    },
+    "Defy": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter",
+            "maxEnergy": 4,
+            "maxPower": 1
+          }
+        ]
+      },
+      "hash": "6aaf71e6"
+    },
+    "Discipline": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 2
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "311b6980"
+    },
+    "En Garde": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 1,
+            "aloneBonus": 1
+          }
+        ]
+      },
+      "hash": "f217d4f6"
+    },
+    "Existential Dread": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "stun",
+            "attackerOnly": true
+          }
+        ]
+      },
+      "hash": "a6e11384"
+    },
+    "Find Your Center": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          },
+          {
+            "op": "channel",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "be436c3b"
+    },
+    "Flurry of Blades": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damageAll",
+            "n": 1,
+            "scope": "allBattlefields"
+          }
+        ]
+      },
+      "hash": "10c8d4db"
+    },
+    "Hidden Blade": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "kill",
+            "controllerDraws": 2
+          }
+        ]
+      },
+      "hash": "1beb4d5c"
+    },
+    "Ki Barrier": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "prevent",
+            "n": 7
+          }
+        ]
+      },
+      "hash": "ff2de325"
+    },
+    "Lilting Lullaby": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter"
+          }
+        ]
+      },
+      "hash": "e92921d3"
+    },
+    "Meditation": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "1d4b3005"
+    },
+    "Not So Fast": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter",
+            "onlyIfTargetsFriendly": true
+          }
+        ]
+      },
+      "hash": "42670412"
+    },
+    "Punch First": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 5
+          }
+        ]
+      },
+      "hash": "76d7048e"
+    },
+    "Rampage": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "optional",
+            "cost": {
+              "power": {
+                "Body": 1
+              }
+            },
+            "then": [
+              {
+                "op": "pump",
+                "n": 2
+              }
+            ]
+          },
+          {
+            "op": "fight"
+          }
+        ]
+      },
+      "hash": "ea488ed0"
+    },
+    "Repulse": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter",
+            "onlyIfTargetsFriendly": true
+          }
+        ]
+      },
+      "hash": "7ace9cc5"
+    },
+    "Showstopper": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "buff",
+            "count": 1,
+            "where": "base"
+          }
+        ]
+      },
+      "hash": "e84576d3"
+    },
+    "Sprite Burst": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 2,
+            "ready": true,
+            "temporary": true
+          }
+        ]
+      },
+      "hash": "d6feb848"
+    },
+    "Sprite Call": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 1,
+            "ready": true,
+            "temporary": true
+          }
+        ]
+      },
+      "hash": "b04fe549"
+    },
+    "Stupefy": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "weaken",
+            "n": 1
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "1de70ea7"
+    },
+    "Thwonk!": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "stun",
+            "attackerOnly": true
+          }
+        ]
+      },
+      "hash": "5e00f58e"
+    },
+    "Wind Wall": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter"
+          }
+        ]
+      },
+      "hash": "800a9772"
+    },
+    "Abandon": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter",
+            "returnToHand": true
+          }
+        ]
+      },
+      "hash": "9ec010e6"
+    },
+    "Heart of Dark Ice": {
+      "ability": {
+        "activate": {
+          "exhaustSelf": true,
+          "ops": [
+            {
+              "op": "pump",
+              "n": 3
+            }
+          ]
+        }
+      },
+      "hash": "77034fe5"
+    },
+    "Mask of Foresight": {
+      "ability": {
+        "static": {
+          "friendlyAloneBonus": {
+            "n": 1,
+            "when": "attackOrDefend"
+          }
+        }
+      },
+      "hash": "b7480802"
+    },
+    "Seal of Discord": {
+      "ability": {
+        "resource": {
+          "power": "Chaos"
+        }
+      },
+      "hash": "b21b9cfb"
+    },
+    "Seal of Focus": {
+      "ability": {
+        "resource": {
+          "power": "Calm"
+        }
+      },
+      "hash": "15c8d3b4"
+    },
+    "Seal of Strength": {
+      "ability": {
+        "resource": {
+          "power": "Body"
+        }
+      },
+      "hash": "504afcdf"
+    },
+    "Sprite Fountain": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 1,
+            "ready": true,
+            "temporary": true
+          }
+        ],
+        "onDeath": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 1,
+            "ready": true,
+            "temporary": true
+          }
+        ]
+      },
+      "hash": "4884c63b"
+    },
+    "Last Rites": {
+      "partial": true,
+      "ability": {},
+      "hash": "ea06e83a"
+    },
+    "Ancient Warmonger": {
+      "ability": {
+        "static": {
+          "assaultPerEnemyHere": 1
+        }
+      },
+      "hash": "da4b7930"
+    },
+    "Baccai Reaper": {
+      "ability": {
+        "onAttack": [
+          {
+            "op": "optional",
+            "cost": {
+              "power": {
+                "Fury": 1
+              }
+            },
+            "then": [
+              {
+                "op": "assault",
+                "n": 2,
+                "self": true
+              }
+            ]
+          }
+        ]
+      },
+      "hash": "640a4f52"
+    },
+    "Bewitching Spirit": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "opponent"
+          }
+        ]
+      },
+      "hash": "8ce5d5ea"
+    },
+    "Black Rose Dignitary": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "channel",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "ef8aea28"
+    },
+    "Blast Corps Cadet": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "optional",
+            "cost": {
+              "energy": 1,
+              "power": {
+                "Fury": 1
+              }
+            },
+            "then": [
+              {
+                "op": "damage",
+                "n": 2
+              }
+            ]
+          }
+        ]
+      },
+      "hash": "30269906"
+    },
+    "Blastcone Fae": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "weaken",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "59b51c41"
+    },
+    "Buhru Captain": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "53e53e71"
+    },
+    "Carrion Dredger": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "token",
+            "might": 1,
+            "count": 1,
+            "deflect": true
+          }
+        ]
+      },
+      "hash": "6eabe1e0"
+    },
+    "Chemtech Enforcer": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "self"
+          }
+        ]
+      },
+      "hash": "8f9754c2"
+    },
+    "Cithria of Cloudfield": {
+      "ability": {
+        "onFriendlyUnitPlayed": [
+          {
+            "op": "buff",
+            "self": true
+          }
+        ]
+      },
+      "hash": "797beb9e"
+    },
+    "Clockwork Keeper": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "optional",
+            "cost": {
+              "power": {
+                "Calm": 1
+              }
+            },
+            "then": [
+              {
+                "op": "draw",
+                "n": 1
+              }
+            ]
+          }
+        ]
+      },
+      "hash": "617e0a2c"
+    },
+    "Cloud Drake": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "5901d27b"
+    },
+    "Darius, Trifarian": {
+      "ability": {
+        "onSecondCard": [
+          {
+            "op": "pump",
+            "n": 2,
+            "self": true
+          },
+          {
+            "op": "ready",
+            "who": "self"
+          }
+        ]
+      },
+      "hash": "c1de4cc5"
+    },
+    "Dragonsoul Sage": {
+      "ability": {
+        "resource": {
+          "energy": 1,
+          "exhaustSelf": true
+        }
+      },
+      "hash": "dfebe082"
+    },
+    "Draven, Showboat": {
+      "ability": {
+        "static": {
+          "mightPerScore": 1
+        }
+      },
+      "hash": "89200177"
+    },
+    "Fae Dragon": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "buff",
+            "count": 4
+          }
+        ]
+      },
+      "hash": "b7a61a4b"
+    },
+    "First Mate": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "ready",
+            "who": "another"
+          }
+        ]
+      },
+      "hash": "6d8b1022"
+    },
+    "Gem Jammer": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "ganking"
+          }
+        ]
+      },
+      "hash": "b9235e5e"
+    },
+    "Kha'Zix, Mutating Horror": {
+      "partial": true,
+      "ability": {
+        "static": {
+          "aloneEnemyBonus": 2
+        }
+      },
+      "hash": "e947078b"
+    },
+    "Kinkou Initiate": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1,
+            "cond": "otherUnitsMight5"
+          }
+        ]
+      },
+      "hash": "f55faedc"
+    },
+    "Kinkou Monk": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "buff",
+            "count": 2,
+            "others": true
+          }
+        ]
+      },
+      "hash": "366f23f5"
+    },
+    "Lonely Poro": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "draw",
+            "n": 1,
+            "cond": "diedAlone"
+          }
+        ]
+      },
+      "hash": "caece58f"
+    },
+    "Mournful Witness": {
+      "ability": {
+        "onCombatEnd": [
+          {
+            "op": "empower",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "e98a93dd"
+    },
+    "Nidalee, Cat Form": {
+      "ability": {
+        "onWinCombat": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "f23b0934"
+    },
+    "Pit Rookie": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "buff",
+            "count": 1,
+            "others": true
+          }
+        ]
+      },
+      "hash": "5802f49a"
+    },
+    "Pyke, Dockside Butcher": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "optional",
+            "cost": {
+              "power": {
+                "Fury": 1
+              }
+            },
+            "then": [
+              {
+                "op": "ready",
+                "who": "self"
+              },
+              {
+                "op": "pump",
+                "n": 2,
+                "self": true
+              }
+            ]
+          }
+        ]
+      },
+      "hash": "9cb3c08a"
+    },
+    "Scuttle Crab": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "fb373854"
+    },
+    "Sett, Kingpin": {
+      "ability": {
+        "static": {
+          "mightPerBuffedHere": 1
+        }
+      },
+      "hash": "683a867b"
+    },
+    "Tasty Faefolk": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "channel",
+            "n": 2
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "a725797d"
+    },
+    "Thousand-Tailed Watcher": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "weaken",
+            "n": 3,
+            "all": true
+          }
+        ]
+      },
+      "hash": "e5cd8a2b"
+    },
+    "Vi, Peacekeeper": {
+      "ability": {
+        "onAttack": [
+          {
+            "op": "stun"
+          }
+        ]
+      },
+      "hash": "43ad49cd"
+    },
+    "Vilemaw": {
+      "ability": {
+        "static": {
+          "silenceWeakerEnemiesHere": true
+        },
+        "onHold": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "c6b01359"
+    },
+    "Draven, Glorious Executioner": {
+      "ability": {
+        "onWinCombat": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "74b48543"
+    },
+    "Rengar, Pridestalker": {
+      "ability": {
+        "onFriendlyUnitPlayed": [
+          {
+            "op": "pump",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "8265073c"
+    },
+    "Master Yi, Wuju Bladesman": {
+      "ability": {
+        "static": {
+          "friendlyAloneBonus": {
+            "n": 2,
+            "when": "defend"
+          }
+        }
+      },
+      "hash": "3f165b21"
+    },
+    "Vex, Gloomist": {
+      "ability": {
+        "onHold": [
+          {
+            "op": "draw",
+            "n": 1,
+            "exhaustSelf": true
+          }
+        ]
+      },
+      "hash": "1d217a35"
+    },
+    "Lillia, Bashful Bloom": {
+      "ability": {
+        "activate": {
+          "exhaustSelf": true,
+          "cost": {
+            "energy": 4
+          },
+          "discountPerTemporary": 1,
+          "ops": [
+            {
+              "op": "token",
+              "might": 3,
+              "count": 1,
+              "ready": true,
+              "temporary": true
+            }
+          ]
+        }
+      },
+      "hash": "33decee"
+    },
+    "Grove of the God-Willow": {
+      "ability": {
+        "onHold": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "5d44fd5c"
+    },
+    "Altar to Unity": {
+      "ability": {
+        "onHold": [
+          {
+            "op": "token",
+            "might": 1,
+            "count": 1
+          }
+        ]
+      },
+      "hash": "7ff2630b"
+    },
+    "Seat of Power": {
+      "ability": {
+        "onConquer": [
+          {
+            "op": "draw",
+            "n": 1,
+            "perOtherControlledBattlefield": true
+          }
+        ]
+      },
+      "hash": "8b67838d"
+    },
+    "Minefield": {
+      "ability": {
+        "onConquer": [
+          {
+            "op": "mill",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "1e8f9a16"
+    },
+    "Kinkou Temple": {
+      "ability": {
+        "static": {
+          "tankBonusHere": 1
+        }
+      },
+      "hash": "940d0aaa"
+    },
+    "Forbidding Waste": {
+      "ability": {
+        "static": {
+          "defendAloneMalusHere": 2
+        }
+      },
+      "hash": "d816ce49"
+    },
+    "Fortified Position": {
+      "ability": {
+        "onDefend": [
+          {
+            "op": "shield",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "81f2b296"
+    },
+    "Frozen Fortress": {
+      "ability": {
+        "startOfBeginning": [
+          {
+            "op": "damageHere",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "192f3601"
+    },
+    "Forgotten Monument": {
+      "ability": {
+        "static": {
+          "noScoreBeforeTurn": 3
+        }
+      },
+      "hash": "f2b1d102"
+    },
+    "Startipped Peak": {
+      "ability": {
+        "onHold": [
+          {
+            "op": "channel",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "fd8b0e10"
+    },
+    "Targon's Peak": {
+      "ability": {
+        "onConquer": [
+          {
+            "op": "readyRunesAtEnd",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "42840abc"
+    }
+  }
+}

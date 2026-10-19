@@ -13,14 +13,14 @@ Quantity,Name,Type,Energy,Power,Might,Domain,Tag
 2,Shadow,Unit,3,0,3,Calm/Chaos,
 2,"Vex, Mocking",Unit,5,1,5,Calm,
 2,Vilemaw,Unit,8,2,8,Calm,
-1,Last Rites,Gear,3,0,2,Chaos,Remove:2
+1,Last Rites,Gear,3,0,2,Chaos,
 2,Charm,Spell,1,1,0,Calm,
-2,Defy,Spell,1,1,0,Calm,Remove:2
-3,En Garde,Spell,1,0,0,Calm,Shield:2
-3,Existential Dread,Spell,1,1,0,Chaos,Remove:3
-1,Bone Skewer,Spell,2,1,0,Chaos,Remove:1
+2,Defy,Spell,1,1,0,Calm,
+3,En Garde,Spell,1,0,0,Calm,
+3,Existential Dread,Spell,1,1,0,Chaos,
+1,Bone Skewer,Spell,2,1,0,Chaos,
 3,Discipline,Spell,2,0,0,Calm,
-2,Not So Fast,Spell,2,1,0,Calm,Remove:2
+2,Not So Fast,Spell,2,1,0,Calm,
 2,Thwonk!,Spell,2,0,0,Calm,
-3,Back Off,Spell,3,0,0,Calm,Remove:2
+3,Back Off,Spell,3,0,0,Calm,
 1,Star-Crossed,Spell,3,1,0,Chaos,

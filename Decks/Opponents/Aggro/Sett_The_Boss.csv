@@ -19,7 +19,7 @@ Quantity,Name,Type,Energy,Power,Might,Domain,Tag
 3,Punch First,Spell,1,2,0,Body,
 1,Repulse,Spell,1,1,0,Body,
 3,Sabotage,Spell,1,1,0,Body,
-3,Showstopper,Spell,1,1,0,Body/Order,Buff:2
+3,Showstopper,Spell,1,1,0,Body/Order,
 2,Challenge,Spell,2,1,0,Body,
-2,Hidden Blade,Spell,2,1,0,Order,Remove:2
-3,Call to Glory,Spell,3,0,0,Order,Draw:1
+2,Hidden Blade,Spell,2,1,0,Order,
+3,Call to Glory,Spell,3,0,0,Order,

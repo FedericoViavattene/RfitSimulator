@@ -81,8 +81,9 @@ and opens `http://localhost:8787` in your default browser.
   through (the matchup matrix mode skips the recommendations tab - see
   "Matchup recommendations and sideboard suggestions" below). The game log
   tab groups the losses by reason (with one example each) and lists the
-  first 50 games. A **New simulation** button at the top of the results
-  jumps you back to the setup step to try another deck or matchup.
+  first 50 games - tap one to **replay it turn by turn** (see "Replaying a
+  game turn by turn" below). A **New simulation** button at the top of the
+  results jumps you back to the setup step to try another deck or matchup.
 
 ## Play on your phone (installable web app)
 
@@ -171,10 +172,11 @@ other deck file described below. On the phone it's saved on that device.
 The **Decks** tab edits any saved deck (yours or an opponent's):
 
 - Pick the deck, then use **−/+** on each card to change its count (down to
-  0 removes it), and type a **Tag** next to any Unit/Spell/Gear (`Remove:2`,
-  `Buff:2`, `Draw:1`, `Shield:2` - see "Supported Tags" below). Filling in
-  Tags is the main way to make the simulation more faithful to what the
-  cards really do.
+  0 removes it). Tap a card's name to see its official image and what the
+  simulator models of it. Cards whose text is modeled show **card text**;
+  for the others you can type a **Tag** (`Remove:2`, `Buff:2`, `Draw:1`,
+  `Shield:2` - see "Supported Tags" below) as a rough stand-in for what the
+  card does.
 - **Add a card** searches the card database by name. It only offers Main
   Deck cards and Runes from the deck's Legend domains (Legends and
   Battlefields always show), with each card's real stats filled in.
@@ -266,82 +268,94 @@ CSV, not in the card database), so scoring only ever uses that card's real
 Energy/Might/Domain numbers - never a guessed ability. It never invents what
 a card actually does.
 
-## Legend abilities
+## Card abilities from the official text
 
-Every Legend has real rules text, but this simulator's simplified card model
-(Energy/Power/Might/Domain/Tag - see below) can't represent most of it
-faithfully: mechanics like Empower/XP thresholds, exhaust/ready states,
-Equip, and token generation aren't modeled by this engine at all, and
-guessing at an approximation would go against this project's "don't
-fabricate card behavior" rule.
+Every card's mechanics come from **Riot's official card gallery**
+(https://riftbound.leagueoflegends.com/en-us/card-gallery/), refreshed with:
 
-Rather than leave every Legend ability silently ignored, or approximate all
-of them and risk getting most wrong, **exactly two Legend abilities are
-modeled, using their real, verified rules text**, because both happen to
-fit cleanly into mechanics the engine already tracks:
+```
+node tools/build-card-data.mjs
+```
 
-| Legend | Real ability | How it's modeled |
-|---|---|---|
-| Rengar, Pridestalker | "When you play a unit, give a unit +1 [S] this turn." | +1 Might until end of turn to a unit that can still attack (else the unit just played) |
-| Draven, Glorious Executioner | "When you win a combat, draw 1." | Draw 1 card the moment you win a combat |
+That script (Node, development only - the app itself never needs it)
+downloads the gallery data and writes into `docs/carddatabase.json`, for
+every card:
 
-Every other Legend in the saved decks (Akali, Kennen, Master Yi, Fiora, Azir,
-Kha'Zix, Irelia, Ezreal, Sett, Vex, Lillia, Shen) currently has **no**
-simulated ability - their games still run purely on Energy/Power/Might/
-Domain/Tag, same as before. This is a deliberate, honest limitation, not an
-oversight: adding a new Legend ability means adding real rules text to that
-Legend's `legendAbility` entry in `docs/carddatabase.json` (a small JSON
-object with `trigger`/`effect`/`amount`, read by `triggerLegendAbility` in
-`docs/engine.js`) - no code changes are needed, but each one still has to be
-checked against the card's actual text first rather than guessed.
+- **Keywords** printed on their own line - `[Assault 2]`, `[Shield]`,
+  `[Tank]`, `[Accelerate]` (with its extra cost), `[Ganking]`, `[Deflect]`,
+  `[Reaction]`, `[Ambush]`... - read straight from the text.
+- The **[Equip] cost** of Equipment.
+- The card's **collector code**, so the app can show the official card image
+  (which carries the full rules text).
+- Its **ability**, when it's one of the hand-curated entries in
+  `tools/card-abilities.json`. Those are written card by card from the
+  official text, in a small vocabulary the engine runs (draw, +Might this
+  turn, Assault, Shield, deal damage, kill, stun, counter a spell, tokens,
+  buffs, channel...). Each entry records a fingerprint of the official text:
+  if Riot changes a card's text, the script warns and drops that ability
+  until it's reviewed - an errata can't silently leave a wrong ability
+  behind.
+
+The rules text itself isn't copied into the repo, only the mechanics. Right
+now about 90 cards are curated - every card in the saved decks whose text
+fits the engine, plus 5 Legends (Rengar, Draven, Master Yi, Vex, Lillia) and
+11 Battlefields. Some are only **partly** modeled (e.g. a spell's "Repeat"
+cost or an XP bonus is skipped); the card viewer says so. Everything else
+still plays with its real cost, Might and keywords, but its rules text has
+no effect - the simulator never guesses what a card does.
+
+Tap any card name (in the **Decks** editor or the **Opponent decklist** tab)
+to see its official image, its keywords and exactly what the simulator
+models of it.
 
 ## Important: what this simulator IS and ISN'T
 
-This is a **statistics/curve testing tool**, not a full Riftbound rules
-engine. Riftbound has 1000+ unique cards, each with its own templated rules
-text, and reimplementing every single one is out of scope for now. Instead
-every card is reduced to:
+It plays real Riftbound turns with real card stats, keywords and a growing
+set of real abilities, driven by a simple AI - it's a good way to compare
+decks and spot trends, not a perfect copy of a human game. A deck row is:
 
 | Column | Meaning |
 |---|---|
 | `Quantity` | Copies of this card in the deck |
 | `Name` | Card name (must match a real card, and must exactly match an entry in `docs/banned.json` to be caught by the ban check) |
 | `Type` | `Legend`, `Unit`, `Spell`, `Gear`, `Battlefield`, or `Rune` |
-| `Energy` | Energy cost to play it |
-| `Power` | Power value (mostly flavor for this simulator - not currently scored) |
-| `Might` | Might it contributes to a Battlefield while in play |
-| `Domain` | Fury / Body / Calm / Order / Mind / Chaos (use `A/B` for two-domain cards) |
-| `Tag` | Optional simplified effect - see below |
+| `Energy` | Energy cost (paid by exhausting runes) |
+| `Power` | Power cost (paid by recycling runes of the card's domain) |
+| `Might` | The unit's Might (for Equipment: the Might it gives) |
+| `Domain` | Fury / Body / Calm / Order / Mind / Chaos (use `A/B` for two-domain cards); a Rune's domain |
+| `Tag` | Optional simplified effect for a card whose text isn't modeled - see below |
 
 ### Supported Tags
 
-- `Remove:N` - destroys enemy units worth up to N Might in total, biggest that fits first, units holding a battlefield before units in base (approximates removal).
-- `Buff:N` - +N Might until end of turn on a unit that can still attack (approximates pump/combat tricks).
-- `Draw:N` - draws N extra cards when played.
-- `Shield:N` - +N Might **only while defending** (the real Shield keyword, Core Rules 814). On a unit it's that unit's own keyword; on a spell it protects one of your units holding a battlefield until your next turn; on gear it goes on the unit carrying the gear.
+A Tag only counts for a card whose official text isn't modeled (the editor
+shows "card text" instead of a Tag box for the ones that are).
 
-A Spell whose only Tag has nothing to hit (removal with no enemy units, a
-pump or shield with no unit of yours) stays in hand. Cards with no relevant
-effect for simulation purposes (most vanilla units, flavor spells, etc.) can
-just leave `Tag` blank - an untagged spell is still cast, so its Energy cost
-counts, but its effect isn't modeled.
+- `Remove:N` - destroys enemy units worth up to N Might in total, biggest that fits first, units holding a battlefield before units in base.
+- `Buff:N` - +N Might this turn on one of your units (used in a fight).
+- `Draw:N` - draws N cards when played.
+- `Shield:N` - on a unit, its own Shield keyword (+N Might while defending); on a spell, Shield N on a defender this turn; on gear, Shield N on the unit carrying it.
 
 ### Rules actually modeled
 
 A 1v1 duel, following the Core Rules / Quick Start:
 
-- **Setup:** 2 battlefields, one per player (battlefield abilities aren't modeled). Each player draws an opening hand of **4** and may mulligan up to 2 cards (the AI sets aside cards costing 5+ Energy). The first player is random.
-- **Legend / Rune Deck / Battlefield Zone are separate from the Main Deck** (rules 103.3, 107.2, 107.4): `Legend`, `Rune`, and `Battlefield` rows are set up once and are **never drawn or "played"**, so they never show up in the optimization report's play stats. Only `Unit`/`Spell`/`Gear` cards are in the drawable deck.
-- **Channel:** 2 runes per turn (430.4.a / 315.3.b), 3 on the second player's first turn (485.7), up to the deck's Rune count (12). Every rune channeled so far is 1 Energy each turn. **Power costs aren't modeled yet** - a card's Energy is its whole cost.
-- **Units** are played exhausted, either to base or to a battlefield you control (the AI reinforces a held battlefield the opponent could take next turn). A ready unit exhausts to move from base to a battlefield, so a unit can attack from the turn after it's played. Units stay on the board until they die - only then do they go to the trash.
-- **Gear** stays in play. Gear with Might (equipment) or a Shield tag goes on your strongest unit and moves to another one when that unit dies - the Equip cost isn't modeled.
-- **Combat:** moving into a battlefield with no enemy units conquers it. Otherwise damage is simultaneous (each side deals its total Might; damage kills the weakest units first). If only attackers remain they conquer; if defenders remain, surviving attackers go back to base.
-- **Scoring:** **Conquer** +1 point; **Hold** +1 point for each battlefield you control at the start of your turn. Each battlefield scores at most once per turn, and only the player whose turn it is scores.
+- **Setup:** each player brings one of their 3 battlefields (picked at random; in a best-of-3 nobody repeats one), so 2 are in play. Opening hand of **4**, then a mulligan of up to 2 cards (the AI sets aside cards costing 5+ Energy). The first player is random.
+- **Legend / Rune Deck / Battlefield Zone are separate from the Main Deck** (rules 103.3, 107.2, 107.4): only `Unit`/`Spell`/`Gear` cards are drawn.
+- **Runes:** 2 channeled per turn from the shuffled Rune Deck (430.4.a / 315.3.b), 3 on the second player's first turn (485.7). **Energy** is paid by exhausting runes; **Power** by recycling a rune of the card's domain to the bottom of the Rune Deck (an exhausted rune can still be recycled), so Power costs slow your rune growth. Runes left ready at the end of your turn can pay for Reactions on the opponent's turn. A two-domain card's Power can be paid with either domain (approximation).
+- **Units** are played exhausted (ready with **Accelerate**, paying its extra cost), to base or to a battlefield you control. A ready unit exhausts to move from base to a battlefield; **Ganking** units can also move battlefield to battlefield.
+- **Gear** stays in play. Equipment goes on your strongest unit once its [Equip] cost is paid, and moves to another unit when that one dies.
+- **Combat:** moving into a battlefield with no enemy units conquers it. Otherwise both sides get a reaction window - the defender first (Reaction/Action spells, **Ambush**/Reaction units), then the attacker - and then damage is simultaneous: each side deals its total Might (**Assault** adds Might while attacking, **Shield** while defending; stunned units deal none), **Tank** units take damage first and **Backline** units last. If only attackers remain they conquer; if defenders remain, surviving attackers go back to base.
+- **Counterspells:** when a player casts a spell that hits the other side's units (or costs 2+), the opponent counters it if they hold an affordable counterspell that applies.
+- **Deflect:** choosing that unit with a spell costs extra Power.
+- **Control** lasts while you have units there.
+- **Scoring:** **Conquer** +1 point; **Hold** +1 point for each battlefield you control at the start of your turn. Each battlefield scores at most once per turn.
 - **Final point** (471.1.b): the winning point can't come from a conquer unless every battlefield scored this turn - the player draws 1 instead. A hold can always score it.
 - **Victory Score 8** (194.3): first to 8 wins; the score never goes above 8. A game still unfinished after 40 rounds is a draw (it doesn't count as a win).
 - **Burn Out** (431): drawing from an empty deck shuffles the trash back in and the opponent gains 1 point - which can be the winning point.
-- **The AI** (same for both players): plays the most expensive affordable card first until it runs out of Energy, then attacks every battlefield it doesn't control that its ready units can beat (easiest first, with the smallest force that wins), then guards a threatened battlefield with what's left. It doesn't hold cards for the opponent's turn (no Reactions).
-- **Seeded randomness:** shuffles and the first player come from a seeded generator, so a seed replays a run exactly.
+- **End of turn:** damage heals and "this turn" effects end; **Temporary** units die at the start of their controller's Beginning Phase, before scoring.
+- **The AI** (same for both players): plays the most expensive useful card it can afford, keeping combat tricks, counters and ambushers for the fight (and some Energy back for them when it has a battlefield to protect); uses Legend/gear abilities; attacks every battlefield it doesn't control that its ready units (plus affordable tricks) can take, easiest first; then guards a threatened battlefield.
+- **Not modeled yet:** Hidden, Legion, Level/XP, Empower costs, Vision/Predict, Repeat costs, moving enemy units, returning cards to hand, and most "gold" tokens.
+- **Seeded randomness:** shuffles, battlefields and the first player come from a seeded generator, so a seed replays a run exactly.
 
 ### Loss diagnostics
 
@@ -349,7 +363,7 @@ Each lost game gets the single most relevant reason, checked in this order:
 
 1. Burn Out (ran through the whole deck)
 2. Out-classed on **peak** board Might (your best turn vs theirs, not your last turn)
-3. Energy left unspent over your first 3 turns (curve too expensive / clogged hand - later on, 12 runes outpace any hand, so those turns aren't counted)
+3. Energy left unspent over your first 3 turns (curve too expensive / clogged hand - later on, runes outpace any hand, so those turns aren't counted)
 4. Too many cards still stuck in hand at game end (top-heavy curve)
 5. Never took the lead in points at any point in the game (they're just faster)
 6. Very close (1-point) loss
@@ -358,20 +372,25 @@ Each lost game gets the single most relevant reason, checked in this order:
 The results group the losses by reason, most common first, with one game's
 full explanation as the example.
 
+### Replaying a game turn by turn
+
+In the **Game log** tab, tap any game to replay it: battlefields, opening
+hands and mulligans, every rune channeled, card played, ability used,
+attack, reaction, counter, death and point, round by round. In best-of-3
+mode, tap a match to step through its games. Nothing is stored for this -
+the app re-runs the same seeded run up to that game and records it.
+
 ### Viewing the opponent's decklist
 
 The **Opponent decklist** tab of the results lists every card in the
 opponent's deck (Legend, Battlefields, Runes, Units, Spells, Gear), with
-Energy/Power/Might/Domain/Tag per card - useful for planning what to
-actually expect at the table, not just the aggregate winrate number.
+Energy/Power/Might/Domain per card; tap a name to see the card.
 
 ### Keyword glossary
 
-See `Keywords.md` for a quick-reference table of real Riftbound keywords
-(Accelerate, Shield, Ganking, Legion, Tank, etc.) with notes on what
-matchups each one is good/bad against - useful context while reading the
-simulator's feedback, even though the simulator itself only understands the
-four Tags above.
+See `Keywords.md` for what each real Riftbound keyword does (from its
+official reminder text), whether the simulator models it, and which matchups
+it tends to matter in.
 
 ### Errata
 
@@ -399,13 +418,16 @@ RiftboundSimulator/
   PushToGitHub.bat            <- refreshes docs/decks.json, commits, pushes
   Keywords.md                <- keyword glossary reference
   Errata.md                  <- errata notes
+  tools/
+    build-card-data.mjs       <- refreshes card mechanics from the official gallery
+    card-abilities.json       <- hand-curated abilities, written from the card text
   docs/                       <- THE app (PC and phone), published by GitHub Pages
     index.html
     style.css
     app.js                    <- UI
     engine.js                 <- the simulation engine
-    carddatabase.json         <- ~935 real cards' Type/Energy/Power/Might/Domain,
-                                 extracted from the official card gallery
+    carddatabase.json         <- ~935 real cards: stats, keywords, collector
+                                 codes and curated abilities (no rules text)
     banned.json               <- banned cards/battlefields
     decks.json                <- snapshot of Decks\*.csv, seeds the phone
     sw.js                     <- service worker (offline cache)
@@ -478,15 +500,11 @@ https://riftdecks.com/riftbound-metagame/deck-vex-gloomist-110330 - only now
 with real Energy/Power/Might/Domain per card instead of estimates, and the
 same double-Legend/domain fixes applied.
 
-**One remaining simplification:** the `Tag` column (Remove/Buff/Draw/Shield -
-this simulator's simplified stand-in for a card's actual rules text) was left
-blank for every newly-added real card, except where a card literally has the
-official `[Shield]` keyword. An early attempt to auto-guess other tags from
-each card's rules text produced at least one wrong result (misreading a
-scaling "pay more to permanently power up" ability as an immediate one-time
-buff), so guessing was dropped in favor of leaving it blank rather than risking
-more of those. If you want specific cards' Tags filled in, name them and it
-can be done by hand, card by card.
+**Card effects:** what the cards do now comes from their official text (see
+"Card abilities from the official text"). The hand-filled `Tag`s these decks
+used to carry were removed: checked against the official text, most were
+wrong (e.g. "Emperor's Divide" was tagged as removal but moves your own
+units to base; "Call to Glory" was tagged as card draw but gives +3 Might).
 
 If you want any other specific published decklist simulated the same way,
 paste the riftdecks.com link (or the list itself) and it can be converted

@@ -17,11 +17,11 @@ Quantity,Name,Type,Energy,Power,Might,Domain,Tag
 1,Tasty Faefolk,Unit,7,0,6,Calm,
 2,Charm,Spell,1,1,0,Calm,
 2,Discipline,Spell,2,0,0,Calm,
-1,Emperor's Divide,Spell,2,0,0,Calm,Remove:3
-3,Find Your Center,Spell,3,0,0,Calm,Draw:1
-3,Ki Barrier,Spell,2,1,0,Order,Shield:3
-3,Meditation,Spell,2,0,0,Calm,Draw:1
-2,Not So Fast,Spell,2,1,0,Calm,Remove:2
+1,Emperor's Divide,Spell,2,0,0,Calm,
+3,Find Your Center,Spell,3,0,0,Calm,
+3,Ki Barrier,Spell,2,1,0,Order,
+3,Meditation,Spell,2,0,0,Calm,
+2,Not So Fast,Spell,2,1,0,Calm,
 1,Resonating Strike,Spell,2,1,0,Calm,
 1,Shadow Dash,Spell,2,1,0,Calm/Order,
-1,Wind Wall,Spell,3,2,0,Calm,Shield:2
+1,Wind Wall,Spell,3,2,0,Calm,

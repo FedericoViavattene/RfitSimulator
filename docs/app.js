@@ -99,6 +99,10 @@ const importStorageNote = document.getElementById('importStorageNote');
 let myDecksCache = [];
 let opponentsCache = {};
 
+// The run the results on screen came from (decks, mode, seed) - what a
+// replay re-runs to rebuild one of its games.
+let lastRun = null;
+
 function setStatus(text, isError) {
   statusLine.textContent = text || '';
   statusLine.classList.toggle('error', !!isError);
@@ -197,19 +201,32 @@ function resultBadge(win, draw, labels) {
   return badge;
 }
 
+// One clickable row of a game/match list (opens the replay).
+function logRow(text, badge, onClick) {
+  const li = document.createElement('li');
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'log-row';
+  const span = document.createElement('span');
+  span.textContent = text;
+  btn.appendChild(span);
+  btn.appendChild(badge);
+  btn.addEventListener('click', onClick);
+  li.appendChild(btn);
+  return li;
+}
+
 function renderGameList(games) {
   gameList.innerHTML = '';
   const shown = games.slice(0, GAME_LOG_LIMIT);
-  gameListNote.textContent = games.length > shown.length
-    ? `Showing the first ${shown.length} of ${games.length} games.`
-    : '';
+  gameListNote.textContent = (games.length > shown.length ? `Showing the first ${shown.length} of ${games.length} games. ` : '')
+    + 'Tap a game to replay it turn by turn.';
   shown.forEach(g => {
-    const li = document.createElement('li');
-    const scoreSpan = document.createElement('span');
-    scoreSpan.textContent = `Game ${g.n}: You ${g.scoreA} - ${g.scoreB} Opponent`;
-    li.appendChild(scoreSpan);
-    li.appendChild(resultBadge(g.win, g.draw, ['WIN', 'LOSS', 'DRAW']));
-    gameList.appendChild(li);
+    gameList.appendChild(logRow(
+      `Game ${g.n}: You ${g.scoreA} - ${g.scoreB} Opponent`,
+      resultBadge(g.win, g.draw, ['WIN', 'LOSS', 'DRAW']),
+      () => openReplay([{ label: `Game ${g.n}`, index: g.index, score: `${g.scoreA}-${g.scoreB}` }], 0),
+    ));
   });
 }
 
@@ -277,15 +294,16 @@ function renderDecklist(decklist, target) {
   Object.keys(groups).forEach(type => {
     const rows = groups[type];
     html += `<div class="deck-group"><h4>${type}</h4><table class="deck-table">`;
+    const nameCell = r => `<button type="button" class="card-link" data-card="${escapeHtml(r.name)}" data-tag="${escapeHtml(r.tag || '')}">${escapeHtml(r.name)}</button>`;
     if (type === 'Unit' || type === 'Spell' || type === 'Gear') {
-      html += '<tr><th>Qty</th><th>Name</th><th>E</th><th>P</th><th>M</th><th>Domain</th><th>Tag</th></tr>';
+      html += '<tr><th>Qty</th><th>Name</th><th>E</th><th>P</th><th>M</th><th>Domain</th></tr>';
       rows.forEach(r => {
-        html += `<tr><td>${r.quantity}</td><td>${r.name}</td><td>${r.energy}</td><td>${r.power}</td><td>${r.might}</td><td>${r.domain || ''}</td><td>${r.tag || ''}</td></tr>`;
+        html += `<tr><td>${r.quantity}</td><td>${nameCell(r)}</td><td>${r.energy}</td><td>${r.power}</td><td>${r.might}</td><td>${r.domain || ''}</td></tr>`;
       });
     } else {
       html += '<tr><th>Qty</th><th>Name</th><th>Domain</th></tr>';
       rows.forEach(r => {
-        html += `<tr><td>${r.quantity}</td><td>${r.name}</td><td>${r.domain || ''}</td></tr>`;
+        html += `<tr><td>${r.quantity}</td><td>${nameCell(r)}</td><td>${r.domain || ''}</td></tr>`;
       });
     }
     html += '</table></div>';
@@ -296,12 +314,12 @@ function renderDecklist(decklist, target) {
 function renderMatchList(matches) {
   matchList.innerHTML = '';
   matches.forEach(m => {
-    const li = document.createElement('li');
-    const scoreSpan = document.createElement('span');
-    scoreSpan.textContent = `Match ${m.n}: You ${m.gamesWonA} - ${m.gamesWonB} Opponent (games)`;
-    li.appendChild(scoreSpan);
-    li.appendChild(resultBadge(m.win, m.draw, ['WON', 'LOST', 'DRAW']));
-    matchList.appendChild(li);
+    const games = (m.games || []).map((g, i) => ({ label: `Game ${i + 1}`, index: g.index, score: `${g.scoreA}-${g.scoreB}` }));
+    matchList.appendChild(logRow(
+      `Match ${m.n}: You ${m.gamesWonA} - ${m.gamesWonB} Opponent (games)`,
+      resultBadge(m.win, m.draw, ['WON', 'LOST', 'DRAW']),
+      () => openReplay(games, 0, `Match ${m.n}`),
+    ));
   });
 }
 
@@ -397,6 +415,7 @@ function seedFromInput() {
 
 async function runSingleOpponentSimulation(myDeckId, opponentDeckId, seed) {
   const data = await engine.simulate(myDeckId, opponentDeckId, { seed });
+  lastRun = { mode: 'single', myDeckId, opponentDeckId, seed: data.seed, myDeckName: data.myDeckName, opponentDeckName: data.opponentDeckName };
 
   renderBannedWarnings(data, bannedWarnings);
   renderWinrate(data);
@@ -410,6 +429,7 @@ async function runSingleOpponentSimulation(myDeckId, opponentDeckId, seed) {
 
 async function runMatchSimulation(myDeckId, opponentDeckId, seed) {
   const data = await engine.simulateMatch(myDeckId, opponentDeckId, { seed });
+  lastRun = { mode: 'match', myDeckId, opponentDeckId, seed: data.seed, myDeckName: data.myDeckName, opponentDeckName: data.opponentDeckName };
 
   renderBannedWarnings(data, matchBannedWarnings);
   renderMatchWinrate(data);
@@ -632,36 +652,17 @@ function initPillNav(navEl, panelsContainer) {
 // stay the real, hidden source of truth - a tile click just sets .value and
 // fires 'change', same trick as selectMode() above for the mode cards.
 
-// Official card art, hotlinked from Piltover Archive's public card database
+// Official card art, hotlinked from Piltover Archive's public card gallery
 // (https://piltoverarchive.com) - a fan-run card gallery for this game, not
-// something we host. Keyed by the exact Legend name as it appears on that
-// Legend's own row (carddatabase.json / the deck's Legend row). If a
-// newly-added Legend has no entry here, its tile just falls back to a plain
-// initial-letter placeholder - nothing breaks, and it's a one-line add here
-// once you know the real card art URL. Add new legends here as they're added.
-// This same fetch also gets opportunistically cached by sw.js the first time
-// it's loaded online, so it keeps showing up offline afterwards too.
-const LEGEND_ART = {
-  'Rengar, Pridestalker': 'https://cdn.piltoverarchive.com/cards/UNL-183.webp?width=420',
-  'Shen, Eye of Twilight': 'https://cdn.piltoverarchive.com/cards/VEN-147.webp?width=420',
-  'Akali, Rogue Assassin': 'https://cdn.piltoverarchive.com/cards/VEN-139.webp?width=420',
-  'Fiora, Grand Duelist': 'https://cdn.piltoverarchive.com/cards/SFD-205.webp?width=420',
-  "Kha'Zix, Voidreaver": 'https://cdn.piltoverarchive.com/cards/UNL-201.webp?width=420',
-  'Master Yi, Wuju Bladesman': 'https://cdn.piltoverarchive.com/cards/OGS-019.webp?width=420',
-  'Sett, The Boss': 'https://cdn.piltoverarchive.com/cards/OGN-269.webp?width=420',
-  'Azir, Emperor of the Sands': 'https://cdn.piltoverarchive.com/cards/SFD-197.webp?width=420',
-  'Ezreal, Prodigal Explorer': 'https://cdn.piltoverarchive.com/cards/SFD-199.webp?width=420',
-  'Lillia, Bashful Bloom': 'https://cdn.piltoverarchive.com/cards/UNL-189.webp?width=420',
-  'Vex, Gloomist': 'https://cdn.piltoverarchive.com/cards/UNL-193.webp?width=420',
-  'Draven, Glorious Executioner': 'https://cdn.piltoverarchive.com/cards/SFD-185.webp?width=420',
-  'Irelia, Blade Dancer': 'https://cdn.piltoverarchive.com/cards/SFD-195.webp?width=420',
-  'Kennen, Heart of the Tempest': 'https://cdn.piltoverarchive.com/cards/VEN-155.webp?width=420',
-};
-
+// something we host - using the Legend's collector code from
+// carddatabase.json, so any Legend in the database gets its art without a
+// per-legend table. A Legend without a code (or offline, before its image
+// was ever viewed) falls back to a plain initial-letter placeholder. sw.js
+// caches each image the first time it's loaded online.
 function legendArtUrl(legendName) {
   if (!legendName) return null;
-  const key = Object.keys(LEGEND_ART).find(k => k.toLowerCase() === legendName.toLowerCase());
-  return key ? LEGEND_ART[key] : null;
+  const info = engine.cardInfo(legendName);
+  return info ? info.imageUrl : null;
 }
 
 function legendInitial(legendName) {
@@ -1019,12 +1020,18 @@ function renderEditor() {
     html += `<div class="editor-group"><h4>${EDITOR_TYPE_TITLE[type]} <span class="editor-group-count">${total}</span></h4>`;
     indexes.forEach(i => {
       const r = editor.rows[i];
-      const tagInput = TAGGABLE_TYPES.includes(r.Type)
-        ? `<input type="text" class="editor-tag" data-index="${i}" value="${escapeHtml(r.Tag)}" placeholder="Tag" aria-label="Tag for ${escapeHtml(r.Name)}" autocomplete="off">`
-        : '';
+      const info = engine.cardInfo(r.Name, r.Tag);
+      const fromText = info && (info.modeled === 'text' || info.modeled === 'partial');
+      let tagInput = '';
+      if (TAGGABLE_TYPES.includes(r.Type)) {
+        tagInput = fromText
+          ? `<span class="modeled-chip${info.modeled === 'partial' ? ' partial' : ''}" title="${escapeHtml(info.abilityText)}">${info.modeled === 'partial' ? 'card text (part)' : 'card text'}</span>`
+          : `<input type="text" class="editor-tag" data-index="${i}" value="${escapeHtml(r.Tag)}" placeholder="Tag" aria-label="Tag for ${escapeHtml(r.Name)}" autocomplete="off">`;
+      }
+      const keywords = info && info.keywords.length ? ` · ${info.keywords.join(', ')}` : '';
       html += `<div class="editor-row${tagInput ? ' has-tag' : ''}">`
-        + `<div class="editor-card"><span class="editor-card-name">${escapeHtml(r.Name)}</span>`
-        + `<span class="editor-card-stats">${escapeHtml(cardStatsText(r))}</span></div>`
+        + `<div class="editor-card"><button type="button" class="card-link editor-card-name" data-card="${escapeHtml(r.Name)}" data-tag="${escapeHtml(r.Tag || '')}">${escapeHtml(r.Name)}</button>`
+        + `<span class="editor-card-stats">${escapeHtml(cardStatsText(r) + keywords)}</span></div>`
         + tagInput
         + `<div class="qty-control">`
         + `<button type="button" class="qty-btn" data-action="dec" data-index="${i}" aria-label="One less ${escapeHtml(r.Name)}">&minus;</button>`
@@ -1200,6 +1207,141 @@ function initDeckEditor() {
   });
 }
 
+// ===================== Replay (turn by turn) =====================
+//
+// A game isn't stored: the engine re-runs the same seeded run up to that
+// game and records its events (engine.replayGame).
+
+const replayOverlay = document.getElementById('replayOverlay');
+const replayTitle = document.getElementById('replayTitle');
+const replayTabs = document.getElementById('replayTabs');
+const replayBody = document.getElementById('replayBody');
+const replayClose = document.getElementById('replayClose');
+
+let replayGames = [];
+let replayHeading = '';
+
+function closeOverlay(overlay) {
+  overlay.classList.add('hidden');
+  if (![replayOverlay, cardOverlay, deckPickerOverlay].some(o => o && !o.classList.contains('hidden'))) {
+    document.body.classList.remove('deck-picker-open');
+  }
+}
+
+function openReplay(games, position, heading = '') {
+  if (!lastRun || !games.length) return;
+  replayGames = games;
+  replayHeading = heading;
+  replayTabs.innerHTML = games.length > 1
+    ? games.map((g, i) => `<button type="button" class="pill" data-pos="${i}">${escapeHtml(g.label)} (${escapeHtml(g.score)})</button>`).join('')
+    : '';
+  replayTabs.classList.toggle('hidden', games.length < 2);
+  replayOverlay.classList.remove('hidden');
+  document.body.classList.add('deck-picker-open');
+  showReplayGame(position);
+}
+
+async function showReplayGame(position) {
+  const game = replayGames[position];
+  Array.from(replayTabs.querySelectorAll('.pill')).forEach(p => p.classList.toggle('active', Number(p.dataset.pos) === position));
+  replayTitle.textContent = `${replayHeading ? replayHeading + ' - ' : ''}${game.label}: You ${game.score.replace('-', ' - ')} Opponent`;
+  replayBody.innerHTML = '<p class="import-help">Replaying...</p>';
+  try {
+    const replay = await engine.replayGame(lastRun.myDeckId, lastRun.opponentDeckId, { mode: lastRun.mode, seed: lastRun.seed, gameIndex: game.index });
+    renderReplay(replay.events);
+  } catch (err) {
+    replayBody.innerHTML = `<p class="status error">Could not replay this game: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+// Events grouped by round; each player's turn opens with its header line.
+function renderReplay(events) {
+  let html = '';
+  let round = -1;
+  for (const e of events) {
+    if (e.round !== round) {
+      if (round !== -1) html += '</ol></section>';
+      round = e.round;
+      html += `<section class="replay-round"><h4>${round === 0 ? 'Setup' : `Round ${round}`}</h4><ol class="replay-events">`;
+    }
+    const side = e.who === 'You' ? 'you' : (e.who === 'Opponent' ? 'opp' : 'neutral');
+    const turnHeader = /^--- turn (\d+) \(score (\d+)-(\d+)\) ---$/.exec(e.text);
+    if (turnHeader) {
+      html += `<li class="replay-turn ${side}">${e.who === 'You' ? 'Your' : "Opponent's"} turn ${turnHeader[1]} <span>score ${turnHeader[2]}-${turnHeader[3]}</span></li>`;
+      continue;
+    }
+    const who = e.who ? `<span class="replay-who">${e.who === 'You' ? 'You' : 'Opp'}</span>` : '';
+    html += `<li class="replay-event ${side}">${who}<span>${escapeHtml(e.text)}</span></li>`;
+  }
+  if (round !== -1) html += '</ol></section>';
+  replayBody.innerHTML = html || '<p class="import-help">No events recorded.</p>';
+  replayBody.scrollTop = 0;
+}
+
+function initReplay() {
+  replayClose.addEventListener('click', () => closeOverlay(replayOverlay));
+  replayOverlay.addEventListener('click', evt => {
+    if (evt.target === replayOverlay) closeOverlay(replayOverlay);
+  });
+  replayTabs.addEventListener('click', evt => {
+    const pill = evt.target.closest('.pill');
+    if (pill) showReplayGame(Number(pill.dataset.pos));
+  });
+}
+
+// ===================== Card viewer =====================
+//
+// The official card image (it carries the full rules text) plus what the
+// simulator models of the card.
+
+const cardOverlay = document.getElementById('cardOverlay');
+const cardTitle = document.getElementById('cardTitle');
+const cardBody = document.getElementById('cardBody');
+const cardClose = document.getElementById('cardClose');
+
+const MODELED_LABEL = {
+  text: 'Modeled from the card text',
+  partial: 'Partly modeled from the card text',
+  tag: 'Modeled from the deck\'s Tag',
+  none: 'Its rules text isn\'t modeled - only its cost, Might and keywords count',
+};
+
+function openCard(name, tag = '') {
+  const info = engine.cardInfo(name, tag);
+  cardTitle.textContent = name;
+  if (!info) {
+    cardBody.innerHTML = '<p class="import-help">This card isn\'t in the card database.</p>';
+  } else {
+    cardBody.innerHTML = `<div class="card-view">`
+      + (info.imageUrl ? `<img class="card-view-img${info.type === 'Battlefield' ? ' landscape' : ''}" src="${info.imageUrl}" alt="${escapeHtml(info.name)}" referrerpolicy="no-referrer" onerror="this.remove()">` : '')
+      + `<div class="card-view-info">`
+      + `<p class="card-view-type">${escapeHtml(info.type)}${info.code ? ` · ${escapeHtml(info.code)}` : ''}</p>`
+      + (info.keywords.length ? `<p class="card-view-keywords">${info.keywords.map(k => `<span class="count-chip">${escapeHtml(k)}</span>`).join(' ')}</p>` : '')
+      + `<p class="card-view-modeled ${info.modeled}">${MODELED_LABEL[info.modeled]}</p>`
+      + (info.abilityText ? `<p class="card-view-ability">${escapeHtml(info.abilityText)}</p>` : '')
+      + `</div></div>`;
+  }
+  cardOverlay.classList.remove('hidden');
+  document.body.classList.add('deck-picker-open');
+}
+
+function initCardViewer() {
+  cardClose.addEventListener('click', () => closeOverlay(cardOverlay));
+  cardOverlay.addEventListener('click', evt => {
+    if (evt.target === cardOverlay) closeOverlay(cardOverlay);
+  });
+  // Any card name rendered as .card-link opens the viewer.
+  document.addEventListener('click', evt => {
+    const link = evt.target.closest('.card-link');
+    if (link) openCard(link.dataset.card, link.dataset.tag || '');
+  });
+  document.addEventListener('keydown', evt => {
+    if (evt.key !== 'Escape') return;
+    if (!cardOverlay.classList.contains('hidden')) closeOverlay(cardOverlay);
+    else if (!replayOverlay.classList.contains('hidden')) closeOverlay(replayOverlay);
+  });
+}
+
 // ===================== Offline indicator =====================
 
 function updateOfflineNotice() {
@@ -1271,6 +1413,8 @@ async function start() {
   initModeCards();
   initDeckPicker();
   initDeckEditor();
+  initReplay();
+  initCardViewer();
   initPillNav(document.getElementById('resultsPillNav'), resultsSection);
   initPillNav(document.getElementById('matchResultsPillNav'), matchResultsSection);
 

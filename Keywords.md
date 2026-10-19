@@ -1,39 +1,31 @@
-# Riftbound Keyword Glossary (Core Rules 800-829)
+# Riftbound Keyword Glossary
 
-Quick reference for the keywords you'll see on real cards. The simulator itself
-only understands the four simplified Tags described in README.md
-(Remove/Buff/Draw/Shield) - this file is for YOU, so that when you look at the
-simulator's output ("this card was never played" or "you're losing board Might")
-you can reason about which real keyword on that card would matter in an actual
-game, and which matchups it's good or bad against.
+What each keyword does, paraphrased from its official reminder text on the
+cards (Riot's card gallery) and the Core Rules, whether the simulator models
+it, and when it tends to matter. The keywords on each card are read from its
+official text by `tools/build-card-data.mjs` (see README.md).
 
-| Keyword | What it does | Good against | Weak against |
+| Keyword | What it does | Simulated? | When it matters |
 |---|---|---|---|
-| **Accelerate** | Lets you play the card faster / cheaper under a condition. | Slow Control decks that can't punish a fast start. | Aggro decks that are already faster than your acceleration. |
-| **Action** | A Reaction-speed ability usable outside your Main Phase. | Any deck that leaves you an opening between turns. | Nothing specific - it's pure flexibility. |
-| **Assault** | Bonus effect when attacking a Battlefield. | Aggro/Midrange races where you're the one pushing. | Control decks that just decline to contest the Battlefield. |
-| **Deathknell** | Triggers when the unit dies. | Removal-heavy Control decks (you get value even when they kill it). | Decks that Exile/bounce instead of killing (may dodge the trigger depending on wording). |
-| **Deflect** | Redirects or reduces incoming effects. | Control/Removal-heavy decks. | Wide Aggro boards where one Deflect doesn't matter. |
-| **Ganking** | Bonus for attacking alongside another unit. | Wide, go-wide Aggro/Midrange boards. | Control decks that clear your board before you can gank. |
-| **Hidden** | Can't be targeted until revealed/attacks. | Removal-heavy decks (dodges their answers). | Board wipes / Battlefield-wide effects that don't need to target. |
-| **Legion** | Scales with the number of units you control. | Wide Aggro/token strategies. | Single-target and mass removal Control decks. |
-| **Reaction** | Can be played on the opponent's turn. | Decks that try to bait you into overcommitting. | Fast Aggro decks where you don't have time to hold up Reaction mana. |
-| **Shield: X** | +X Might only while defending. | Aggro decks trying to race through your Battlefields. | Doesn't help you attack - weak in a race where you must attack to win. |
-| **Tank** | Must be prioritized as the blocker/target. | Protects your other units/spells from removal. | Decks with removal that ignores targeting restrictions (AoE/Battlefield-wide). |
-| **Temporary** | The effect/unit only lasts a limited time. | Tempo plays to swing a single combat. | Long, grindy Control games where the effect fades before it matters. |
-| **Vision** | Lets you see/interact with hidden information. | Decks relying on Hidden or trick cards. | Decks with little hidden information to reveal. |
-| **Equip** | Attaches Gear to a unit for a bonus. | Long games where the Gear sticks around. | Removal that kills the unit and 2-for-1's you (unless Gear detaches). |
-| **Quick-Draw** | Fast/first-strike-style advantage in combat. | Even Might trades - you win them. | Higher Might units that just outsize you regardless. |
-| **Repeat** | The effect can trigger more than once. | Grindy, long games. | Aggro decks that end the game before it repeats enough times. |
-| **Weaponmaster** | Bonus tied to equipped Gear/weapons. | Equip-heavy decks. | Decks with no Gear synergy for you to abuse. |
-| **Ambush** | Can act as a surprise blocker/effect. | Punishes overextending attackers. | Decks that play around it by attacking with excess Might. |
-| **Hunt** | Rewards targeting a specific unit/threat. | Decks with a clear single big threat. | Wide, go-wide boards with no single juicy target. |
-| **Level** | The card gets stronger over the game (levels up). | Long Control games where it has time to level. | Fast Aggro games that end before it levels up. |
-| **Unique** | Only one copy can be in play/deck at once. | N/A (deckbuilding restriction) | N/A |
-| **Backline** | Positioned to avoid front-line combat. | Protects fragile value units from combat. | Removal/effects that hit the backline directly. |
-| **Empower / Empowered** | Buffs granted to/received by another card. | Go-wide, synergy-heavy boards. | Single-target removal that snipes the Empower source. |
-| **Flow** | Resource/tempo smoothing mechanic. | Decks that need consistency over raw power. | Decks that can already out-tempo you regardless. |
-
-This table is a practical companion, not a replacement for the official
-Core Rules PDF (sections 800-829), which has the exact templated wording for
-each keyword.
+| **Accelerate** | Pay an extra cost (usually 1 Energy + 1 Power of the card's domain) to have the unit enter ready. | Yes - the AI accelerates a unit with Might when it can afford it and has a battlefield to attack. | Lets a unit attack the turn it's played; strong against slow Control decks. |
+| **Action** | Can be played on your turn or in showdowns (e.g. during a fight). | Yes - Action spells are used in the fight's reaction window. | Combat tricks that swing a single fight. |
+| **Ambush** | The unit can be played as a Reaction to a battlefield where you have units. | Yes - the defender plays it into a fight at its battlefield. | Punishes attackers who commit just enough Might. |
+| **Assault N** | +N Might while the unit is an attacker. | Yes. | Aggro races where you're the one attacking. |
+| **Backline** | The unit must be assigned combat damage last. | Yes. | Protects a valuable unit in a fight. |
+| **Deathknell** | An effect when the unit dies. | Yes for the curated cards (draw, channel, token). | Value against removal-heavy decks. |
+| **Deflect** | Opponents must pay extra Power (of any domain) to choose the card with a spell or ability. | Yes - removal and other targeted effects pay it or pick another target. | Shields key units from removal. |
+| **Empower / Empowered** | Pay a cost (or meet a condition) once to get the "Empowered" bonus. | Only for curated cards (e.g. Mournful Witness). | Long games. |
+| **Equip** | Pay the Equip cost to attach Equipment to a unit you control. | Yes - the Equipment's Might goes on your strongest unit once the cost is paid. | Long games where the gear sticks around. |
+| **Ganking** | The unit can move from battlefield to battlefield. | Yes. | Lets a unit holding one battlefield attack the other. |
+| **Hidden** | Hide the card face down for 1 Power, then play it later as a Reaction for no Energy. | No - Hidden cards are just played normally. | Surprise plays at a battlefield you control. |
+| **Hunt / Level** | Gain XP when the unit conquers or holds; Level N effects turn on at N+ XP. | No. | Long games. |
+| **Legion** | An effect that applies if you've already played another card this turn. | No. | Turns with two or more plays. |
+| **Reaction** | Can be played any time, even before spells and abilities resolve. | Yes - in the fight's reaction window (spells and units) and to counter spells. | Answers on the opponent's turn. |
+| **Repeat** | Pay an extra cost to repeat the spell's effect. | No - the effect happens once. | Late game, with spare Energy. |
+| **Shield N** | +N Might while the unit is a defender (Shield alone = 1). | Yes. | Holding battlefields against Aggro. |
+| **Stun** | A stunned unit doesn't deal combat damage this turn. | Yes. | Blunts the biggest attacker. |
+| **Tank** | The unit must be assigned combat damage first. | Yes. | Protects your other units in a fight. |
+| **Temporary** | The unit (or gear) is killed at the start of its controller's Beginning Phase, before scoring. | Yes. | Burst attacks with tokens. |
+| **Vision / Predict** | Look at the top card(s) of your Main Deck and recycle what you don't want. | No. | Consistency. |
+| **Weaponmaster** | When played, may Equip one of your Equipment to it for less. | No. | Equipment decks. |
+| **Unique** | Your deck can have only 1 card with this name. | Deckbuilding only. | - |

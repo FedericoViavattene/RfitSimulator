@@ -1236,3 +1236,196 @@ input[type="text"].editor-tag {
     flex-basis: 100%;
   }
 }
+
+/* ===================== Clickable game/match rows ===================== */
+
+.game-list li {
+  padding: 0;
+}
+
+.log-row {
+  width: 100%;
+  margin-top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 400;
+  text-align: left;
+}
+
+.log-row:hover:not(:disabled) {
+  filter: none;
+  background: rgba(108, 140, 255, 0.08);
+}
+
+/* A card name that opens the card viewer. */
+.card-link {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.card-link:hover:not(:disabled) {
+  filter: none;
+  color: var(--accent);
+}
+
+/* ===================== Replay ===================== */
+
+.replay-modal {
+  max-width: 720px;
+}
+
+.replay-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 0;
+}
+
+.replay-round h4 {
+  margin: 16px 0 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.replay-round:first-child h4 {
+  margin-top: 0;
+}
+
+.replay-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.replay-event {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.86rem;
+  border-top: 1px solid var(--border);
+}
+
+.replay-event.neutral {
+  color: var(--text-dim);
+}
+
+.replay-who {
+  flex-shrink: 0;
+  height: fit-content;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.replay-event.you .replay-who { color: var(--win); background: rgba(62, 207, 106, 0.12); }
+.replay-event.opp .replay-who { color: var(--loss); background: rgba(239, 91, 91, 0.12); }
+
+.replay-turn {
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #1e222b;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.replay-turn span {
+  margin-left: 6px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.replay-turn.you { border-left: 3px solid var(--win); }
+.replay-turn.opp { border-left: 3px solid var(--loss); }
+
+/* ===================== Card viewer ===================== */
+
+.card-modal {
+  max-width: 520px;
+}
+
+.card-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-view-img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 12px;
+}
+
+.card-view-img.landscape {
+  max-width: 440px;
+}
+
+.card-view-info {
+  width: 100%;
+}
+
+.card-view-type {
+  margin: 0 0 6px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.card-view-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.card-view-modeled {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.card-view-modeled.text { color: var(--win); }
+.card-view-modeled.partial { color: var(--warn); }
+.card-view-modeled.tag { color: var(--accent); }
+.card-view-modeled.none { color: var(--text-dim); }
+
+.card-view-ability {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.modeled-chip {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border: 1px solid rgba(62, 207, 106, 0.4);
+  border-radius: 999px;
+  color: var(--win);
+  font-size: 0.75rem;
+}
+
+.modeled-chip.partial {
+  border-color: rgba(232, 184, 75, 0.4);
+  color: var(--warn);
+}
