@@ -1,58 +1,23 @@
 # Riftbound Deck Simulator
 
-A local tool that simulates 50 games of your deck against a chosen opponent
-deck, reports a winrate, and gives you deck-optimization feedback (which
-cards to cut, curve issues, etc.) to help you build a stronger deck for
-Nexus Night / Skirmish events. Comes in two front-ends that share the exact
-same simulation engine (`RiftboundEngine.psm1`), so pick whichever you like:
+Simulates your Riftbound deck against a chosen opponent deck (or the whole
+saved meta at once), reports a winrate, and gives you deck-optimization
+feedback (which cards to cut, curve issues, etc.) to help you build a
+stronger deck for Nexus Night / Skirmish events.
 
-- **`RunSimulator.bat`** - the original terminal/console experience.
-- **`RunWebUI.bat`** - a nicer-looking local web page in your browser (see
-  "Web UI" below). Nothing here is hosted online - it only runs on your own
-  computer.
-- **`ImportDeck.bat`** - turns a plain-text decklist into a real deck CSV
-  automatically (see "Importing a deck from a text list" below). The web UI
-  can also do this directly from a paste box.
+There is **one app and one simulation engine** (`docs/engine.js`), used in two
+places:
 
-## How to run it (console)
+- **On your PC** - double-click **`RunWebUI.bat`**. It opens the app in your
+  browser and uses the deck CSV files under `Decks\`.
+- **On your phone** - the same app, published to GitHub Pages from the
+  `docs/` folder and installed to your home screen. It works offline and
+  keeps its decks on the phone.
 
-**Recommended (most reliable):** open PowerShell yourself and run the script
-from an open console window:
+Same rules, same results and same screens on both - the only difference is
+where decks are stored.
 
-```powershell
-cd "C:\path\to\RiftboundSimulator"
-.\RiftboundSim.ps1
-```
-
-After picking your deck, you're asked to choose a mode:
-```
-  1) Single opponent - 50 games (default)
-  2) Matchup matrix - run vs EVERY saved opponent deck at once
-  3) Best-of-3 match simulation - 20 matches vs one opponent
-```
-Press Enter to accept the default (mode 1), or type 2 or 3 - see "Matchup
-matrix and best-of-3 matches" below for what each mode reports.
-
-Double-clicking the `.ps1` file also works now - at the end of each
-simulation you're given a menu:
-```
-  1) Return to main menu (run another simulation)
-  2) Close simulator
-```
-Both options require pressing Enter, so the window will never close on its
-own before you've read the results. Choosing "1" clears the screen and lets
-you pick a new matchup (and a new mode) without restarting the script. Even
-so, running it from an already-open console is still the more reliable
-habit - some Windows security settings block a `.ps1` from running at all
-when double-clicked, whereas running it from inside PowerShell always works.
-
-If Windows blocks the script with an "execution policy" error, run this once
-in PowerShell (as your normal user, not admin) and try again:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-## Web UI
+## How to run it on your PC
 
 Double-click **`RunWebUI.bat`**. It starts a small local web server (in its
 own console window, so you can see activity logs and stop it with Ctrl+C)
@@ -62,6 +27,25 @@ and opens `http://localhost:8787` in your default browser.
   not reachable from the internet or from other devices, and nothing about
   your decks or results leaves your machine. `localhost` only your PC can
   reach it.
+- The simulation itself runs inside the browser (`docs/engine.js`, the same
+  file the phone runs). The server, `WebServer.ps1`, only serves the `docs/`
+  folder and reads/writes the deck CSVs under `Decks\` for it. Nothing extra
+  to install - it uses Windows PowerShell and .NET's built-in HttpListener.
+- If port 8787 is already taken (e.g. by a previous "Riftbound Web Server"
+  window you forgot to close), it automatically tries 8788, 8789, etc. and
+  tells you in the console window which port it actually used - it also
+  opens your browser to the right one automatically, so you don't need to
+  track the port number yourself.
+- If it still can't start after trying all of those (e.g. "could not start
+  the local web server"), check Task Manager / your taskbar for a leftover
+  `powershell.exe` window titled "Riftbound Web Server" and close it, or run
+  `netstat -ano | findstr :8787` in PowerShell to see what else is using
+  that port.
+- To stop it, close the "Riftbound Web Server" console window it opened, or
+  press Ctrl+C in it.
+
+## Using the app
+
 - The page has two tabs at the top: **Simulate** (the main flow) and
   **Import a deck** (moved out of the way so it doesn't compete with the
   simulation setup). A **step indicator** (Your deck → Mode → Opponent →
@@ -91,43 +75,25 @@ and opens `http://localhost:8787` in your default browser.
   "Matchup recommendations and sideboard suggestions" below). A **New
   simulation** button at the top of the results jumps you back to the setup
   step to try another deck or matchup.
-- If port 8787 is already taken (e.g. by a previous "Riftbound Web Server"
-  window you forgot to close), it automatically tries 8788, 8789, etc. and
-  tells you in the console window which port it actually used - it also
-  opens your browser to the right one automatically, so you don't need to
-  track the port number yourself.
-- If it still can't start after trying all of those (e.g. "could not start
-  the local web server"), check Task Manager / your taskbar for a leftover
-  `powershell.exe` window titled "Riftbound Web Server" and close it, or run
-  `netstat -ano | findstr :8787` in PowerShell to see what else is using
-  that port.
-- To stop it, close the "Riftbound Web Server" console window it opened, or
-  press Ctrl+C in it.
 
 ## Play on your phone (installable web app)
 
-The `docs/` folder is a second, independent front-end: the same simulator UI,
-but ported to run **entirely inside a phone's browser** - no PC, no
-PowerShell, no local network required once it's installed. It's meant to be
-hosted for free on GitHub Pages and opened from your phone as an installed
-app (an icon on your home screen that opens full-screen, no browser address
-bar).
+The `docs/` folder is the app itself. GitHub Pages publishes it, and you open
+it from your phone as an installed app (an icon on your home screen that
+opens full-screen, no browser address bar) - no PC needed once it's
+installed.
 
-**How it's different from the PC web UI (`web/` + `WebServer.ps1`):**
-- The entire simulation engine (`RiftboundEngine.psm1`'s logic - drawing,
-  combat, loss diagnostics, matchup recommendations, everything) is ported
-  line-for-line into `docs/engine.js`, running as plain JavaScript in the
-  browser. There is no server at all - `docs/app.js` calls `engine.js`
-  directly instead of making `/api/...` requests.
+**What's different on the phone:**
 - Decks live in the browser's own local database (IndexedDB) instead of CSV
-  files, since a phone browser has no access to a filesystem the way a PC
-  does. The same 14 bundled decks are seeded into it the first time the app
-  opens; any deck you import afterwards is saved there too, on that device
-  only.
+  files, since a phone browser has no filesystem to read `Decks\` from. The
+  first time the app opens on a device it's seeded from `docs/decks.json` - a
+  snapshot of the `Decks\*.csv` files that `PushToGitHub.bat` refreshes on
+  every push (via `UpdatePhoneDecks.ps1`). Any deck you import on the phone
+  is saved there too, on that device only.
 - It works fully offline after the first load (a service worker,
   `docs/sw.js`, caches everything needed) - once installed, you don't need a
   connection to run a simulation, only to pick up a future update. The one
-  exception is the deck picker's Legend photos (see below): those are
+  exception is the deck picker's Legend photos (see above): those are
   hotlinked from a third-party card gallery, so a Legend's art only shows up
   offline after you've opened its tile at least once with a connection -
   until then it just shows a plain initial-letter placeholder instead,
@@ -148,26 +114,24 @@ bar).
 4. Open it from the new icon on your home screen from now on - it launches
    full-screen, like a real app, with no address bar.
 
-**How updates reach your phone:** any time this simulator's code changes
-(here, or on your PC), pushing to GitHub via `PushToGitHub.bat` redeploys
-the `docs/` folder to that same URL automatically, usually within a minute.
-The next time you open the app icon **with an internet connection**, it
-fetches the update in the background; a fully offline session still opens
-the last version it had cached. Bundled deck *content* (the 14 starter
-decks) is only seeded once per device on first install - a future code
-update won't retroactively change decks you've already got, only the app's
-logic/UI.
+**How updates reach your phone:** pushing to GitHub via `PushToGitHub.bat`
+redeploys the `docs/` folder to that same URL automatically, usually within
+a minute. The next time you open the app icon **with an internet
+connection**, it fetches the update in the background; a fully offline
+session still opens the last version it had cached. Deck *content* is only
+seeded once per device, on first install - a later update won't add new
+decks to a phone that already has the app, only the app's logic/UI.
 
 ## Importing a deck from a text list
 
-Instead of hand-building a CSV, you can paste or drop in a plain decklist -
-one card per line - and every card's real Type/Energy/Power/Might/Domain
-gets looked up automatically from `CardDatabase.json` (the same official
-card gallery data used for the "Card-data verification pass" below). You
-only need to get the card **name** and **quantity** right; the rest is
-filled in for you, and it's checked against the official deckbuilding rules
-(exactly 1 Legend, 3 Battlefields, 12 Runes, 40+ Main Deck cards, max 3
-copies of any card) with a warning for anything that doesn't add up.
+Instead of hand-building a CSV, you can paste a plain decklist - one card
+per line - and every card's real Type/Energy/Power/Might/Domain gets looked
+up automatically from `docs/carddatabase.json` (the same official card
+gallery data used for the "Card-data verification pass" below). You only
+need to get the card **name** and **quantity** right; the rest is filled in
+for you, and it's checked against the official deckbuilding rules (exactly
+1 Legend, 3 Battlefields, 12 Runes, 40+ Main Deck cards, max 3 copies of any
+card) with a warning for anything that doesn't add up.
 
 **Accepted line formats** (mix and match freely):
 ```
@@ -183,60 +147,44 @@ skipped, along with blank lines and `#` comment lines. A card's Type always
 comes from the database, never from which section you pasted it under, so
 you can't accidentally mislabel one.
 
-**From the web UI (recommended):** open the **"Import a deck from a text
-list"** panel above the deck pickers, choose where it should go (your decks,
-or an opponent archetype folder), give it a name, paste the list, and hit
-**Import deck**. The result panel shows what matched and any warnings, and
-the deck dropdowns refresh immediately so you can simulate with it right
-away.
+Open the **Import a deck** tab, choose where it should go (your decks, or an
+opponent archetype), give it a name, paste the list, and hit **Import
+deck**. The result panel shows what matched and any warnings, and the deck
+pickers refresh immediately so you can simulate with it right away.
 
-**From the console:** save your list as a `.txt` file into `Decks\Import\`
-(see `Decks\Import\_example.txt` for a full sample using every line format),
-then run `ImportDeck.bat`. It lists the `.txt` files it finds, asks where to
-put the result, and prints the same match/warning report.
-
-Either way, the output is just a normal CSV in `Decks\MyDeck\` or
+On the PC the result is a normal CSV in `Decks\MyDeck\` or
 `Decks\Opponents\<Aggro|Midrange|Control>\` - if you ever want to hand-edit
 it afterward (say, to fill in a `Tag`), it works exactly like every other
-deck file described below.
-
-The web UI and the console tool are two front-ends over the exact same
-`RiftboundEngine.psm1` module, so they always agree on results - there's no
-separate "web version of the rules" to keep in sync.
+deck file described below. On the phone it's saved on that device.
 
 ## What it does
 
-1. Loads your deck from `Decks\MyDeck\*.csv` (if you have more than one CSV
-   there, it asks you to pick).
-2. Lets you pick an opponent deck from `Decks\Opponents\` - decks are grouped
-   into **Aggro / Midrange / Control** subfolders and listed by the Legend
-   they use.
-3. Checks both decks against `Banned.csv` and automatically excludes any
-   banned card/Battlefield, with a warning.
-4. Simulates 50 games and prints a per-game result plus a final winrate %.
-5. Optionally shows a one-line reason for each loss (deck-out, out-classed on
-   Might, close loss, etc.) when you answer Y to the prompt.
-6. Prints a deck-optimization report: your most-played cards, any cards that
-   never got played (candidates to cut), and a curve check (average Energy
-   cost) with a suggestion if it's too high or too low.
-7. Prints matchup recommendations plus a suggested up-to-10-card sideboard
-   for that specific opponent (see "Matchup recommendations and sideboard
+1. You pick your deck (`Decks\MyDeck\` on the PC) and an opponent deck
+   (`Decks\Opponents\`, grouped into **Aggro / Midrange / Control** and shown
+   by the Legend they use).
+2. Both decks are checked against the banned list (`docs/banned.json`) and
+   any banned card/Battlefield is excluded automatically, with a warning.
+3. Simulates 50 games and shows each game's result plus a final winrate %.
+4. The game log shows a one-line reason for each loss (deck-out,
+   out-classed on Might, close loss, etc.).
+5. A deck-optimization report: your most-played cards, any cards that never
+   got played (candidates to cut), and a curve check (average Energy cost)
+   with a suggestion if it's too high or too low.
+6. Matchup recommendations plus a suggested up-to-10-card sideboard for that
+   specific opponent (see "Matchup recommendations and sideboard
    suggestions" below) - single-opponent and best-of-3 modes only.
-8. Optionally shows the opponent's full decklist (grouped by Legend / Battlefield
-   / Rune / Unit / Spell / Gear, with Energy/Power/Might/Domain per card) when
-   you answer Y to the prompt at the end.
+7. The opponent's full decklist (grouped by Legend / Battlefield / Rune /
+   Unit / Spell / Gear, with Energy/Power/Might/Domain per card).
 
 ## Matchup matrix and best-of-3 matches
 
-Beyond the default "50 games vs one opponent" mode, both front-ends offer two
-more ways to run the simulation - pick a mode from the console's "Choose a
-mode" prompt, or the web UI's **Mode** dropdown:
+Beyond the default "50 games vs one opponent" mode, there are two more ways
+to run the simulation - pick one from the **Mode** cards:
 
 - **Matchup matrix** - runs your deck against **every** saved opponent deck
-  under `Decks\Opponents\` (Aggro/Midrange/Control, recursively) in one go,
-  and reports a winrate per opponent plus an overall average. This is the
-  fastest way to see "what does my deck struggle against across the whole
-  meta" instead of testing one matchup at a time.
+  in one go, and reports a winrate per opponent plus an overall average.
+  This is the fastest way to see "what does my deck struggle against across
+  the whole meta" instead of testing one matchup at a time.
 - **Best-of-3 match simulation** - real Riftbound tournament rounds (Nexus
   Night/Skirmish) are best-of-3, not a single game. This mode plays out 20
   full best-of-3 matches against one chosen opponent (each match ends as
@@ -245,34 +193,33 @@ mode" prompt, or the web UI's **Mode** dropdown:
   per-game results, since a deck that reliably grinds out a game 3 can have
   a very different match winrate than its raw single-game winrate suggests.
 
-Both modes reuse the exact same `Invoke-SingleGame` logic as the default
-mode (via `Invoke-GameBatch`/`Invoke-Match`/`Invoke-MatchBatch`/
-`Get-MatchupMatrix` in `RiftboundEngine.psm1`) - there's no separate, looser
-simulation just for these views.
+Both modes reuse the exact same single-game logic as the default mode (via
+`gameBatch`/`matchOf`/`matchBatch`/`matchupMatrixRows` in `docs/engine.js`)
+- there's no separate, looser simulation just for these views.
 
 ## Matchup recommendations and sideboard suggestions
 
 After simulating against **one specific opponent** (the default single-
 opponent mode, or the best-of-3 match mode - not the matchup matrix, which
-is deliberately breadth-first across every opponent at once), both
-front-ends show a **"Matchup recommendations & sideboard"** panel built
-entirely from that batch's own simulated games:
+is deliberately breadth-first across every opponent at once), the app shows
+a **"Matchup recommendations & sideboard"** panel built entirely from that
+batch's own simulated games:
 
 - **Matchup shape** - the opponent's category (Aggro/Midrange/Control, read
-  from which `Decks\Opponents\` subfolder it came from, or inferred from its
-  own average Energy if that's not available) plus a plain-language note on
-  how to approach that shape of deck.
+  from the archetype the deck is filed under, or inferred from its own
+  average Energy if that's not available) plus a plain-language note on how
+  to approach that shape of deck.
 - **Primary loss pattern** - the *most common* reason (across every
   simulated game against this opponent, not just one) this deck lost: Burn
   Out, out-classed on board Might, Energy left unspent, cards stuck in hand,
   never taking the lead, a close 1-point loss, or general tempo loss - the
-  same seven categories `Get-LossReason` already diagnoses per game, now
+  same seven categories `getLossReason` already diagnoses per game, now
   aggregated across the whole batch.
 - **Suggested sideboard - up to 10 cards** - real, domain-legal cards from
-  `CardDatabase.json` that aren't already at the 3-copy legal maximum in
-  this deck, scored for what this specific matchup calls for (cheaper cards
-  when the curve or Burn Out is the issue, higher Might-per-Energy when
-  getting out-classed on the board), paired with the same number of
+  `docs/carddatabase.json` that aren't already at the 3-copy legal maximum
+  in this deck, scored for what this specific matchup calls for (cheaper
+  cards when the curve or Burn Out is the issue, higher Might-per-Energy
+  when getting out-classed on the board), paired with the same number of
   **"sideboard OUT"** picks from the maindeck - cards that never got played
   in any simulated game against this opponent, or the current curve's
   weakest fit otherwise.
@@ -282,7 +229,7 @@ Swapping the suggested cards in and re-running the simulation is still the
 only way to know the real impact. It also inherits the same limitation as
 the rest of this simulator: a freshly-suggested card that isn't already in
 your deck has no `Tag` assigned (a card's `Tag` lives on its row in a deck
-CSV, not in `CardDatabase.json`), so scoring only ever uses that card's real
+CSV, not in the card database), so scoring only ever uses that card's real
 Energy/Might/Domain numbers - never a guessed ability. It never invents what
 a card actually does.
 
@@ -310,22 +257,22 @@ Kha'Zix, Irelia, Ezreal, Sett, Vex, Lillia, Shen) currently has **no**
 simulated ability - their games still run purely on Energy/Power/Might/
 Domain/Tag, same as before. This is a deliberate, honest limitation, not an
 oversight: adding a new Legend ability means adding real rules text to that
-Legend's `legendAbility` entry in `CardDatabase.json` (a small JSON object
-with `trigger`/`effect`/`amount`, read by `Invoke-LegendAbilityTrigger` in
-the engine) - no PowerShell code changes are needed, but each one still has
-to be checked against the card's actual text first rather than guessed.
+Legend's `legendAbility` entry in `docs/carddatabase.json` (a small JSON
+object with `trigger`/`effect`/`amount`, read by `triggerLegendAbility` in
+`docs/engine.js`) - no code changes are needed, but each one still has to be
+checked against the card's actual text first rather than guessed.
 
 ## Important: what this simulator IS and ISN'T
 
 This is a **statistics/curve testing tool**, not a full Riftbound rules
 engine. Riftbound has 1000+ unique cards, each with its own templated rules
-text, and reimplementing every single one is out of scope for a local script.
-Instead every card is reduced to:
+text, and reimplementing every single one is out of scope for now. Instead
+every card is reduced to:
 
 | Column | Meaning |
 |---|---|
 | `Quantity` | Copies of this card in the deck |
-| `Name` | Card name (must match a real card, and must exactly match an entry in Banned.csv to be caught by the ban check) |
+| `Name` | Card name (must match a real card, and must exactly match an entry in `docs/banned.json` to be caught by the ban check) |
 | `Type` | `Legend`, `Unit`, `Spell`, `Gear`, `Battlefield`, or `Rune` |
 | `Energy` | Energy cost to play it |
 | `Power` | Power value (mostly flavor for this simulator - not currently scored) |
@@ -371,11 +318,10 @@ game and picks the most relevant one:
 
 ### Viewing the opponent's decklist
 
-At the end of a simulation you're asked "View the opponent's full decklist?".
-Answering Y prints every card in the opponent's deck (Legend, Battlefields,
-Runes, Units, Spells, Gear), with Energy/Power/Might/Domain/Tag per card -
-useful for planning what to actually expect at the table, not just the
-aggregate winrate number.
+The **Opponent decklist** tab of the results lists every card in the
+opponent's deck (Legend, Battlefields, Runes, Units, Spells, Gear), with
+Energy/Power/Might/Domain/Tag per card - useful for planning what to
+actually expect at the table, not just the aggregate winrate number.
 
 ### Keyword glossary
 
@@ -394,39 +340,38 @@ If a future errata does change a number, just edit that card's row directly.
 
 ### Banned cards
 
-`Banned.csv` mirrors https://riftbound.gg/rules/banned-cards/ (Standard
-Constructed bans as of the most recent ban update). Both your deck and the
-opponent deck are checked automatically at load time; any banned card found
-is excluded and printed as a warning so you know your simulated deck is
-tournament-legal.
+`docs/banned.json` mirrors https://riftbound.gg/rules/banned-cards/ (Standard
+Constructed bans as of the most recent ban update), as a list of lowercase
+card/Battlefield names. Both your deck and the opponent deck are checked
+automatically at load time; any banned card found is excluded and shown as
+a warning so you know your simulated deck is tournament-legal.
 
 ## Folder structure
 
 ```
 RiftboundSimulator/
-  RunSimulator.bat           <- double-click for the console version
-  RunWebUI.bat                <- double-click for the web UI
-  ImportDeck.bat               <- double-click to import a .txt decklist (console)
-  RiftboundSim.ps1            <- console front-end
-  WebServer.ps1                <- web UI front-end (local HTTP server)
-  ImportDeck.ps1                <- console text-list importer
-  RiftboundEngine.psm1         <- shared simulation engine (used by all three)
-  CardDatabase.json          <- ~935 real cards' Type/Energy/Power/Might/Domain,
-                                  extracted from the official card gallery -
-                                  used for both the card-data corrections and
-                                  the text-list importer
-  web/                          <- web UI's HTML/CSS/JS
-    index.html
-    style.css
-    app.js
-  Banned.csv                <- banned cards/battlefields
+  RunWebUI.bat               <- double-click to run the app on your PC
+  WebServer.ps1               <- local server: serves docs/ + the deck CSVs
+  DeckFiles.psm1              <- reads/writes the Decks\*.csv files
+  UpdatePhoneDecks.ps1        <- rebuilds docs/decks.json from Decks\*.csv
+  PushToGitHub.bat            <- refreshes docs/decks.json, commits, pushes
   Keywords.md                <- keyword glossary reference
   Errata.md                  <- errata notes
+  docs/                       <- THE app (PC and phone), published by GitHub Pages
+    index.html
+    style.css
+    app.js                    <- UI
+    engine.js                 <- the simulation engine
+    carddatabase.json         <- ~935 real cards' Type/Energy/Power/Might/Domain,
+                                 extracted from the official card gallery
+    banned.json               <- banned cards/battlefields
+    decks.json                <- snapshot of Decks\*.csv, seeds the phone
+    sw.js                     <- service worker (offline cache)
+    manifest.webmanifest, icons/
   Decks/
-    Import/
-      _example.txt            <- sample decklist showing every accepted format
     MyDeck/
       Rengar_Pridestalker.csv
+      Rengar_Vend.csv
       Shen_EyeOfTwilight.csv
     Opponents/
       Aggro/
@@ -507,9 +452,13 @@ into a new CSV.
 
 ## Adding more decks
 
-Easiest: use the text-list importer (see "Importing a deck from a text list"
-above) - paste or drop in a decklist and it writes the CSV for you with real
+Easiest: use the **Import a deck** tab (see "Importing a deck from a text
+list" above) - paste a decklist and it writes the CSV for you with real
 stats. Or drop a new CSV following the schema above directly into
 `Decks\MyDeck\` (for your own decks) or the right archetype subfolder under
-`Decks\Opponents\` (for opponents) by hand. Either way, the script picks up
-any `.csv` file automatically - no code changes needed.
+`Decks\Opponents\` (for opponents) by hand. Either way the PC app picks up
+any `.csv` file automatically (reload the page) - no code changes needed.
+
+The next `PushToGitHub.bat` adds it to `docs/decks.json` for the phone - a
+phone that already has the app keeps the decks it was first seeded with,
+though (see "How updates reach your phone").

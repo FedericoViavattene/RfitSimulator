@@ -1,25 +1,107 @@
 /*
-  engine.js — Riftbound Deck Simulator, browser-native port of RiftboundEngine.psm1
-  + the request handlers from WebServer.ps1.
+  engine.js — the Riftbound Deck Simulator engine. This is the only engine:
+  the phone app and the PC both run this file in the browser (the PC through
+  WebServer.ps1, which serves this same docs/ folder).
 
-  This is a line-for-line-faithful port, not a rewrite: every rule, threshold,
-  formula and piece of advice text below is copied from the PowerShell engine
-  (RiftboundEngine.psm1) and the payload-shaping helpers in WebServer.ps1, so
-  this version behaves identically to the PC version - same rules, same loss
-  diagnostics, same matchup-recommendation heuristic, same Spanish advice
-  strings. See RiftboundEngine.psm1's own comments for the full rules
-  citations (Victory Score, Final Point restriction, Burn Out, etc.) - not
-  repeated here to avoid the two copies drifting apart.
+  Everything game-related lives here - the rules model, loss diagnostics,
+  optimization stats, matchup recommendation, text-list import and the
+  public API app.js calls. The rules modeled and their Core Rules citations
+  (Victory Score, Final Point restriction, Burn Out, etc.) are documented in
+  README.md under "Rules actually modeled".
 
-  The one real difference: there is no filesystem here, so decks live in
-  IndexedDB instead of CSV files. Everything else - the simulation math, the
-  optimization stats, the matchup-recommendation scoring - is the same code,
-  just in JavaScript.
+  The only thing that differs between PC and phone is where decks are stored
+  (see DECK STORAGE below).
 */
 
 // ============================================================================
-//  INDEXEDDB — deck storage (replaces Decks\*.csv)
+//  DECK STORAGE
+//  Two stores with the same all()/get()/put() calls:
+//  - FileDeckStore: on the PC, WebServer.ps1 exposes the Decks\*.csv files
+//    through api/decks, so the CSV files stay the source of truth there.
+//  - DeviceDeckStore: everywhere else (GitHub Pages, the installed phone app,
+//    any plain static server) decks live in this browser's IndexedDB, seeded
+//    once per device from decks.json.
 // ============================================================================
+const API_DECKS = 'api/decks';
+
+async function responseError(res, fallback) {
+  const body = await res.json().catch(() => ({}));
+  return new Error(body.error || `${fallback} (${res.status})`);
+}
+
+class FileDeckStore {
+  constructor() {
+    this.kind = 'files';
+  }
+
+  // Resolves to a store only when this page is served by WebServer.ps1.
+  // Anywhere else api/decks is a 404 (or unreachable offline), so the caller
+  // falls back to the device store.
+  static async detect() {
+    // WebServer.ps1 only listens on localhost - don't probe from GitHub Pages
+    // or the installed phone app.
+    if (!['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) return null;
+    try {
+      const res = await fetch(API_DECKS, { cache: 'no-store' });
+      const type = res.headers.get('Content-Type') || '';
+      if (res.ok && type.includes('application/json')) return new FileDeckStore();
+    } catch {
+      // Offline, or no server behind this page.
+    }
+    return null;
+  }
+
+  async all() {
+    const res = await fetch(API_DECKS, { cache: 'no-store' });
+    if (!res.ok) throw await responseError(res, 'Could not read the deck files');
+    return res.json();
+  }
+
+  async get(id) {
+    return (await this.all()).find(d => d.id === id) || null;
+  }
+
+  async put(record) {
+    const res = await fetch(API_DECKS, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(record),
+    });
+    if (!res.ok) throw await responseError(res, 'Could not save the deck file');
+  }
+}
+
+class DeviceDeckStore {
+  constructor(db) {
+    this.kind = 'device';
+    this.db = db;
+  }
+
+  static async open(seedUrl) {
+    const db = await openDb();
+    const existing = await idbGetAll(db, STORE_DECKS);
+    if (existing.length === 0) {
+      // First run on this device/browser: seed the bundled decks.
+      const seed = await fetch(seedUrl).then(r => r.json());
+      await idbPutAll(db, STORE_DECKS, seed);
+    }
+    return new DeviceDeckStore(db);
+  }
+
+  all() {
+    return idbGetAll(this.db, STORE_DECKS);
+  }
+
+  get(id) {
+    return idbGet(this.db, STORE_DECKS, id);
+  }
+
+  put(record) {
+    return idbPut(this.db, STORE_DECKS, record);
+  }
+}
+
+// IndexedDB helpers behind DeviceDeckStore.
 const DB_NAME = 'riftbound-db';
 const DB_VERSION = 1;
 const STORE_DECKS = 'decks';
@@ -81,8 +163,7 @@ function idbPutAll(db, storeName, values) {
 //  RANDOM HELPERS
 // ============================================================================
 function shuffle(arr) {
-  // Fisher-Yates - statistically equivalent to the PowerShell engine's
-  // `Sort-Object { Get-Random }` shuffle, just a cleaner implementation.
+  // Fisher-Yates.
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -95,8 +176,8 @@ function shuffle(arr) {
 //  CARD DATABASE (CardDatabase.json) + BANNED LIST
 // ============================================================================
 function normalizeCardName(name) {
-  // Mirrors ConvertTo-NormalizedCardName exactly: strip commas/apostrophes/
-  // periods/quotes (including curly '’'), collapse whitespace, lowercase.
+  // Strip commas/apostrophes/periods/quotes (including curly '’'), collapse
+  // whitespace, lowercase.
   if (!name) return '';
   let n = name.toLowerCase();
   n = n.replace(/’/g, "'");
@@ -109,22 +190,27 @@ class Engine {
   constructor() {
     this.cardDatabase = null; // Map<lowercasedOrNormalizedName, record>
     this.bannedSet = null;    // Set<lowercased name>
-    this.db = null;
+    this.store = null;        // FileDeckStore or DeviceDeckStore
     this.ready = false;
+  }
+
+  // 'files' on the PC (Decks\*.csv through WebServer.ps1), 'device' on the
+  // phone / any static host (IndexedDB).
+  get storageKind() {
+    return this.store ? this.store.kind : null;
   }
 
   async init() {
     if (this.ready) return;
 
-    const [cardDbRaw, bannedRaw, decksSeed] = await Promise.all([
+    const [cardDbRaw, bannedRaw] = await Promise.all([
       fetch('carddatabase.json').then(r => r.json()),
       fetch('banned.json').then(r => r.json()),
-      fetch('decks.json').then(r => r.json()),
     ]);
 
-    // Import-CardDatabase port: index every card by its exact lowercased name
-    // AND its punctuation-normalized name (never overwriting an exact-name
-    // key), so a paste that drops commas/apostrophes still resolves.
+    // Index every card by its exact lowercased name AND its punctuation-
+    // normalized name (never overwriting an exact-name key), so a paste that
+    // drops commas/apostrophes still resolves.
     const db = new Map();
     for (const name of Object.keys(cardDbRaw)) {
       const v = cardDbRaw[name];
@@ -147,18 +233,13 @@ class Engine {
 
     this.bannedSet = new Set(bannedRaw);
 
-    this.db = await openDb();
-    const existing = await idbGetAll(this.db, STORE_DECKS);
-    if (existing.length === 0) {
-      // First run on this device/browser: seed the bundled decks.
-      await idbPutAll(this.db, STORE_DECKS, decksSeed);
-    }
+    this.store = (await FileDeckStore.detect()) || (await DeviceDeckStore.open('decks.json'));
 
     this.ready = true;
   }
 
   // --------------------------------------------------------------------
-  //  DECK LISTING  (Get-DecksPayload)
+  //  DECK LISTING
   // --------------------------------------------------------------------
 
   // The exact Legend name off a deck's own Legend row (e.g.
@@ -173,7 +254,7 @@ class Engine {
   }
 
   async listDecks() {
-    const all = await idbGetAll(this.db, STORE_DECKS);
+    const all = await this.store.all();
     all.sort((a, b) => a.name.localeCompare(b.name));
 
     const toEntry = d => ({ id: d.id, name: d.name, legend: this.legendNameOf(d) });
@@ -197,11 +278,10 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  DECK IMPORT  (Import-Deck port - operates on a stored record's rows
-  //  instead of reading a CSV file)
+  //  DECK RESOLUTION  (a stored record's rows -> a playable deck)
   // --------------------------------------------------------------------
   async getResolvedDeck(deckId) {
-    const record = await idbGet(this.db, STORE_DECKS, deckId);
+    const record = await this.store.get(deckId);
     if (!record) throw new Error(`Deck not found: ${deckId}`);
     return this.resolveDeck(record);
   }
@@ -285,7 +365,7 @@ class Engine {
   }
 
   categoryFromDeckId(deckId) {
-    // Get-CategoryFromDeckId port: second-to-last path segment.
+    // Second-to-last path segment ("Opponents/Aggro/Foo" -> "Aggro").
     if (!deckId) return null;
     const parts = deckId.split('/');
     if (parts.length >= 2) return parts[parts.length - 2];
@@ -293,9 +373,7 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  PLAYER STATE / SINGLE GAME  (New-PlayerState, Invoke-Draw,
-  //  Invoke-LegendAbilityTrigger, Invoke-MainPhase, Invoke-CombatStep,
-  //  Get-LossReason, Invoke-SingleGame)
+  //  PLAYER STATE / SINGLE GAME
   // --------------------------------------------------------------------
   newPlayerState(deck, label) {
     return {
@@ -559,7 +637,7 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  OPTIMIZATION STATS  (Get-OptimizationStats)
+  //  OPTIMIZATION STATS
   // --------------------------------------------------------------------
   optimizationStats(deck, gameResults) {
     const allNonBasic = deck.Cards.filter(c => !['Legend', 'Rune', 'Battlefield'].includes(c.Type));
@@ -604,7 +682,7 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  MATCHUP RECOMMENDATION + SIDEBOARD  (Get-MatchupRecommendation)
+  //  MATCHUP RECOMMENDATION + SIDEBOARD
   // --------------------------------------------------------------------
   matchupRecommendation(myDeck, opponentDeck, gameResults, opponentCategory = null, maxSideboardCards = 10) {
     const lossCategories = gameResults
@@ -726,8 +804,7 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  BATCHES / MATCHES / MATRIX  (Invoke-GameBatch, Invoke-Match,
-  //  Invoke-MatchBatch, Get-MatchupMatrix)
+  //  BATCHES / MATCHES / MATRIX
   // --------------------------------------------------------------------
   gameBatch(deckA, deckB, gameCount = 50) {
     const results = [];
@@ -758,7 +835,7 @@ class Engine {
   }
 
   async matchupMatrixRows(myDeck, gameCount = 50) {
-    const all = await idbGetAll(this.db, STORE_DECKS);
+    const all = await this.store.all();
     const opponents = all.filter(d => !d.isMyDeck);
     const rows = [];
     for (const record of opponents) {
@@ -771,8 +848,8 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  TEXT-LIST DECK IMPORT  (ConvertFrom-DeckText, Resolve-DeckList,
-  //  Export-DeckCsv -> saved to IndexedDB instead of a CSV file)
+  //  TEXT-LIST DECK IMPORT  (parse -> resolve against the card database ->
+  //  save through the deck store)
   // --------------------------------------------------------------------
   parseDeckText(text) {
     const sectionHeaderOnly = /^(?:Legend|Legends|Battlefield|Battlefields|Rune|Runes|Main ?Deck|Unit|Units|Spell|Spells|Gear)\s*:?\s*$/i;
@@ -861,9 +938,8 @@ class Engine {
   }
 
   // ========================================================================
-  //  PUBLIC API — mirrors WebServer.ps1's /api/* handlers exactly, same
-  //  camelCase JSON shapes, so app.js's existing render*() functions don't
-  //  need to change at all.
+  //  PUBLIC API — what app.js calls. Results use camelCase JSON shapes,
+  //  consumed by app.js's render*() functions.
   // ========================================================================
 
   async simulate(myDeckId, opponentDeckId, gameCount = 50, sideboardSize = 10) {
@@ -972,7 +1048,7 @@ class Engine {
     }
 
     const id = category === 'MyDeck' ? `MyDeck/${safeName}` : `Opponents/${category}/${safeName}`;
-    const existing = await idbGet(this.db, STORE_DECKS, id);
+    const existing = await this.store.get(id);
     const overwritten = !!existing;
 
     const parsed = this.parseDeckText(text);
@@ -992,12 +1068,12 @@ class Engine {
       isMyDeck: category === 'MyDeck',
       rows: resolved.Rows,
     };
-    await idbPut(this.db, STORE_DECKS, record);
+    await this.store.put(record);
 
     return {
       success: true,
       deckId: id,
-      fileName: `${safeName}.csv`,
+      fileName: this.store.kind === 'files' ? `Decks/${id}.csv` : record.name,
       overwritten,
       category,
       cardsMatched: resolved.Rows.length,
@@ -1010,8 +1086,7 @@ class Engine {
   }
 
   // --------------------------------------------------------------------
-  //  PAYLOAD SHAPING  (Get-OptimizationPayload, Get-DecklistPayload,
-  //  Get-RecommendationPayload)
+  //  PAYLOAD SHAPING
   // --------------------------------------------------------------------
   optimizationPayload(deck, gameResults) {
     const raw = this.optimizationStats(deck, gameResults);

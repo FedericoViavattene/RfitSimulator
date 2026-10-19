@@ -1,7 +1,7 @@
 # Riftbound Keyword Glossary (Core Rules 800-829)
 
 Quick reference for the keywords you'll see on real cards. The simulator itself
-only understands the four simplified Tags described in RiftboundSim.ps1
+only understands the four simplified Tags described in README.md
 (Remove/Buff/Draw/Shield) - this file is for YOU, so that when you look at the
 simulator's output ("this card was never played" or "you're losing board Might")
 you can reason about which real keyword on that card would matter in an actual

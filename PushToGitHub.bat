@@ -30,6 +30,9 @@ if errorlevel 1 (
     git remote add origin https://github.com/FedericoViavattene/RfitSimulator.git
 )
 
+REM Refresh the phone app's starting decks (docs\decks.json) from Decks\*.csv.
+powershell -NoProfile -ExecutionPolicy Bypass -File "UpdatePhoneDecks.ps1"
+
 git add -A
 git commit -m "Update RiftboundSimulator - %date% %time%"
 git push -u origin main

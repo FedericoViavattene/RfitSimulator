@@ -1,426 +1,72 @@
 <#
 .SYNOPSIS
-    Local web UI for the Riftbound Deck Simulator. Runs a small HTTP server on
-    your own machine (nothing leaves your computer) and serves a browser page
-    that drives the exact same simulation engine as RiftboundSim.ps1.
+    Runs the Riftbound Deck Simulator on this PC: serves the app in docs/ on
+    http://localhost and gives it read/write access to the Decks\*.csv files.
 
 .DESCRIPTION
+    The simulator itself is docs/engine.js and runs inside the browser - the
+    exact same code the phone app runs from GitHub Pages. This server only
+    does two things:
+    - serves the docs/ folder (index.html, app.js, engine.js, card data...)
+    - GET /api/decks returns every deck CSV under Decks\ and PUT /api/decks
+      saves one (used by "Import a deck"), so on the PC the CSV files stay the
+      source of truth instead of the browser's own storage.
+    engine.js detects /api/decks and uses it; on the phone it isn't there, so
+    decks live in the browser's IndexedDB instead.
+
     This does NOT make the simulator reachable from the internet or from
     other devices - it only listens on http://localhost, which only your own
-    computer can reach. Think of it as a nicer-looking replacement for the
-    console UI, not a hosted website.
+    computer can reach.
 
     Uses .NET's built-in HttpListener - no extra software (Python, Node, IIS)
     needs to be installed. Binding to "localhost" specifically (rather than a
     wildcard address) avoids needing Administrator rights on Windows.
 
+.PARAMETER NoBrowser
+    Don't open the browser automatically (e.g. when something else opens it).
+
 .NOTES
-    Run this via RunWebUI.bat (recommended - it also opens your browser for
-    you), or manually with:
+    Run this via RunWebUI.bat (recommended), or manually with:
         cd "C:\path\to\RiftboundSimulator"
         .\WebServer.ps1
-    Then open http://localhost:8787 in your browser. Press Ctrl+C in this
-    window (or just close it) to stop the server.
+    It opens your browser on the right address by itself. Press Ctrl+C in
+    this window (or just close it) to stop the server.
 #>
+param([switch]$NoBrowser)
 
 # ============================================================================
 #  SETUP
 # ============================================================================
-$Script:Port            = 8787
-$Script:RootPath        = $PSScriptRoot
-$Script:WebRoot         = Join-Path $RootPath 'web'
-$Script:MyDeckFolder    = Join-Path $RootPath 'Decks\MyDeck'
-$Script:OpponentFolder  = Join-Path $RootPath 'Decks\Opponents'
-$Script:BannedFile      = Join-Path $RootPath 'Banned.csv'
-$Script:CardDatabaseFile = Join-Path $RootPath 'CardDatabase.json'
-$Script:GamesToSimulate = 50
-$Script:MatchesToSimulate = 20   # for the "best-of-3 match" mode
-$Script:BestOf            = 3
-$Script:SideboardSize     = 10   # max cards suggested per matchup recommendation
+$Script:Port      = 8787
+$Script:RootPath  = $PSScriptRoot
+$Script:WebRoot   = Join-Path $RootPath 'docs'
+$Script:DecksRoot = Join-Path $RootPath 'Decks'
 
-Import-Module (Join-Path $PSScriptRoot 'RiftboundEngine.psm1') -Force
-
-# Loaded once at startup and reused for every /api/import-deck request -
-# it's a ~1000-card lookup table, no reason to re-parse the JSON per request.
-$Script:CardDatabase = Import-CardDatabase -Path $Script:CardDatabaseFile
+Import-Module (Join-Path $PSScriptRoot 'DeckFiles.psm1') -Force
 
 # ============================================================================
-#  DECK ID <-> PATH HELPERS
-#  (the browser only ever sees a relative "id" like "Decks/MyDeck/Foo.csv",
-#  never a real filesystem path - Resolve-DeckId turns that back into a real
-#  path and refuses anything that would escape the simulator's own folder)
-# ============================================================================
-function Get-DeckId {
-    param([string]$FullPath)
-    $resolvedRoot = [System.IO.Path]::GetFullPath($Script:RootPath)
-    $rel = $FullPath.Substring($resolvedRoot.Length).TrimStart('\', '/')
-    return ($rel -replace '\\', '/')
-}
-
-function Resolve-DeckId {
-    param([string]$Id)
-    if (-not $Id) { throw "Missing deck id." }
-    $normalized = $Id -replace '/', '\'
-    $resolvedRoot = [System.IO.Path]::GetFullPath($Script:RootPath)
-    $fullPath = [System.IO.Path]::GetFullPath((Join-Path $resolvedRoot $normalized))
-    if (-not $fullPath.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Invalid deck id."
-    }
-    if (-not (Test-Path $fullPath)) {
-        throw "Deck file not found: $Id"
-    }
-    return $fullPath
-}
-
-function Get-CategoryFromDeckId {
-    <#
-        Pulls the archetype folder ("Aggro"/"Midrange"/"Control") straight out
-        of a deck id like "Decks/Opponents/Aggro/Foo.csv" without touching the
-        filesystem again - used to feed Get-MatchupRecommendation the same
-        category the console picks up from the folder a deck was loaded from.
-        Returns "MyDeck" (or whatever) for anything outside Decks/Opponents/*,
-        which Get-MatchupRecommendation already treats as "unrecognized" and
-        falls back to inferring from the deck's own curve.
-    #>
-    param([string]$DeckId)
-    if (-not $DeckId) { return $null }
-    $parts = @(($DeckId -replace '\\', '/') -split '/')
-    if ($parts.Count -ge 2) { return $parts[-2] }
-    return $null
-}
-
-# ============================================================================
-#  API: GET /api/decks
-# ============================================================================
-function Get-DeckLegendName {
-    <#
-        Peeks at a deck CSV just far enough to read its Legend row's real
-        Name (e.g. "Rengar, Pridestalker") for the web UI's deck-picker
-        mosaic, without running it through the full Import-Deck resolution
-        pipeline. Falls back to the file-derived display name if the CSV
-        has no Legend row for some reason - never breaks the deck list over
-        a missing/malformed row.
-    #>
-    param([string]$Path, [string]$FallbackName)
-    try {
-        $legendRow = Import-Csv -Path $Path -ErrorAction Stop | Where-Object { $_.Type -eq 'Legend' } | Select-Object -First 1
-        if ($legendRow -and $legendRow.Name) { return $legendRow.Name }
-    } catch { }
-    return $FallbackName
-}
-
-function Get-DecksPayload {
-    $myDecks = @(Get-DeckFileList -FolderPath $Script:MyDeckFolder | ForEach-Object {
-        [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
-    })
-
-    $opponentFiles = Get-DeckFileList -FolderPath $Script:OpponentFolder -Recurse
-    $opponents = [ordered]@{}
-    foreach ($cat in @('Aggro', 'Midrange', 'Control')) {
-        $inCat = @($opponentFiles | Where-Object { $_.Category -eq $cat } | ForEach-Object {
-            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
-        })
-        if ($inCat.Count -gt 0) { $opponents[$cat] = $inCat }
-    }
-    # Any category outside the three known ones still gets listed, so a new
-    # subfolder doesn't silently disappear from the web UI.
-    $otherCats = $opponentFiles | Select-Object -ExpandProperty Category -Unique | Where-Object { $_ -notin @('Aggro', 'Midrange', 'Control') }
-    foreach ($cat in $otherCats) {
-        $inCat = @($opponentFiles | Where-Object { $_.Category -eq $cat } | ForEach-Object {
-            [PSCustomObject]@{ id = (Get-DeckId $_.Path); name = $_.Name; legend = (Get-DeckLegendName -Path $_.Path -FallbackName $_.Name) }
-        })
-        $opponents[$cat] = $inCat
-    }
-
-    return [PSCustomObject]@{
-        myDecks   = $myDecks
-        opponents = $opponents
-    }
-}
-
-# ============================================================================
-#  SHARED PAYLOAD HELPERS
-#  (used by /api/simulate, /api/simulate-match and /api/matchup-matrix so the
-#  camelCase JSON shape - and the CSV-loading path - only lives in one place)
-# ============================================================================
-function Get-OptimizationPayload {
-    param([object]$Deck, [object[]]$GameResults)
-
-    $rawStats = Get-OptimizationStats -Deck $Deck -GameResults $GameResults
-    # Get-OptimizationStats (shared with the console UI) returns PascalCase
-    # property names (MostPlayed, NeverPlayed, ...). The web front-end's
-    # JSON API is camelCase everywhere else, and JSON property access in
-    # JavaScript is case-sensitive, so this maps it to camelCase here rather
-    # than changing the shared engine (which would break the console script's
-    # own PascalCase usage in Show-OptimizationReport).
-    return [PSCustomObject]@{
-        mostPlayed      = @($rawStats.MostPlayed | ForEach-Object { [PSCustomObject]@{ name = $_.Name; count = $_.Count } })
-        neverPlayed     = $rawStats.NeverPlayed
-        averageEnergy   = $rawStats.AverageEnergy
-        curveSuggestion = $rawStats.CurveSuggestion
-    }
-}
-
-function Get-DecklistPayload {
-    param([object]$Deck)
-
-    # Same grouping/order as the console's Show-Decklist, for the "view
-    # opponent decklist" panel.
-    $typeOrder = @('Legend', 'Battlefield', 'Rune', 'Unit', 'Spell', 'Gear')
-    $grouped = $Deck.DisplayRows | Group-Object Type
-    $decklistGroups = [ordered]@{}
-    foreach ($t in $typeOrder) {
-        $group = $grouped | Where-Object { $_.Name -eq $t }
-        if (-not $group) { continue }
-        $decklistGroups[$t] = @($group.Group | Sort-Object Name | ForEach-Object {
-            [PSCustomObject]@{
-                quantity = $_.Quantity
-                name     = $_.Name
-                energy   = $_.Energy
-                power    = $_.Power
-                might    = $_.Might
-                domain   = $_.Domain
-                tag      = $_.Tag
-            }
-        })
-    }
-
-    return [PSCustomObject]@{
-        name   = ($Deck.Name -replace '_', ' ')
-        groups = $decklistGroups
-    }
-}
-
-function Get-RecommendationPayload {
-    param([object]$Recommendation)
-
-    return [PSCustomObject]@{
-        opponentCategory      = $Recommendation.OpponentCategory
-        opponentAverageEnergy = $Recommendation.OpponentAverageEnergy
-        primaryConcern        = $Recommendation.PrimaryConcern
-        advice                = $Recommendation.Advice
-        sideboardIn           = @($Recommendation.SideboardIn | ForEach-Object {
-            [PSCustomObject]@{ name = $_.Name; type = $_.Type; energy = $_.Energy; might = $_.Might; domain = $_.Domain }
-        })
-        sideboardOut          = @($Recommendation.SideboardOut | ForEach-Object {
-            [PSCustomObject]@{ name = $_.Name; type = $_.Type; energy = $_.Energy; might = $_.Might; domain = $_.Domain; timesPlayed = $_.TimesPlayed }
-        })
-    }
-}
-
-function Import-DeckForRequest {
-    <#
-        Resolves a browser-supplied deck id to a real path and loads it with
-        the card database + banned list already wired in - the same three
-        lines were repeated at the top of every request handler below.
-    #>
-    param([string]$DeckId, [System.Collections.Generic.HashSet[string]]$BannedList)
-
-    $path = Resolve-DeckId -Id $DeckId
-    return Import-Deck -Path $path -BannedList $BannedList -CardDatabase $Script:CardDatabase
-}
-
-# ============================================================================
-#  API: POST /api/simulate
-# ============================================================================
-function Invoke-SimulationRequest {
-    param([object]$Body)
-
-    $bannedList = Get-BannedList -Path $Script:BannedFile
-    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
-    $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
-    $opponentCategory = Get-CategoryFromDeckId -DeckId $Body.opponentDeckId
-
-    $batch = Invoke-GameBatch -DeckA $myDeck -DeckB $opponentDeck -GameCount $Script:GamesToSimulate
-
-    $games = @()
-    $gameNum = 0
-    foreach ($r in $batch.Results) {
-        $gameNum++
-        $games += [PSCustomObject]@{
-            n          = $gameNum
-            win        = ($r.Winner -eq "You")
-            scoreA     = $r.ScoreA
-            scoreB     = $r.ScoreB
-            lossReason = $r.LossReason.Text
-        }
-    }
-
-    return [PSCustomObject]@{
-        myDeckName             = ($myDeck.Name -replace '_', ' ')
-        opponentDeckName       = ($opponentDeck.Name -replace '_', ' ')
-        bannedExcludedMy       = $myDeck.BannedExcluded
-        bannedExcludedOpponent = $opponentDeck.BannedExcluded
-        wins                   = $batch.Wins
-        totalGames             = $batch.GameCount
-        winrate                = $batch.Winrate
-        games                  = $games
-        optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $batch.Results)
-        opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
-        recommendation         = (Get-RecommendationPayload -Recommendation (Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $batch.Results -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize))
-    }
-}
-
-# ============================================================================
-#  API: POST /api/simulate-match
-#  Best-of-BestOf match simulation (see Invoke-MatchBatch in the engine) -
-#  reports the match-level winrate, not just the per-game winrate.
-# ============================================================================
-function Invoke-MatchSimulationRequest {
-    param([object]$Body)
-
-    $bannedList = Get-BannedList -Path $Script:BannedFile
-    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
-    $opponentDeck = Import-DeckForRequest -DeckId $Body.opponentDeckId -BannedList $bannedList
-    $opponentCategory = Get-CategoryFromDeckId -DeckId $Body.opponentDeckId
-
-    $matchBatch = Invoke-MatchBatch -DeckA $myDeck -DeckB $opponentDeck -MatchCount $Script:MatchesToSimulate -BestOf $Script:BestOf
-
-    $matches = @()
-    $matchNum = 0
-    $allGames = New-Object 'System.Collections.Generic.List[object]'
-    foreach ($match in $matchBatch.Matches) {
-        $matchNum++
-        $matches += [PSCustomObject]@{
-            n          = $matchNum
-            win        = ($match.Winner -eq "You")
-            gamesWonA  = $match.GamesWonA
-            gamesWonB  = $match.GamesWonB
-        }
-        foreach ($g in $match.Games) { $allGames.Add($g) }
-    }
-
-    return [PSCustomObject]@{
-        myDeckName             = ($myDeck.Name -replace '_', ' ')
-        opponentDeckName       = ($opponentDeck.Name -replace '_', ' ')
-        bannedExcludedMy       = $myDeck.BannedExcluded
-        bannedExcludedOpponent = $opponentDeck.BannedExcluded
-        bestOf                 = $matchBatch.BestOf
-        matchWins              = $matchBatch.MatchWins
-        matchCount             = $matchBatch.MatchCount
-        matchWinrate           = $matchBatch.MatchWinrate
-        matches                = $matches
-        optimization           = (Get-OptimizationPayload -Deck $myDeck -GameResults $allGames)
-        opponentDecklist       = (Get-DecklistPayload -Deck $opponentDeck)
-        recommendation         = (Get-RecommendationPayload -Recommendation (Get-MatchupRecommendation -MyDeck $myDeck -OpponentDeck $opponentDeck -GameResults $allGames -CardDatabase $Script:CardDatabase -OpponentCategory $opponentCategory -MaxSideboardCards $Script:SideboardSize))
-    }
-}
-
-# ============================================================================
-#  API: POST /api/matchup-matrix
-#  Runs MyDeck against every saved opponent deck at once (see
-#  Get-MatchupMatrix in the engine) - a "how do I stack up against the whole
-#  meta" view instead of one matchup at a time.
-# ============================================================================
-function Invoke-MatchupMatrixRequest {
-    param([object]$Body)
-
-    $bannedList = Get-BannedList -Path $Script:BannedFile
-    $myDeck = Import-DeckForRequest -DeckId $Body.myDeckId -BannedList $bannedList
-
-    $rows = Get-MatchupMatrix -MyDeck $myDeck -OpponentFolderPath $Script:OpponentFolder -BannedList $bannedList -CardDatabase $Script:CardDatabase -GameCount $Script:GamesToSimulate
-
-    $averageWinrate = 0
-    if ($rows.Count -gt 0) {
-        $averageWinrate = [Math]::Round((($rows | Measure-Object -Property Winrate -Average).Average), 1)
-    }
-
-    return [PSCustomObject]@{
-        myDeckName      = ($myDeck.Name -replace '_', ' ')
-        bannedExcludedMy = $myDeck.BannedExcluded
-        rows            = @($rows | ForEach-Object {
-            [PSCustomObject]@{
-                name     = $_.Name
-                category = $_.Category
-                winrate  = $_.Winrate
-                wins     = $_.Wins
-                total    = $_.Total
-            }
-        })
-        averageWinrate  = $averageWinrate
-    }
-}
-
-# ============================================================================
-#  API: POST /api/import-deck
-#  Turns a pasted plain-text decklist into a real CSV under Decks\MyDeck or
-#  Decks\Opponents\<category>, using CardDatabase.json to look up every
-#  card's real Type/Energy/Power/Might/Domain - see Resolve-DeckList in
-#  RiftboundEngine.psm1 for the actual parsing/lookup/legality-check logic.
-# ============================================================================
-function Invoke-ImportDeckRequest {
-    param([object]$Body)
-
-    $text = [string]$Body.text
-    if ([string]::IsNullOrWhiteSpace($text)) {
-        throw "No decklist text was provided."
-    }
-
-    $category = [string]$Body.category
-    $validCategories = @('MyDeck', 'Aggro', 'Midrange', 'Control')
-    if ($category -notin $validCategories) {
-        throw "Invalid destination '$category'. Must be one of: $($validCategories -join ', ')."
-    }
-
-    $rawName = [string]$Body.deckName
-    if ([string]::IsNullOrWhiteSpace($rawName)) { $rawName = 'Imported Deck' }
-    $safeName = ($rawName -replace "[^A-Za-z0-9 ,'-]", '') -replace '\s+', '_'
-    $safeName = $safeName.Trim('_')
-    if (-not $safeName) { $safeName = 'Imported_Deck_' + (Get-Date -Format 'yyyyMMdd_HHmmss') }
-
-    $targetFolder = if ($category -eq 'MyDeck') { $Script:MyDeckFolder } else { Join-Path $Script:OpponentFolder $category }
-    if (-not (Test-Path $targetFolder)) { New-Item -Path $targetFolder -ItemType Directory -Force | Out-Null }
-    $targetPath = Join-Path $targetFolder ($safeName + '.csv')
-    $overwritten = Test-Path $targetPath
-
-    $lines = @($text -split "`r`n|`n|`r")
-    $parsed = ConvertFrom-DeckText -Lines $lines
-    if ($parsed.Count -eq 0) {
-        throw "Couldn't find any card lines in that text - expected one card per line, like '1 Rengar, Pridestalker' or '3x Inferna'."
-    }
-
-    $resolved = Resolve-DeckList -Parsed $parsed -CardDatabase $Script:CardDatabase
-    if ($resolved.Rows.Count -eq 0) {
-        throw "None of the lines matched a real card - check the spelling against the official card gallery."
-    }
-
-    Export-DeckCsv -Rows $resolved.Rows -Path $targetPath
-
-    return [PSCustomObject]@{
-        success          = $true
-        deckId           = (Get-DeckId $targetPath)
-        fileName         = ($safeName + '.csv')
-        overwritten      = $overwritten
-        category         = $category
-        cardsMatched     = $resolved.Rows.Count
-        legendCount      = $resolved.LegendCount
-        runeTotal        = $resolved.RuneTotal
-        battlefieldCount = $resolved.BattlefieldCount
-        mainDeckTotal    = $resolved.MainDeckTotal
-        warnings         = @($resolved.Warnings)
-    }
-}
-
-# ============================================================================
-#  STATIC FILE SERVING
+#  RESPONSES
 # ============================================================================
 function Get-ContentType {
     param([string]$Extension)
     switch ($Extension.ToLowerInvariant()) {
-        '.html' { return 'text/html; charset=utf-8' }
-        '.css'  { return 'text/css; charset=utf-8' }
-        '.js'   { return 'application/javascript; charset=utf-8' }
-        '.json' { return 'application/json; charset=utf-8' }
-        '.svg'  { return 'image/svg+xml' }
-        '.ico'  { return 'image/x-icon' }
-        default { return 'application/octet-stream' }
+        '.html'        { return 'text/html; charset=utf-8' }
+        '.css'         { return 'text/css; charset=utf-8' }
+        '.js'          { return 'application/javascript; charset=utf-8' }
+        '.json'        { return 'application/json; charset=utf-8' }
+        '.webmanifest' { return 'application/manifest+json; charset=utf-8' }
+        '.svg'         { return 'image/svg+xml' }
+        '.png'         { return 'image/png' }
+        '.webp'        { return 'image/webp' }
+        '.ico'         { return 'image/x-icon' }
+        default        { return 'application/octet-stream' }
     }
 }
 
 function Send-FileResponse {
     param([System.Net.HttpListenerResponse]$Response, [string]$FilePath)
 
-    if (-not (Test-Path $FilePath)) {
+    if (-not (Test-Path $FilePath -PathType Leaf)) {
         $Response.StatusCode = 404
         $bytes = [System.Text.Encoding]::UTF8.GetBytes("404 Not Found")
         $Response.ContentLength64 = $bytes.Length
@@ -429,6 +75,8 @@ function Send-FileResponse {
     }
     $bytes = [System.IO.File]::ReadAllBytes($FilePath)
     $Response.ContentType = Get-ContentType ([System.IO.Path]::GetExtension($FilePath))
+    # Always revalidate, so an edit to a file under docs/ shows up on the next reload.
+    $Response.AddHeader('Cache-Control', 'no-cache')
     $Response.ContentLength64 = $bytes.Length
     $Response.OutputStream.Write($bytes, 0, $bytes.Length)
 }
@@ -437,17 +85,19 @@ function Send-JsonResponse {
     param([System.Net.HttpListenerResponse]$Response, [object]$Data, [int]$StatusCode = 200)
 
     $Response.StatusCode = $StatusCode
-    $json = $Data | ConvertTo-Json -Depth 8
+    # -InputObject (not the pipeline) so a one-element array stays an array.
+    $json = ConvertTo-Json -InputObject $Data -Depth 8
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
     $Response.ContentType = 'application/json; charset=utf-8'
+    $Response.AddHeader('Cache-Control', 'no-store')
     $Response.ContentLength64 = $bytes.Length
     $Response.OutputStream.Write($bytes, 0, $bytes.Length)
 }
 
 function Get-RequestBody {
     param([System.Net.HttpListenerRequest]$Request)
-    $encoding = if ($Request.ContentEncoding) { $Request.ContentEncoding } else { [System.Text.Encoding]::UTF8 }
-    $reader = New-Object System.IO.StreamReader($Request.InputStream, $encoding)
+    # engine.js always sends UTF-8 JSON (card names can carry curly quotes).
+    $reader = New-Object System.IO.StreamReader($Request.InputStream, [System.Text.Encoding]::UTF8)
     $text = $reader.ReadToEnd()
     $reader.Close()
     if ([string]::IsNullOrWhiteSpace($text)) { return $null }
@@ -520,12 +170,14 @@ Write-Host ""
 Write-Host "  Press Ctrl+C or close this window to stop the server." -ForegroundColor DarkGray
 Write-Host ""
 
-try {
-    Start-Process $prefix | Out-Null
-}
-catch {
-    Write-Host "  (Could not open your browser automatically - open $prefix manually.)" -ForegroundColor Yellow
-    Write-Host ""
+if (-not $NoBrowser) {
+    try {
+        Start-Process $prefix | Out-Null
+    }
+    catch {
+        Write-Host "  (Could not open your browser automatically - open $prefix manually.)" -ForegroundColor Yellow
+        Write-Host ""
+    }
 }
 
 try {
@@ -540,40 +192,25 @@ try {
 
         try {
             if ($method -eq 'GET' -and $path -eq '/api/decks') {
-                Send-JsonResponse -Response $response -Data (Get-DecksPayload)
+                Send-JsonResponse -Response $response -Data (Get-DeckRecords -DecksRoot $Script:DecksRoot)
             }
-            elseif ($method -eq 'POST' -and $path -eq '/api/simulate') {
-                $body = Get-RequestBody -Request $request
-                $result = Invoke-SimulationRequest -Body $body
-                Send-JsonResponse -Response $response -Data $result
-            }
-            elseif ($method -eq 'POST' -and $path -eq '/api/simulate-match') {
-                $body = Get-RequestBody -Request $request
-                $result = Invoke-MatchSimulationRequest -Body $body
-                Send-JsonResponse -Response $response -Data $result
-            }
-            elseif ($method -eq 'POST' -and $path -eq '/api/matchup-matrix') {
-                $body = Get-RequestBody -Request $request
-                $result = Invoke-MatchupMatrixRequest -Body $body
-                Send-JsonResponse -Response $response -Data $result
-            }
-            elseif ($method -eq 'POST' -and $path -eq '/api/import-deck') {
-                $body = Get-RequestBody -Request $request
-                $result = Invoke-ImportDeckRequest -Body $body
-                Send-JsonResponse -Response $response -Data $result
+            elseif ($method -eq 'PUT' -and $path -eq '/api/decks') {
+                $record = Get-RequestBody -Request $request
+                if (-not $record) { throw "No deck was sent." }
+                $overwritten = Save-DeckRecord -DecksRoot $Script:DecksRoot -Record $record
+                Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ saved = $true; id = $record.id; overwritten = $overwritten })
             }
             elseif ($method -eq 'GET' -and $path -eq '/favicon.ico') {
-                # No icon file is shipped; respond with "no content" instead of a
-                # 404 so it doesn't show up as an error in the browser console.
+                # No .ico is shipped (index.html points at icons/icon-192.png);
+                # answer "no content" so it doesn't log as an error.
                 $response.StatusCode = 204
                 $statusLine = "204"
             }
             elseif ($method -eq 'GET') {
-                $relative = if ($path -eq '/') { 'index.html' } else { $path.TrimStart('/') }
-                $filePath = Join-Path $Script:WebRoot $relative
-                $resolvedRoot = [System.IO.Path]::GetFullPath($Script:WebRoot)
-                $resolvedFile = [System.IO.Path]::GetFullPath($filePath)
-                if (-not $resolvedFile.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+                $relative = if ($path -eq '/') { 'index.html' } else { [System.Uri]::UnescapeDataString($path.TrimStart('/')) }
+                $resolvedRoot = [System.IO.Path]::GetFullPath($Script:WebRoot).TrimEnd('\')
+                $resolvedFile = [System.IO.Path]::GetFullPath((Join-Path $resolvedRoot $relative))
+                if (-not $resolvedFile.StartsWith($resolvedRoot + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
                     $response.StatusCode = 403
                     $statusLine = "403"
                 } else {

@@ -24,7 +24,7 @@ simulator only models aggregate numbers and a handful of simplified Tags
 card, none of the CSVs needed to change because of errata.
 
 Note: "Draven, Vanquisher" (Spiritforged) is a different, non-banned card from
-the banned card "Draven Vanquisher" listed in Banned.csv - double-check the
+the banned card "Draven Vanquisher" listed in docs/banned.json - double-check the
 exact card name/set if you're building a Draven deck, since the banned card
 and the errata'd card can be easy to confuse by name alone.
 

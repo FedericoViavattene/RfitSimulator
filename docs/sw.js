@@ -9,7 +9,7 @@
   bump it means a phone that already has the app installed keeps the old
   version even after GitHub Pages has the new one.
 */
-const CACHE_NAME = 'riftbound-sim-v3';
+const CACHE_NAME = 'riftbound-sim-v4';
 
 const CORE_ASSETS = [
   '.',
@@ -47,6 +47,9 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  // The PC's deck files (WebServer.ps1's api/decks) are always read live,
+  // never cached.
+  if (new URL(req.url).pathname.includes('/api/')) return;
 
   if (req.mode === 'navigate') {
     // Page loads: try the network first so a phone with signal always gets

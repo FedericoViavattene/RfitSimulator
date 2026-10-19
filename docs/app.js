@@ -67,6 +67,7 @@ const importText = document.getElementById('importText');
 const importBtn = document.getElementById('importBtn');
 const importStatus = document.getElementById('importStatus');
 const importResult = document.getElementById('importResult');
+const importStorageNote = document.getElementById('importStorageNote');
 
 // Cached, richer copies of the last engine.listDecks() payload (id + name +
 // legend), kept alongside the plain <select> elements above. The selects
@@ -450,7 +451,7 @@ function renderImportResult(data) {
   html += `<div class="import-summary">${data.cardsMatched} card row(s) matched - `
     + `${data.legendCount} Legend, ${data.battlefieldCount} Battlefield(s), `
     + `${data.runeTotal} Rune(s), ${data.mainDeckTotal} Main Deck card(s)`
-    + `${data.overwritten ? ' (replaced an existing deck with this name on this device)' : ''}.</div>`;
+    + `${data.overwritten ? ' (replaced an existing deck with this name)' : ''}.</div>`;
 
   if (data.warnings && data.warnings.length) {
     html += '<ul>' + data.warnings.map(w => `<li>${w}</li>`).join('') + '</ul>';
@@ -553,7 +554,7 @@ function initPillNav(navEl, panelsContainer) {
 // Official card art, hotlinked from Piltover Archive's public card database
 // (https://piltoverarchive.com) - a fan-run card gallery for this game, not
 // something we host. Keyed by the exact Legend name as it appears on that
-// Legend's own row (CardDatabase.json / the deck's Legend row). If a
+// Legend's own row (carddatabase.json / the deck's Legend row). If a
 // newly-added Legend has no entry here, its tile just falls back to a plain
 // initial-letter placeholder - nothing breaks, and it's a one-line add here
 // once you know the real card art URL. Add new legends here as they're added.
@@ -844,6 +845,25 @@ function registerServiceWorker() {
   });
 }
 
+// On the PC (WebServer.ps1) there's nothing to cache for offline use, and a
+// cache-first service worker would keep serving old copies of files edited
+// on disk - so drop any registration a previous static serve of docs/ on
+// this same address may have left behind.
+function unregisterServiceWorkers() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.getRegistrations()
+    .then(regs => regs.forEach(reg => reg.unregister()))
+    .catch(() => {});
+}
+
+// ===================== Storage-specific wording =====================
+
+function applyStorageKindToUi() {
+  if (engine.storageKind === 'files' && importStorageNote) {
+    importStorageNote.textContent = 'Imported decks are saved as CSV files under the Decks folder on this PC.';
+  }
+}
+
 // ===================== Startup =====================
 
 async function start() {
@@ -869,8 +889,6 @@ async function start() {
   window.addEventListener('offline', updateOfflineNotice);
   updateOfflineNotice();
 
-  registerServiceWorker();
-
   setStatus('Setting up...');
   try {
     await engine.init();
@@ -878,6 +896,10 @@ async function start() {
     setStatus('Could not start the simulator: ' + err.message, true);
     return;
   }
+
+  if (engine.storageKind === 'files') unregisterServiceWorkers();
+  else registerServiceWorker();
+  applyStorageKindToUi();
 
   simulateBtn.disabled = false;
   await loadDecks();
