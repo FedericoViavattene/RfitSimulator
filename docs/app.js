@@ -8,10 +8,12 @@ const simulateBtn = document.getElementById('simulateBtn');
 const statusLine = document.getElementById('statusLine');
 const resultsSection = document.getElementById('results');
 
-// ---- Top-level nav (Simulate / Import) ----
+// ---- Top-level nav (Simulate / Meta / Journal / Decks / Import) ----
 const topNav = document.getElementById('topNav');
 const topPanels = {
   simulate: document.getElementById('panel-simulate'),
+  meta: document.getElementById('panel-meta'),
+  journal: document.getElementById('panel-journal'),
   decks: document.getElementById('panel-decks'),
   import: document.getElementById('panel-import'),
 };
@@ -141,9 +143,10 @@ async function loadDecks() {
       });
       opponentDeckSelect.appendChild(group);
     });
+    addMetaOpponentOption();
 
     if (myDecksCache.some(d => d.id === previousMy)) myDeckSelect.value = previousMy;
-    if (Object.values(opponentsCache).flat().some(d => d.id === previousOpponent)) opponentDeckSelect.value = previousOpponent;
+    if (opponentEntries().some(d => d.id === previousOpponent)) opponentDeckSelect.value = previousOpponent;
 
     if (!myDeckSelect.options.length || !opponentDeckSelect.options.length) {
       setStatus('No decks found - import one from the "Import" tab.', true);
@@ -157,7 +160,31 @@ async function loadDecks() {
     updateTriggerPreview('my');
     updateTriggerPreview('opponent');
     populateEditorDeckSelect();
+    populateMyDeckSelects();
   }
+}
+
+// The saved opponent decks, plus the tournament list picked from the Meta
+// tab (if any).
+function opponentEntries() {
+  const saved = Object.values(opponentsCache).flat();
+  return metaOpponentEntry ? saved.concat([metaOpponentEntry]) : saved;
+}
+
+// The "Your deck" pickers outside the Simulate tab (field test, journal).
+function populateMyDeckSelects() {
+  [fieldTestDeckSelect, jMyDeck, jCompareDeck].forEach(select => {
+    if (!select) return;
+    const keep = select.value || myDeckSelect.value;
+    select.innerHTML = '';
+    myDecksCache.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name;
+      select.appendChild(opt);
+    });
+    if (myDecksCache.some(d => d.id === keep)) select.value = keep;
+  });
 }
 
 function renderBannedWarnings(data, target) {
@@ -579,6 +606,9 @@ function initTopNav() {
     const btn = evt.target.closest('.top-nav-btn');
     if (!btn) return;
     showTopPanel(btn.dataset.panel);
+    // Tournament data and the journal load the first time their tab opens.
+    if (btn.dataset.panel === 'meta') openMetaPanel();
+    if (btn.dataset.panel === 'journal') openJournalPanel();
   });
 }
 
@@ -812,7 +842,7 @@ function updateTriggerPreview(target) {
   const select = target === 'my' ? myDeckSelect : opponentDeckSelect;
   const trigger = target === 'my' ? myDeckTrigger : opponentDeckTrigger;
   if (!select || !trigger) return;
-  const flatCache = target === 'my' ? myDecksCache : Object.values(opponentsCache).flat();
+  const flatCache = target === 'my' ? myDecksCache : opponentEntries();
   const deck = flatCache.find(d => d.id === select.value);
 
   if (!deck) {
@@ -1003,13 +1033,16 @@ function renderEditorChecks() {
     chip('Legend', `${check.legendCount}/1`, check.legendCount === 1)
     + chip('Battlefields', `${check.battlefieldCount}/3`, check.battlefieldCount === 3)
     + chip('Runes', `${check.runeTotal}/12`, check.runeTotal === 12)
-    + chip('Main deck', `${check.mainDeckTotal}/40+`, check.mainDeckTotal >= 40);
+    + chip('Main deck', `${check.mainDeckTotal}/40+`, check.mainDeckTotal >= 40)
+    + chip('Champion', check.champion ? '1/1' : '0/1', !!check.champion);
   editorProblems.innerHTML = check.problems.map(p => `<li>${escapeHtml(p)}</li>`).join('');
   editorProblems.classList.toggle('hidden', check.problems.length === 0);
 }
 
 function renderEditor() {
   let html = '';
+  const championOptions = engine.championOptions(editor.rows);
+  const chosen = engine.checkDeck(editor.rows).champion;
   EDITOR_TYPE_ORDER.forEach(type => {
     const indexes = editor.rows
       .map((r, i) => i)
@@ -1029,9 +1062,15 @@ function renderEditor() {
           : `<input type="text" class="editor-tag" data-index="${i}" value="${escapeHtml(r.Tag)}" placeholder="Tag" aria-label="Tag for ${escapeHtml(r.Name)}" autocomplete="off">`;
       }
       const keywords = info && info.keywords.length ? ` · ${info.keywords.join(', ')}` : '';
+      let championChip = '';
+      if (r.Name === chosen) {
+        championChip = '<span class="champion-chip chosen">Chosen Champion</span>';
+      } else if (championOptions.includes(r.Name)) {
+        championChip = `<button type="button" class="champion-chip" data-champion-index="${i}">Make Chosen Champion</button>`;
+      }
       html += `<div class="editor-row${tagInput ? ' has-tag' : ''}">`
         + `<div class="editor-card"><button type="button" class="card-link editor-card-name" data-card="${escapeHtml(r.Name)}" data-tag="${escapeHtml(r.Tag || '')}">${escapeHtml(r.Name)}</button>`
-        + `<span class="editor-card-stats">${escapeHtml(cardStatsText(r) + keywords)}</span></div>`
+        + `<span class="editor-card-stats">${escapeHtml(cardStatsText(r) + keywords)}</span>${championChip}</div>`
         + tagInput
         + `<div class="qty-control">`
         + `<button type="button" class="qty-btn" data-action="dec" data-index="${i}" aria-label="One less ${escapeHtml(r.Name)}">&minus;</button>`
@@ -1049,6 +1088,16 @@ function changeQuantity(index, delta) {
   const row = editor.rows[index];
   row.Quantity = (parseInt(row.Quantity, 10) || 0) + delta;
   if (row.Quantity <= 0) editor.rows.splice(index, 1);
+  markEditorDirty();
+  renderEditor();
+}
+
+// The engine takes the deck's first eligible row as the Chosen Champion, so
+// choosing one moves its row right after the Legend.
+function chooseChampion(index) {
+  const [row] = editor.rows.splice(index, 1);
+  const legendIndex = editor.rows.findIndex(r => r.Type === 'Legend');
+  editor.rows.splice(legendIndex + 1, 0, row);
   markEditorDirty();
   renderEditor();
 }
@@ -1162,6 +1211,11 @@ function initDeckEditor() {
   });
 
   editorRowsEl.addEventListener('click', evt => {
+    const champion = evt.target.closest('[data-champion-index]');
+    if (champion) {
+      chooseChampion(Number(champion.dataset.championIndex));
+      return;
+    }
     const btn = evt.target.closest('.qty-btn');
     if (!btn) return;
     changeQuantity(Number(btn.dataset.index), btn.dataset.action === 'inc' ? 1 : -1);
@@ -1223,7 +1277,7 @@ let replayHeading = '';
 
 function closeOverlay(overlay) {
   overlay.classList.add('hidden');
-  if (![replayOverlay, cardOverlay, deckPickerOverlay].some(o => o && !o.classList.contains('hidden'))) {
+  if (![replayOverlay, cardOverlay, deckPickerOverlay, metaDeckOverlay].some(o => o && !o.classList.contains('hidden'))) {
     document.body.classList.remove('deck-picker-open');
   }
 }
@@ -1302,6 +1356,7 @@ const cardClose = document.getElementById('cardClose');
 const MODELED_LABEL = {
   text: 'Modeled from the card text',
   partial: 'Partly modeled from the card text',
+  keywords: 'Fully modeled - it has no rules text beyond its keywords',
   tag: 'Modeled from the deck\'s Tag',
   none: 'Its rules text isn\'t modeled - only its cost, Might and keywords count',
 };
@@ -1315,7 +1370,7 @@ function openCard(name, tag = '') {
     cardBody.innerHTML = `<div class="card-view">`
       + (info.imageUrl ? `<img class="card-view-img${info.type === 'Battlefield' ? ' landscape' : ''}" src="${info.imageUrl}" alt="${escapeHtml(info.name)}" referrerpolicy="no-referrer" onerror="this.remove()">` : '')
       + `<div class="card-view-info">`
-      + `<p class="card-view-type">${escapeHtml(info.type)}${info.code ? ` · ${escapeHtml(info.code)}` : ''}</p>`
+      + `<p class="card-view-type">${info.supertype && info.supertype !== 'Token' ? `${escapeHtml(info.supertype)} ` : ''}${escapeHtml(info.type)}${info.code ? ` · ${escapeHtml(info.code)}` : ''}</p>`
       + (info.keywords.length ? `<p class="card-view-keywords">${info.keywords.map(k => `<span class="count-chip">${escapeHtml(k)}</span>`).join(' ')}</p>` : '')
       + `<p class="card-view-modeled ${info.modeled}">${MODELED_LABEL[info.modeled]}</p>`
       + (info.abilityText ? `<p class="card-view-ability">${escapeHtml(info.abilityText)}</p>` : '')
@@ -1339,7 +1394,624 @@ function initCardViewer() {
     if (evt.key !== 'Escape') return;
     if (!cardOverlay.classList.contains('hidden')) closeOverlay(cardOverlay);
     else if (!replayOverlay.classList.contains('hidden')) closeOverlay(replayOverlay);
+    else if (!metaDeckOverlay.classList.contains('hidden')) closeOverlay(metaDeckOverlay);
   });
+}
+
+// ===================== Meta ("Meta" tab: tournament results) =====================
+//
+// docs/meta.json (built weekly by tools/build-meta-data.mjs from Riot's
+// "Top Decks" articles) holds each event's Day 1 / Day 2 Legend counts and
+// its published lists. A list plays as an opponent through its
+// "meta:<event>/<n>" id, without being saved, or can be saved as a deck.
+
+const metaEventSelect = document.getElementById('metaEvent');
+const metaGenerated = document.getElementById('metaGenerated');
+const metaHeader = document.getElementById('metaHeader');
+const metaPanels = document.getElementById('metaPanels');
+const metaShare = document.getElementById('metaShare');
+const metaDecks = document.getElementById('metaDecks');
+const metaTrend = document.getElementById('metaTrend');
+const fieldTestDeckSelect = document.getElementById('fieldTestDeck');
+const fieldTestBtn = document.getElementById('fieldTestBtn');
+const fieldTestStatus = document.getElementById('fieldTestStatus');
+const fieldTestResult = document.getElementById('fieldTestResult');
+const metaDeckOverlay = document.getElementById('metaDeckOverlay');
+const metaDeckTitle = document.getElementById('metaDeckTitle');
+const metaDeckBody = document.getElementById('metaDeckBody');
+const metaDeckClose = document.getElementById('metaDeckClose');
+
+// How much of a list's card text the simulator plays, at a glance.
+const COVERAGE_GOOD = 70;
+const COVERAGE_FAIR = 40;
+
+let metaLoaded = false;
+let metaCurrent = null;        // the event on screen (engine.metaEvent)
+let metaOpponentEntry = null;  // a tournament list picked as the Simulate opponent
+
+const shortLegend = name => (name || '').split(',')[0];
+
+function coverageChip(c) {
+  if (!c) return '';
+  const level = c.fullPct >= COVERAGE_GOOD ? 'good' : (c.fullPct >= COVERAGE_FAIR ? 'fair' : 'low');
+  const partial = c.partialPct ? ` +${c.partialPct}%` : '';
+  return `<span class="coverage-chip ${level}" title="Card text modeled: ${c.fullPct}% fully${c.partialPct ? `, ${c.partialPct}% in part` : ''} (of ${c.total} cards)${c.legendModeled ? '' : '; the Legend\'s ability is not modeled'}">text ${c.fullPct}%${partial}</span>`;
+}
+
+function setFieldTestStatus(text, isError) {
+  fieldTestStatus.textContent = text || '';
+  fieldTestStatus.classList.toggle('error', !!isError);
+}
+
+async function openMetaPanel() {
+  if (metaLoaded) return;
+  metaLoaded = true;
+  try {
+    const data = await engine.metaEvents();
+    if (!data.events.length) {
+      metaHeader.innerHTML = '<p class="import-help">No tournament data yet - it arrives with the next weekly refresh.</p>';
+      return;
+    }
+    metaGenerated.textContent = data.generated ? `Updated ${data.generated}; checked for new events every week.` : '';
+    metaEventSelect.innerHTML = data.events.map(e =>
+      `<option value="${escapeHtml(e.id)}">${escapeHtml(e.name)} - ${escapeHtml(e.published)}${e.players ? ` (${e.players} players)` : ''}</option>`).join('');
+    await showMetaEvent(data.events[0].id);
+    await renderMetaTrend();
+  } catch (err) {
+    metaLoaded = false;
+    metaHeader.innerHTML = `<p class="status error">Could not load the tournament data: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+async function showMetaEvent(id) {
+  metaCurrent = await engine.metaEvent(id);
+  const e = metaCurrent;
+  const counts = e.players ? `${e.players} players, ${e.day2Players} on Day 2` : 'No player counts published';
+  metaHeader.innerHTML = `<p class="meta-header-line">${escapeHtml(counts)} · article of ${escapeHtml(e.published)} · `
+    + `<a href="${escapeHtml(e.url)}" target="_blank" rel="noopener">Riot's article</a></p>`;
+  renderMetaShare();
+  renderMetaDecks();
+  fieldTestResult.innerHTML = '';
+  setFieldTestStatus('');
+}
+
+function renderMetaShare() {
+  const rows = metaCurrent.share;
+  if (!rows.length) {
+    metaShare.innerHTML = '<p class="import-help">This article has no Day 1 / Day 2 table.</p>';
+    return;
+  }
+  const max = Math.max(...rows.map(r => r.day2Pct), 1);
+  let html = '<div class="share-head"><span>Legend</span><span>Day 2</span></div>';
+  rows.forEach(r => {
+    const conv = r.conversion === null ? '' : ` · ${r.conversion}&times;`;
+    const cls = r.conversion === null ? '' : (r.conversion >= 1.2 ? ' up' : (r.conversion <= 0.8 ? ' down' : ''));
+    html += `<div class="share-row">`
+      + `<span class="share-name">${escapeHtml(r.label)}</span>`
+      + `<span class="share-bar"><span style="width:${Math.round(100 * r.day2Pct / max)}%"></span></span>`
+      + `<span class="share-num">${r.day2Pct}%</span>`
+      + `<span class="share-sub${cls}">${r.day2} on Day 2 · Day 1 ${r.day1Pct}% (${r.day1})${conv}${r.top8 ? ` · ${r.top8} in Top 8` : ''}</span>`
+      + `</div>`;
+  });
+  metaShare.innerHTML = html;
+}
+
+function metaDeckRow(d) {
+  const place = d.top8 && d.overall ? `#${d.overall}` : (d.bestOf ? 'Best-Of' : '');
+  return `<li><button type="button" class="log-row meta-deck-row" data-deck-id="${escapeHtml(d.id)}">`
+    + `<span><strong>${escapeHtml(place)}</strong> ${escapeHtml(shortLegend(d.legend))} <span class="meta-player">${escapeHtml(d.player)}</span></span>`
+    + (d.banned.length ? `<span class="coverage-chip low" title="Banned since: ${escapeHtml(d.banned.join(', '))}">${d.banned.length} banned</span>` : '')
+    + `${coverageChip(d.coverage)}</button></li>`;
+}
+
+function renderMetaDecks() {
+  const decks = metaCurrent.decks;
+  const top8 = decks.filter(d => d.top8);
+  const bestOf = decks.filter(d => !d.top8 && d.bestOf);
+  const other = decks.filter(d => !d.top8 && !d.bestOf);
+  let html = '';
+  if (top8.length) html += `<h4 class="meta-group">Top 8</h4><ul class="game-list meta-deck-list">${top8.map(metaDeckRow).join('')}</ul>`;
+  if (bestOf.length) html += `<h4 class="meta-group">Best-Of each Legend</h4><ul class="game-list meta-deck-list">${bestOf.map(metaDeckRow).join('')}</ul>`;
+  if (other.length) html += `<h4 class="meta-group">Other lists</h4><ul class="game-list meta-deck-list">${other.map(metaDeckRow).join('')}</ul>`;
+  metaDecks.innerHTML = html || '<p class="import-help">This article has no decklists.</p>';
+}
+
+async function openMetaDeck(id) {
+  const entry = metaCurrent.decks.find(d => d.id === id);
+  metaDeckTitle.textContent = entry ? entry.name : 'Tournament list';
+  metaDeckBody.innerHTML = '<p class="import-help">Loading...</p>';
+  metaDeckOverlay.classList.remove('hidden');
+  document.body.classList.add('deck-picker-open');
+  try {
+    const list = await engine.metaDecklist(id);
+    const c = list.coverage;
+    let html = `<p class="import-help">${escapeHtml(entry.player)}`
+      + (entry.top8 && entry.overall ? ` · finished #${entry.overall}` : '')
+      + (entry.legendRank ? ` · best ${escapeHtml(shortLegend(entry.legend))} #${escapeHtml(entry.legendRank)}` : '')
+      + (list.champion ? ` · Chosen Champion: ${escapeHtml(list.champion)}` : '') + '</p>';
+    html += `<p class="import-help">${coverageChip(c)} The simulator plays ${c.fullPct}% of this list's card text${c.partialPct ? ` (and ${c.partialPct}% in part)` : ''}${c.legendModeled ? '' : ', not its Legend\'s ability'}; the rest counts only for its cost, Might and keywords.</p>`;
+    if (list.unknown.length) html += `<p class="status error">Not in the card database (left out): ${escapeHtml(list.unknown.join(', '))}</p>`;
+    if (list.banned.length) html += `<p class="status error">Banned since this event, so left out when simulating: ${escapeHtml(list.banned.join(', '))}.</p>`;
+    html += `<div class="meta-deck-actions">`
+      + `<button type="button" id="metaSimulateBtn">Simulate against it</button>`
+      + `<div class="meta-save"><select id="metaSaveCategory" aria-label="Save to">`
+      + ['Aggro', 'Midrange', 'Control'].map(cat => `<option value="${cat}">Opponents - ${cat}</option>`).join('')
+      + `</select><button type="button" class="ghost-btn" id="metaSaveBtn">Save as opponent deck</button></div>`
+      + `</div><div class="status" id="metaDeckStatus"></div>`;
+    html += '<div id="metaDecklist"></div>';
+    if (list.sideboard.length) {
+      html += `<div class="deck-group"><h4>Sideboard</h4><table class="deck-table"><tr><th>Qty</th><th>Name</th></tr>`
+        + list.sideboard.map(s => `<tr><td>${s.quantity}</td><td><button type="button" class="card-link" data-card="${escapeHtml(s.name)}">${escapeHtml(s.name)}</button></td></tr>`).join('')
+        + '</table></div>';
+    }
+    metaDeckBody.innerHTML = html;
+    renderDecklist(list, document.getElementById('metaDecklist'));
+    document.getElementById('metaSimulateBtn').addEventListener('click', () => simulateAgainstMeta(entry));
+    document.getElementById('metaSaveBtn').addEventListener('click', () => saveMetaDeck(entry));
+  } catch (err) {
+    metaDeckBody.innerHTML = `<p class="status error">Could not open the list: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function addMetaOpponentOption() {
+  const old = document.getElementById('metaOptgroup');
+  if (old) old.remove();
+  if (!metaOpponentEntry) return;
+  const group = document.createElement('optgroup');
+  group.id = 'metaOptgroup';
+  group.label = 'Tournament list';
+  const opt = document.createElement('option');
+  opt.value = metaOpponentEntry.id;
+  opt.textContent = metaOpponentEntry.name;
+  group.appendChild(opt);
+  opponentDeckSelect.appendChild(group);
+}
+
+// Makes a tournament list the Simulate tab's opponent and goes there.
+function simulateAgainstMeta(entry) {
+  metaOpponentEntry = { id: entry.id, name: entry.name, legend: entry.legend };
+  addMetaOpponentOption();
+  if (simModeSelect.value === 'matrix') selectMode('single');
+  opponentDeckSelect.value = entry.id;
+  opponentDeckSelect.dispatchEvent(new Event('change'));
+  closeOverlay(metaDeckOverlay);
+  showTopPanel('simulate');
+  resetToSetup();
+  setStatus(`Opponent: the tournament list ${entry.name}.`);
+}
+
+async function saveMetaDeck(entry) {
+  const status = document.getElementById('metaDeckStatus');
+  const category = document.getElementById('metaSaveCategory').value;
+  status.textContent = 'Saving...';
+  try {
+    const saved = await engine.saveMetaDeck(entry.id, { category });
+    await loadDecks();
+    status.textContent = engine.storageKind === 'files' ? `Saved to Decks/${saved.id}.csv.` : `Saved as "${saved.name}".`;
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+  }
+}
+
+async function runFieldTest() {
+  if (!metaCurrent) return;
+  const deckId = fieldTestDeckSelect.value;
+  if (!deckId) {
+    setFieldTestStatus('Pick your deck first.', true);
+    return;
+  }
+  fieldTestBtn.disabled = true;
+  fieldTestResult.innerHTML = '';
+  setFieldTestStatus('Playing the field...');
+  try {
+    const r = await engine.fieldTest(deckId, metaCurrent.id, {
+      onProgress: (done, total) => setFieldTestStatus(`Playing the field... ${done} of ${total} Legends`),
+    });
+    setFieldTestStatus('');
+    renderFieldTest(r);
+  } catch (err) {
+    setFieldTestStatus('Error: ' + err.message, true);
+  } finally {
+    fieldTestBtn.disabled = false;
+  }
+}
+
+function renderFieldTest(r) {
+  if (!r.rows.length) {
+    fieldTestResult.innerHTML = '<p class="import-help">No usable lists in this event to test against.</p>';
+    return;
+  }
+  const weightSum = r.rows.reduce((s, x) => s + x.weight, 0);
+  const coverage = Math.round(r.rows.reduce((s, x) => s + x.weight * x.coverage.fullPct, 0) / weightSum);
+  const goodBad = r.expectedWinrate >= 50 ? 'good' : 'bad';
+  let html = `<div class="field-test-head"><div class="winrate-number ${goodBad}">${r.expectedWinrate}%</div>`
+    + `<div class="winrate-sub">expected winrate against the Day 2 field of ${escapeHtml(r.eventName)} (the ${r.rows.length} Legends tested were ${r.fieldCovered}% of it)</div>`
+    + `<div class="winrate-meta">${r.gamesPerOpponent} games per Legend · seed ${r.seed}</div></div>`;
+  if (r.fieldCovered < 50) {
+    html += `<p class="warn-box field-test-warning">This covers only ${r.fieldCovered}% of the Day 2 field: the other Legends had no published list, or their lists have cards banned since. A more recent event says more about today's meta.</p>`;
+  }
+  if (coverage < COVERAGE_GOOD) {
+    html += `<p class="warn-box field-test-warning">Only about ${coverage}% of these lists' card text is modeled, so many of their cards play as plain stats - these numbers likely overrate your deck. Each list's share is shown on its row.</p>`;
+  }
+  html += '<div class="matrix-group">';
+  r.rows.forEach(x => {
+    html += `<div class="matrix-row field-test-row">`
+      + `<span class="matrix-name">${escapeHtml(shortLegend(x.legend))} <span class="meta-player">${x.weight}% of Day 2</span></span>`
+      + coverageChip(x.coverage)
+      + `<span class="matrix-winrate ${x.winrate >= 50 ? 'good' : 'bad'}">${x.winrate}%</span>`
+      + `<span class="matrix-range" title="95% range">${x.winrateLow}-${x.winrateHigh}%</span>`
+      + `<button type="button" class="ghost-btn field-test-open" data-deck-id="${escapeHtml(x.deckId)}" title="${escapeHtml(x.deckName)}">Simulate</button>`
+      + `</div>`;
+  });
+  html += '</div>';
+  fieldTestResult.innerHTML = html;
+}
+
+async function renderMetaTrend() {
+  const t = await engine.metaTrend({ events: 6 });
+  if (!t.rows.length) {
+    metaTrend.innerHTML = '<p class="import-help">Not enough events with Day 2 counts yet.</p>';
+    return;
+  }
+  const max = Math.max(...t.rows.flatMap(r => r.points.map(p => p.day2Pct || 0)), 1);
+  let html = '<div class="table-scroll"><table class="trend-table"><tr><th>Legend</th>'
+    + t.events.map(e => `<th title="${escapeHtml(e.published)}">${escapeHtml(e.name)}</th>`).join('') + '</tr>';
+  t.rows.forEach(r => {
+    html += `<tr><td class="trend-legend">${escapeHtml(shortLegend(r.legend))}</td>`;
+    r.points.forEach(p => {
+      if (p.day2Pct === null) {
+        html += '<td class="trend-empty">-</td>';
+        return;
+      }
+      const alpha = (0.08 + 0.5 * p.day2Pct / max).toFixed(2);
+      html += `<td style="background: rgba(108, 140, 255, ${alpha})">${p.day2Pct}%${p.top8 ? `<sup>${p.top8}</sup>` : ''}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  metaTrend.innerHTML = html;
+}
+
+function initMeta() {
+  initPillNav(document.getElementById('metaPillNav'), metaPanels);
+  metaEventSelect.addEventListener('change', () => showMetaEvent(metaEventSelect.value));
+  metaDecks.addEventListener('click', evt => {
+    const row = evt.target.closest('.meta-deck-row');
+    if (row) openMetaDeck(row.dataset.deckId);
+  });
+  fieldTestBtn.addEventListener('click', runFieldTest);
+  fieldTestResult.addEventListener('click', evt => {
+    const btn = evt.target.closest('.field-test-open');
+    if (!btn) return;
+    const entry = metaCurrent.decks.find(d => d.id === btn.dataset.deckId);
+    if (entry) simulateAgainstMeta(entry);
+  });
+  metaDeckClose.addEventListener('click', () => closeOverlay(metaDeckOverlay));
+  metaDeckOverlay.addEventListener('click', evt => {
+    if (evt.target === metaDeckOverlay) closeOverlay(metaDeckOverlay);
+  });
+}
+
+// ===================== Journal ("Journal" tab: real games) =====================
+//
+// Real games, logged by hand: on the PC they go to Journal/Games.csv
+// (published with the repo), on the phone to this device. Export/Import
+// moves games between the two without duplicates.
+
+const jForm = {
+  title: document.getElementById('journalFormTitle'),
+  date: document.getElementById('jDate'),
+  result: document.getElementById('jResult'),
+  myDeck: document.getElementById('jMyDeck'),
+  opponentLegend: document.getElementById('jOpponentLegend'),
+  opponentDeck: document.getElementById('jOpponentDeck'),
+  wentFirst: document.getElementById('jWentFirst'),
+  myScore: document.getElementById('jMyScore'),
+  opponentScore: document.getElementById('jOpponentScore'),
+  event: document.getElementById('jEvent'),
+  myBattlefield: document.getElementById('jMyBattlefield'),
+  opponentBattlefield: document.getElementById('jOpponentBattlefield'),
+  notes: document.getElementById('jNotes'),
+  save: document.getElementById('jSave'),
+  cancel: document.getElementById('jCancel'),
+  remove: document.getElementById('jDelete'),
+  status: document.getElementById('jStatus'),
+};
+const jMyDeck = jForm.myDeck;
+const jCompareDeck = document.getElementById('jCompareDeck');
+const jCompareBtn = document.getElementById('jCompareBtn');
+const jCompareStatus = document.getElementById('jCompareStatus');
+const jCompareResult = document.getElementById('jCompareResult');
+const journalStatsEl = document.getElementById('journalStats');
+const journalList = document.getElementById('journalList');
+const journalStorageNote = document.getElementById('journalStorageNote');
+const journalSyncNote = document.getElementById('journalSyncNote');
+const jExportBtn = document.getElementById('jExport');
+const jImportBtn = document.getElementById('jImportBtn');
+const jImportFile = document.getElementById('jImportFile');
+const jSyncStatus = document.getElementById('jSyncStatus');
+
+let journalEntries = [];
+let journalEditing = null; // id of the game being edited
+let journalLoaded = false;
+
+function localDateIso(d = new Date()) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function setSegmented(el, value) {
+  Array.from(el.querySelectorAll('button')).forEach(b => b.classList.toggle('active', b.dataset.value === value));
+}
+
+function segmentedValue(el) {
+  const active = el.querySelector('button.active');
+  return active ? active.dataset.value : '';
+}
+
+function deckNameOf(id) {
+  const deck = myDecksCache.find(d => d.id === id);
+  return deck ? deck.name : (id || '').split('/').pop().replace(/_/g, ' ');
+}
+
+function setJournalStatus(el, text, isError) {
+  el.textContent = text || '';
+  el.classList.toggle('error', !!isError);
+}
+
+// After a save the date, deck and event stay (several games in a row are
+// usually the same day and event); the game's own fields clear.
+function resetJournalForm({ keepContext = true } = {}) {
+  journalEditing = null;
+  jForm.title.textContent = 'Log a real game';
+  jForm.save.textContent = 'Save game';
+  jForm.cancel.classList.add('hidden');
+  jForm.remove.classList.add('hidden');
+  if (!keepContext) {
+    jForm.date.value = localDateIso();
+    jForm.event.value = '';
+  }
+  if (!jForm.date.value) jForm.date.value = localDateIso();
+  setSegmented(jForm.result, '');
+  setSegmented(jForm.wentFirst, '');
+  ['opponentLegend', 'opponentDeck', 'myScore', 'opponentScore', 'myBattlefield', 'opponentBattlefield', 'notes'].forEach(k => { jForm[k].value = ''; });
+}
+
+function fillJournalForm(e) {
+  journalEditing = e.id;
+  jForm.title.textContent = 'Edit game';
+  jForm.save.textContent = 'Save changes';
+  jForm.cancel.classList.remove('hidden');
+  jForm.remove.classList.remove('hidden');
+  jForm.date.value = e.date;
+  setSegmented(jForm.result, e.result);
+  setSegmented(jForm.wentFirst, e.wentFirst);
+  if (myDecksCache.some(d => d.id === e.myDeck)) jForm.myDeck.value = e.myDeck;
+  ['opponentLegend', 'opponentDeck', 'myScore', 'opponentScore', 'event', 'myBattlefield', 'opponentBattlefield', 'notes'].forEach(k => { jForm[k].value = e[k] || ''; });
+  setJournalStatus(jForm.status, '');
+  document.getElementById('journalFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// A typed card name -> the database's exact name of that type, or null.
+function exactCardName(typed, type) {
+  const info = typed ? engine.cardInfo(typed.trim()) : null;
+  return info && info.type === type ? info.name : null;
+}
+
+async function saveJournalGame() {
+  const legend = exactCardName(jForm.opponentLegend.value, 'Legend');
+  if (!legend) {
+    setJournalStatus(jForm.status, "Pick the opponent's Legend from the list (e.g. \"Kennen, Heart of the Tempest\").", true);
+    return;
+  }
+  const myDeck = jForm.myDeck.value;
+  const deck = myDecksCache.find(d => d.id === myDeck);
+  const entry = {
+    id: journalEditing || '',
+    date: jForm.date.value,
+    myDeck,
+    myLegend: deck ? deck.legend : '',
+    opponentLegend: legend,
+    opponentDeck: jForm.opponentDeck.value,
+    result: segmentedValue(jForm.result),
+    wentFirst: segmentedValue(jForm.wentFirst),
+    myScore: jForm.myScore.value,
+    opponentScore: jForm.opponentScore.value,
+    myBattlefield: exactCardName(jForm.myBattlefield.value, 'Battlefield') || jForm.myBattlefield.value,
+    opponentBattlefield: exactCardName(jForm.opponentBattlefield.value, 'Battlefield') || jForm.opponentBattlefield.value,
+    event: jForm.event.value,
+    notes: jForm.notes.value,
+  };
+  jForm.save.disabled = true;
+  try {
+    const wasEditing = !!journalEditing;
+    await engine.saveJournalEntry(entry);
+    resetJournalForm();
+    await refreshJournal();
+    setJournalStatus(jForm.status, wasEditing ? 'Game updated.' : `Saved: ${entry.result} vs ${shortLegend(legend)}.`);
+  } catch (err) {
+    setJournalStatus(jForm.status, err.message, true);
+  } finally {
+    jForm.save.disabled = false;
+  }
+}
+
+async function deleteJournalGame() {
+  if (!journalEditing || !window.confirm('Delete this game from the journal?')) return;
+  try {
+    await engine.deleteJournalEntry(journalEditing);
+    resetJournalForm();
+    await refreshJournal();
+    setJournalStatus(jForm.status, 'Game deleted.');
+  } catch (err) {
+    setJournalStatus(jForm.status, 'Error: ' + err.message, true);
+  }
+}
+
+async function refreshJournal() {
+  journalEntries = await engine.journalEntries();
+  renderJournalStats();
+  renderJournalList();
+}
+
+function recordText(t) {
+  return `${t.wins}-${t.losses}${t.draws ? `-${t.draws}` : ''}`;
+}
+
+function renderJournalStats() {
+  if (!journalEntries.length) {
+    journalStatsEl.innerHTML = '<p class="import-help">No games logged yet.</p>';
+    return;
+  }
+  const s = engine.journalStats(journalEntries);
+  const groupRows = (groups, label) => groups.map(g => `<div class="matrix-row">`
+    + `<span class="matrix-name">${escapeHtml(label(g.key))}</span>`
+    + `<span class="journal-record">${recordText(g)}</span>`
+    + `<span class="matrix-winrate ${g.winrate >= 50 ? 'good' : 'bad'}">${g.winrate}%</span>`
+    + `</div>`).join('');
+  let html = `<div class="journal-headline"><span class="winrate-number ${s.winrate >= 50 ? 'good' : 'bad'}">${s.winrate}%</span>`
+    + `<span class="winrate-sub">${recordText(s)} in ${s.n} game${s.n === 1 ? '' : 's'} · 95% range ${s.winrateLow}-${s.winrateHigh}%</span></div>`;
+  const firstSecond = [];
+  if (s.first.n) firstSecond.push(`going first ${s.first.winrate}% (${recordText(s.first)})`);
+  if (s.second.n) firstSecond.push(`going second ${s.second.winrate}% (${recordText(s.second)})`);
+  if (firstSecond.length) html += `<p class="import-help">${firstSecond.join(' · ')}</p>`;
+  if (s.recent) html += `<p class="journal-recent">Last games, newest first: ${s.recent.split('').map(c => `<span class="badge ${c === 'W' ? 'win' : (c === 'L' ? 'loss' : 'draw')}">${c}</span>`).join('')}</p>`;
+  html += `<div class="matrix-group"><h4>By opponent Legend</h4>${groupRows(s.byOpponent, k => k)}</div>`;
+  if (s.byDeck.length > 1 || (s.byDeck[0] && s.byDeck[0].key !== '(not set)')) html += `<div class="matrix-group"><h4>By your deck</h4>${groupRows(s.byDeck, k => (k === '(not set)' ? k : deckNameOf(k)))}</div>`;
+  if (s.byEvent.length > 1 || (s.byEvent[0] && s.byEvent[0].key !== '(not set)')) html += `<div class="matrix-group"><h4>By event</h4>${groupRows(s.byEvent, k => k)}</div>`;
+  journalStatsEl.innerHTML = html;
+}
+
+function renderJournalList() {
+  journalList.innerHTML = '';
+  if (!journalEntries.length) {
+    journalList.innerHTML = '<li class="journal-empty">No games yet.</li>';
+    return;
+  }
+  journalEntries.forEach(e => {
+    const score = e.myScore !== '' && e.opponentScore !== '' ? ` ${e.myScore}-${e.opponentScore}` : '';
+    const deck = e.myDeck ? `${deckNameOf(e.myDeck)} ` : '';
+    journalList.appendChild(logRow(
+      `${e.date} · ${deck}vs ${shortLegend(e.opponentLegend)}${score}`,
+      resultBadge(e.result === 'Win', e.result === 'Draw', ['WIN', 'LOSS', 'DRAW']),
+      () => fillJournalForm(e),
+    ));
+  });
+}
+
+async function exportJournal() {
+  try {
+    const data = await engine.exportJournal();
+    const name = `riftbound-journal-${localDateIso()}.json`;
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+    const file = typeof File === 'function' ? new File([blob], name, { type: 'application/json' }) : null;
+    // On a phone the share sheet is the easy way to get the file to the PC.
+    if (file && matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Riftbound journal' });
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setJournalStatus(jSyncStatus, `Exported ${data.entries.length} game${data.entries.length === 1 ? '' : 's'} (${name}).`);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    setJournalStatus(jSyncStatus, 'Could not export: ' + err.message, true);
+  }
+}
+
+async function importJournalFile(file) {
+  try {
+    const data = JSON.parse(await file.text());
+    const r = await engine.importJournal(data);
+    await refreshJournal();
+    const parts = [`${r.added} added`, `${r.updated} updated`, `${r.unchanged} already here`];
+    if (r.skipped) parts.push(`${r.skipped} skipped (not valid games)`);
+    setJournalStatus(jSyncStatus, `Imported: ${parts.join(', ')}.`);
+  } catch (err) {
+    setJournalStatus(jSyncStatus, 'Could not import: ' + (err instanceof SyntaxError ? "that file isn't JSON." : err.message), true);
+  } finally {
+    jImportFile.value = '';
+  }
+}
+
+async function compareJournalWithSim() {
+  const deckId = jCompareDeck.value;
+  if (!deckId) return;
+  jCompareBtn.disabled = true;
+  jCompareResult.innerHTML = '';
+  setJournalStatus(jCompareStatus, 'Simulating...');
+  try {
+    const r = await engine.journalVsSim(deckId, {
+      onProgress: (done, total) => setJournalStatus(jCompareStatus, `Simulating... ${done} of ${total} Legends`),
+    });
+    setJournalStatus(jCompareStatus, '');
+    if (!r.rows.length) {
+      jCompareResult.innerHTML = `<p class="import-help">No logged games with ${escapeHtml(r.myDeckName)} yet.</p>`;
+      return;
+    }
+    let html = `<p class="import-help">${r.games} real game${r.games === 1 ? '' : 's'} with ${escapeHtml(r.myDeckName)} · ${r.gamesPerOpponent} simulated games per Legend · seed ${r.seed}</p>`;
+    html += '<div class="compare-head"><span>Opponent</span><span>Real</span><span>Simulator</span></div>';
+    r.rows.forEach(x => {
+      const real = `${x.real.winrate}% <span class="meta-player">${recordText(x.real)}</span>`;
+      const sim = x.sim
+        ? `${x.sim.winrate}% <span class="meta-player">${x.sim.winrateLow}-${x.sim.winrateHigh}%</span>`
+        : '<span class="meta-player">no deck of this Legend</span>';
+      const gap = x.sim ? Math.round(x.sim.winrate - x.real.winrate) : null;
+      const gapText = gap === null ? '' : `<span class="compare-gap ${Math.abs(gap) >= 20 ? 'big' : ''}">${gap > 0 ? '+' : ''}${gap}</span>`;
+      html += `<div class="compare-row">`
+        + `<span class="matrix-name" title="${escapeHtml(x.deckName || '')}">${escapeHtml(shortLegend(x.legend))}${x.coverage ? ` ${coverageChip(x.coverage)}` : ''}</span>`
+        + `<span>${real}</span><span>${sim} ${gapText}</span></div>`;
+    });
+    html += '<p class="import-help">A handful of real games swings a lot - with fewer than about 10 games against a Legend, a big gap says little. The number after the simulator\'s winrate is how far it is from your real one.</p>';
+    jCompareResult.innerHTML = html;
+  } catch (err) {
+    setJournalStatus(jCompareStatus, 'Error: ' + err.message, true);
+  } finally {
+    jCompareBtn.disabled = false;
+  }
+}
+
+async function openJournalPanel() {
+  if (journalLoaded) return;
+  journalLoaded = true;
+  try {
+    await refreshJournal();
+  } catch (err) {
+    journalLoaded = false;
+    journalStatsEl.innerHTML = `<p class="status error">Could not read the journal: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function initJournal() {
+  resetJournalForm({ keepContext: false });
+  [jForm.result, jForm.wentFirst].forEach(el => el.addEventListener('click', evt => {
+    const btn = evt.target.closest('button');
+    if (btn) setSegmented(el, btn.dataset.value);
+  }));
+  jForm.save.addEventListener('click', saveJournalGame);
+  jForm.cancel.addEventListener('click', () => { resetJournalForm(); setJournalStatus(jForm.status, ''); });
+  jForm.remove.addEventListener('click', deleteJournalGame);
+  jCompareBtn.addEventListener('click', compareJournalWithSim);
+  jExportBtn.addEventListener('click', exportJournal);
+  jImportBtn.addEventListener('click', () => jImportFile.click());
+  jImportFile.addEventListener('change', () => {
+    if (jImportFile.files && jImportFile.files[0]) importJournalFile(jImportFile.files[0]);
+  });
+}
+
+// The journal form's suggestion lists, from the card database.
+function fillJournalDatalists() {
+  const fill = (id, names) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = names.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+  };
+  fill('legendNames', engine.legendNames());
+  fill('battlefieldNames', engine.battlefieldNames());
 }
 
 // ===================== Offline indicator =====================
@@ -1393,7 +2065,13 @@ function unregisterServiceWorkers() {
 // ===================== Storage-specific wording =====================
 
 function applyStorageKindToUi() {
-  if (engine.storageKind !== 'files') return;
+  if (engine.storageKind !== 'files') {
+    journalStorageNote.textContent = 'Games are saved on this phone (or browser). To keep them with the PC\x27s, use Export below and Import the file on the PC.';
+    journalSyncNote.textContent = 'Export moves games to the PC (Import there); games logged on the PC arrive here with its next publish.';
+    return;
+  }
+  journalStorageNote.textContent = 'Games are saved to Journal/Games.csv on this PC. PushToGitHub.bat publishes it with the repo - which is public - so it reaches the phone.';
+  journalSyncNote.textContent = 'Games logged on the phone: Export them there, then Import the file here.';
   if (importStorageNote) importStorageNote.textContent = 'Imported decks are saved as CSV files under the Decks folder on this PC.';
   if (editorStorageNote) editorStorageNote.textContent = 'Changes are saved to the deck\'s CSV file under the Decks folder on this PC.';
 }
@@ -1415,6 +2093,8 @@ async function start() {
   initDeckEditor();
   initReplay();
   initCardViewer();
+  initMeta();
+  initJournal();
   initPillNav(document.getElementById('resultsPillNav'), resultsSection);
   initPillNav(document.getElementById('matchResultsPillNav'), matchResultsSection);
 
@@ -1445,6 +2125,7 @@ async function start() {
   if (engine.storageKind === 'files') unregisterServiceWorkers();
   else registerServiceWorker();
   applyStorageKindToUi();
+  fillJournalDatalists();
 
   simulateBtn.disabled = false;
   await loadDecks();

@@ -46,9 +46,11 @@ and opens `http://localhost:8787` in your default browser.
 
 ## Using the app
 
-- The page has three tabs at the top: **Simulate** (the main flow),
-  **Decks** (the deck editor - see "Editing a deck" below) and **Import**
-  (paste a text decklist). A **step indicator** (Your deck → Mode → Opponent →
+- The page has five tabs at the top: **Simulate** (the main flow), **Meta**
+  (tournament results - see "Tournament meta" below), **Journal** (your real
+  games - see "Journal of real games" below), **Decks** (the deck editor -
+  see "Editing a deck" below) and **Import** (paste a text decklist). A
+  **step indicator** (Your deck → Mode → Opponent →
   Run it) tracks your progress through the Simulate tab so it's always
   obvious what's left to fill in before you can run anything; it collapses
   to 3 steps in matchup-matrix mode since there's no single opponent to
@@ -102,6 +104,11 @@ installed.
   updated **unless you edited it on the phone**, and a deck you deleted on
   the phone stays deleted. Decks you import or edit on the phone stay on
   that device only.
+- The journal of real games works the same way, from `docs/journal.json`
+  (a snapshot of `Journal\Games.csv`): games logged on the PC reach the
+  phone with each push. Games logged on the phone reach the PC with
+  **Export** on the phone and **Import** on the PC (see "Journal of real
+  games").
 - It works fully offline after the first load (a service worker,
   `docs/sw.js`, caches everything needed) - once installed, you don't need a
   connection to run a simulation, only to pick up a future update. The one
@@ -133,6 +140,17 @@ connection**, it fetches the update in the background; a fully offline
 session still opens the last version it had cached. New or changed decks
 from the PC arrive the same way (see "What's different on the phone").
 
+**Weekly data refresh:** every Monday a GitHub Action
+(`.github/workflows/refresh-data.yml`) re-reads Riot's card gallery (new
+sets, errata) and Riot's tournament "Top Decks" articles. When something
+changed it commits the new `docs/carddatabase.json` / `docs/meta.json`
+straight to `main`, so the phone updates by itself. You can also run it by
+hand from the repo's **Actions** tab ("Weekly data refresh" → "Run
+workflow"); its summary lists what was added and any card whose text
+changed. Because GitHub can now have commits your PC doesn't,
+`PushToGitHub.bat` pulls them in before pushing, and `RunWebUI.bat` pulls
+them when it starts (quietly, and only when that's a clean fast-forward).
+
 ## Importing a deck from a text list
 
 Instead of hand-building a CSV, you can paste a plain decklist - one card
@@ -152,11 +170,14 @@ Baccai Reaper x2
 Legend: Jinx, Loose Cannon
 Battlefields:
 ```
-Section labels (`Legend:`, `Battlefields:`, `Runes:`, `Main Deck:`, `Units:`,
-`Spells:`, `Gear:`) are optional and only used as visual separators - they're
-skipped, along with blank lines and `#` comment lines. A card's Type always
-comes from the database, never from which section you pasted it under, so
-you can't accidentally mislabel one.
+Section labels (`Legend:`, `Battlefields:`, `Runes:`/`Rune Pool:`,
+`Main Deck:`, `Units:`, `Spells:`, `Gear:`) are optional and only used as
+visual separators - they're skipped, along with blank lines and `#` comment
+lines. A card's Type always comes from the database, never from which
+section you pasted it under, so you can't accidentally mislabel one. Two
+labels do matter, matching the lists Riot publishes: the card under
+`Champion:` becomes the deck's **Chosen Champion** (see "Editing a deck"),
+and everything under `Sideboard:` is left out of the deck.
 
 Open the **Import** tab, choose where it should go (your decks, or an
 opponent archetype), give it a name, paste the list, and hit **Import
@@ -180,9 +201,17 @@ The **Decks** tab edits any saved deck (yours or an opponent's):
 - **Add a card** searches the card database by name. It only offers Main
   Deck cards and Runes from the deck's Legend domains (Legends and
   Battlefields always show), with each card's real stats filled in.
-- The counts at the top (Legend 1, Battlefields 3, Runes 12, Main deck 40+)
-  and the list of problems (unknown or banned cards, more than 3 copies,
-  off-domain cards, malformed Tags) update as you edit.
+- **Chosen Champion:** every deck picks one Champion unit of its Legend's
+  champion (e.g. "Rengar, Trophy Hunter" for "Rengar, Pridestalker"). One
+  copy starts the game in the **Champion Zone** instead of the Main Deck and
+  can be played from there any time, like a card in hand - the simulator
+  plays it that way. The chosen one shows **Chosen Champion**; another
+  eligible unit shows **Make Chosen Champion** to switch. (In the CSV it's
+  simply the first eligible row - choosing one moves it there.)
+- The counts at the top (Legend 1, Battlefields 3, Runes 12, Main deck 40+,
+  Champion 1) and the list of problems (unknown or banned cards, more than 3
+  copies, off-domain cards, malformed Tags, no Chosen Champion) update as
+  you edit.
 - **Save changes** overwrites the deck; **Save as a new deck** keeps the
   original and saves your version under a new name (and destination);
   **Delete this deck** removes it after asking. On the PC these write or
@@ -268,6 +297,66 @@ CSV, not in the card database), so scoring only ever uses that card's real
 Energy/Might/Domain numbers - never a guessed ability. It never invents what
 a card actually does.
 
+## Tournament meta
+
+The **Meta** tab shows Riot's own results for each big event (Regional
+Qualifiers and the like), from Riot's organized-play **"Top Decks"**
+articles on playriftbound.com:
+
+- **Field** - how many players brought each Legend on Day 1 and on Day 2,
+  as a share of the field, and the "Day 2 / Day 1" ratio: above 1× means the
+  Legend made the cut more often than its share (green), below 0.8× less
+  (red).
+- **Lists** - the event's Top 8 and the Best-Of list of each Legend. Tap one
+  to see the full list (with its Chosen Champion and Sideboard), then
+  **Simulate against it** (it becomes the Simulate tab's opponent, no saving
+  needed - replays work too) or **Save as opponent deck**.
+- **Test my deck** - plays 200 games against the best-placed list of each of
+  the event's 8 most played Legends and weighs the results by their Day 2
+  share: roughly "how would my deck have done against that Day 2 field".
+- **Trend** - each popular Legend's Day 2 share over the last 6 events, with
+  its Top 8 count.
+
+Every list shows **text N%**: how much of its card text the simulator
+actually plays (curated abilities, or cards with nothing but keywords). New
+sets and meta cards mostly aren't curated yet, so a list at 20% plays most
+of its cards as plain stats and the field test **overrates your deck**
+against it - the app warns when that's the case. Curating more cards in
+`tools/card-abilities.json` raises these numbers.
+
+The data is built by `node tools/build-meta-data.mjs` (after
+`build-card-data.mjs`; the weekly GitHub Action runs both) into
+`docs/meta.json`: only facts - lists, placements, player counts - with a link
+to each article. It finds the articles in Riot's sitemap, so a new event's
+article is picked up the week it's published. Riot's articles have the odd
+typo ("Corina Veraza"); the script matches those to the nearest card and
+says so, and leaves out (and reports) anything it can't place.
+
+## Journal of real games
+
+The **Journal** tab is where you log the games you play for real: date,
+result, your deck, the opponent's Legend (and deck, if you like), who went
+first, the final score, the event, both battlefields and a note on what
+decided it. It then shows:
+
+- **Your record** - overall winrate with its 95% range, going first vs
+  second, your last results, and the record per opponent Legend, per deck
+  and per event.
+- **Real games vs the simulator** - for one of your decks, your real
+  winrate against each Legend you've logged next to the simulator's (200
+  games against a saved opponent deck of that Legend, or its latest
+  tournament list). Where they're far apart (with enough real games to
+  count), the simulator is missing something about that matchup.
+
+Tap a game to edit or delete it. On the PC games are saved to
+`Journal\Games.csv` (created with the first game) and published with the
+rest of the repo by `PushToGitHub.bat` - **the repo is public, so anyone can
+read your games and notes there**. On the phone they're saved on the phone;
+**Export games** there (it opens the share sheet, e.g. to email it or save
+it to Drive) and **Import games** on the PC to bring them over - the same
+game is never added twice, and when both sides have a game, the copy
+edited last wins.
+
 ## Card abilities from the official text
 
 Every card's mechanics come from **Riot's official card gallery**
@@ -278,13 +367,18 @@ node tools/build-card-data.mjs
 ```
 
 That script (Node, development only - the app itself never needs it)
-downloads the gallery data and writes into `docs/carddatabase.json`, for
-every card:
+downloads the gallery data and writes into `docs/carddatabase.json`. Cards
+of a new set are **added** with their official stats (cost, Might, domains,
+tags) - a preview card the gallery doesn't give a card type yet waits for
+the next run. Then, for every card:
 
 - **Keywords** printed on their own line - `[Assault 2]`, `[Shield]`,
   `[Tank]`, `[Accelerate]` (with its extra cost), `[Ganking]`, `[Deflect]`,
   `[Reaction]`, `[Ambush]`... - read straight from the text.
 - The **[Equip] cost** of Equipment.
+- Whether it's a **Champion** or **Signature** card (Champion units can be a
+  deck's Chosen Champion), and whether it has any rules text beyond its
+  keywords (if not, the simulator plays all of it).
 - The card's **collector code**, so the app can show the official card image
   (which carries the full rules text).
 - Its **ability**, when it's one of the hand-curated entries in
@@ -339,7 +433,7 @@ shows "card text" instead of a Tag box for the ones that are).
 
 A 1v1 duel, following the Core Rules / Quick Start:
 
-- **Setup:** each player brings one of their 3 battlefields (picked at random; in a best-of-3 nobody repeats one), so 2 are in play. Opening hand of **4**, then a mulligan of up to 2 cards (the AI sets aside cards costing 5+ Energy). The first player is random.
+- **Setup:** each player brings one of their 3 battlefields (picked at random; in a best-of-3 nobody repeats one), so 2 are in play. Opening hand of **4**, then a mulligan of up to 2 cards (the AI sets aside cards costing 5+ Energy). The first player is random. Each deck's **Chosen Champion** starts in the Champion Zone, outside the Main Deck, and can be played from there like a card in hand (including as a Reaction/Ambush in a fight).
 - **Legend / Rune Deck / Battlefield Zone are separate from the Main Deck** (rules 103.3, 107.2, 107.4): only `Unit`/`Spell`/`Gear` cards are drawn.
 - **Runes:** 2 channeled per turn from the shuffled Rune Deck (430.4.a / 315.3.b), 3 on the second player's first turn (485.7). **Energy** is paid by exhausting runes; **Power** by recycling a rune of the card's domain to the bottom of the Rune Deck (an exhausted rune can still be recycled), so Power costs slow your rune growth. Runes left ready at the end of your turn can pay for Reactions on the opponent's turn. A two-domain card's Power can be paid with either domain (approximation).
 - **Units** are played exhausted (ready with **Accelerate**, paying its extra cost), to base or to a battlefield you control. A ready unit exhausts to move from base to a battlefield; **Ganking** units can also move battlefield to battlefield.
@@ -414,24 +508,32 @@ RiftboundSimulator/
   RunWebUI.bat               <- double-click to run the app on your PC
   WebServer.ps1               <- local server: serves docs/ + the deck CSVs
   DeckFiles.psm1              <- reads/writes the Decks\*.csv files
-  UpdatePhoneDecks.ps1        <- rebuilds docs/decks.json from Decks\*.csv
-  PushToGitHub.bat            <- refreshes docs/decks.json, commits, pushes
+  JournalFile.psm1            <- reads/writes Journal\Games.csv
+  UpdatePhoneDecks.ps1        <- rebuilds docs/decks.json and docs/journal.json
+  PushToGitHub.bat            <- pulls, refreshes the phone data, commits, pushes
+  .github/workflows/
+    refresh-data.yml          <- weekly card + tournament data refresh
   Keywords.md                <- keyword glossary reference
   Errata.md                  <- errata notes
   tools/
     build-card-data.mjs       <- refreshes card mechanics from the official gallery
+    build-meta-data.mjs       <- builds docs/meta.json from Riot's Top Decks articles
     card-abilities.json       <- hand-curated abilities, written from the card text
   docs/                       <- THE app (PC and phone), published by GitHub Pages
     index.html
     style.css
     app.js                    <- UI
     engine.js                 <- the simulation engine
-    carddatabase.json         <- ~935 real cards: stats, keywords, collector
+    carddatabase.json         <- ~1090 real cards: stats, keywords, collector
                                  codes and curated abilities (no rules text)
+    meta.json                 <- tournament results (Legend counts, lists)
+    journal.json              <- snapshot of Journal\Games.csv, seeds the phone
     banned.json               <- banned cards/battlefields
     decks.json                <- snapshot of Decks\*.csv, seeds the phone
     sw.js                     <- service worker (offline cache)
     manifest.webmanifest, icons/
+  Journal/
+    Games.csv                 <- your real games (created with the first one)
   Decks/
     MyDeck/
       Rengar_Pridestalker.csv

@@ -108,6 +108,92 @@ class DeviceDeckStore {
   }
 }
 
+// ============================================================================
+//  JOURNAL STORAGE  (the real games logged in the Journal tab)
+//  Same split as the decks, with all()/put()/remove():
+//  - FileJournalStore: on the PC, Journal\Games.csv through api/journal.
+//  - DeviceJournalStore: elsewhere, IndexedDB, merged on every start with
+//    journal.json (the PC's snapshot, published with the repo) - see
+//    mergeSeedJournal.
+// ============================================================================
+const API_JOURNAL = 'api/journal';
+const JOURNAL_FIELDS = ['id', 'date', 'myDeck', 'myLegend', 'opponentLegend', 'opponentDeck', 'result', 'wentFirst',
+  'myScore', 'opponentScore', 'myBattlefield', 'opponentBattlefield', 'event', 'notes', 'updated'];
+
+class FileJournalStore {
+  constructor() {
+    this.kind = 'files';
+  }
+
+  async all() {
+    const res = await fetch(API_JOURNAL, { cache: 'no-store' });
+    if (!res.ok) throw await responseError(res, 'Could not read the journal file');
+    return res.json();
+  }
+
+  async put(entry) {
+    const res = await fetch(API_JOURNAL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(entry),
+    });
+    if (!res.ok) throw await responseError(res, 'Could not save the journal file');
+  }
+
+  async remove(id) {
+    const res = await fetch(`${API_JOURNAL}?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) throw await responseError(res, 'Could not update the journal file');
+  }
+}
+
+class DeviceJournalStore {
+  constructor(db) {
+    this.kind = 'device';
+    this.db = db;
+  }
+
+  static async open(db, seedUrl) {
+    const seed = await fetch(seedUrl).then(r => r.json()).catch(() => null);
+    if (Array.isArray(seed)) await mergeSeedJournal(db, seed);
+    return new DeviceJournalStore(db);
+  }
+
+  all() {
+    return idbGetAll(this.db, STORE_JOURNAL);
+  }
+
+  put(entry) {
+    return idbPut(this.db, STORE_JOURNAL, entry);
+  }
+
+  remove(id) {
+    return idbDelete(this.db, STORE_JOURNAL, id);
+  }
+}
+
+// The deck merge's rules for journal entries, with each entry's `updated`
+// time as its version: a published game this device has never seen is
+// added; one changed on the PC replaces this device's copy only if that copy
+// is still as it was published; one deleted here stays deleted.
+async function mergeSeedJournal(db, seed) {
+  const meta = (await idbGet(db, STORE_META, 'journalSeed')) || { key: 'journalSeed', entries: {} };
+  const known = meta.entries;
+  const toPut = [];
+  for (const entry of seed) {
+    if (!entry || !entry.id) continue;
+    const existing = await idbGet(db, STORE_JOURNAL, entry.id);
+    if (!(entry.id in known)) {
+      if (!existing) toPut.push(entry);
+      known[entry.id] = existing ? existing.updated : entry.updated;
+    } else if (existing && known[entry.id] !== entry.updated && existing.updated === known[entry.id]) {
+      toPut.push(entry);
+      known[entry.id] = entry.updated;
+    }
+  }
+  if (toPut.length) await idbPutAll(db, STORE_JOURNAL, toPut);
+  await idbPut(db, STORE_META, meta);
+}
+
 // A short fingerprint of a deck's card rows, used to tell "still exactly as
 // it was seeded" from "edited on this device".
 function rowsFingerprint(rows) {
@@ -156,9 +242,10 @@ async function mergeSeedDecks(db, seed) {
 
 // IndexedDB helpers behind DeviceDeckStore.
 const DB_NAME = 'riftbound-db';
-const DB_VERSION = 2;           // v2 added the 'meta' store
+const DB_VERSION = 3;           // v2 added the 'meta' store, v3 'journal'
 const STORE_DECKS = 'decks';
 const STORE_META = 'meta';
+const STORE_JOURNAL = 'journal';
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -170,6 +257,9 @@ function openDb() {
       }
       if (!db.objectStoreNames.contains(STORE_META)) {
         db.createObjectStore(STORE_META, { keyPath: 'key' });
+      }
+      if (!db.objectStoreNames.contains(STORE_JOURNAL)) {
+        db.createObjectStore(STORE_JOURNAL, { keyPath: 'id' });
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -234,7 +324,9 @@ export const RUN_SIZES = {
   single: 1000, // games vs one opponent (95% margin about ±3 points)
   match: 200,   // best-of-3 matches vs one opponent
   matrix: 500,  // games vs each saved opponent
+  field: 200,   // games vs each Legend's list in a tournament's field test
 };
+const FIELD_LEGENDS = 8;          // the field test plays the 8 most played Legends
 
 const VICTORY_SCORE = 8;
 const BATTLEFIELD_COUNT = 2;    // 1v1: each player brings one battlefield
@@ -462,6 +554,12 @@ function sumBy(list, fn) {
 // ============================================================================
 //  CARD DATABASE (CardDatabase.json) + BANNED LIST
 // ============================================================================
+// Tournament lists from docs/meta.json are addressed as "meta:<event>/<n>".
+const META_PREFIX = 'meta:';
+function isMetaDeckId(id) {
+  return typeof id === 'string' && id.startsWith(META_PREFIX);
+}
+
 function normalizeCardName(name) {
   // Strip commas/apostrophes/periods/quotes (including curly '’'), collapse
   // whitespace, lowercase.
@@ -513,8 +611,10 @@ class Engine {
         Domains: v.domains || [],
         IsToken: !!v.isToken,
         Champions: v.champions || [],
+        Supertype: v.supertype || null,       // 'Champion' | 'Signature' | 'Token'
         Code: v.code || null,                 // collector code, for the card image
         Keywords: v.keywords || {},           // from the official text
+        Vanilla: !!v.vanilla,                 // no rules text beyond keywords
         Equip: v.equip || null,               // [Equip] cost
         Ability: v.ability || null,           // curated from the official text
         AbilityPartial: !!v.abilityPartial,   // some of the text isn't modeled
@@ -523,11 +623,21 @@ class Engine {
       const normKey = normalizeCardName(name);
       if (normKey && !db.has(normKey)) db.set(normKey, rec);
     }
+    // The gallery's spelling of a few cards ("Master Yi, Honed" for
+    // "Yi, Honed") resolves too.
+    for (const name of Object.keys(cardDbRaw)) {
+      const official = cardDbRaw[name].official;
+      if (!official) continue;
+      const rec = db.get(name.toLowerCase());
+      if (!db.has(official.toLowerCase())) db.set(official.toLowerCase(), rec);
+      if (!db.has(normalizeCardName(official))) db.set(normalizeCardName(official), rec);
+    }
     this.cardDatabase = db;
 
     this.bannedSet = new Set(bannedRaw);
 
     this.store = (await FileDeckStore.detect()) || (await DeviceDeckStore.open('decks.json'));
+    this.journal = this.store.kind === 'files' ? new FileJournalStore() : await DeviceJournalStore.open(this.store.db, 'journal.json');
 
     this.ready = true;
   }
@@ -574,8 +684,10 @@ class Engine {
   // --------------------------------------------------------------------
   //  DECK RESOLUTION  (a stored record's rows -> a playable deck)
   // --------------------------------------------------------------------
+  // `deckId` is a saved deck's id, or "meta:<event>/<n>" for a tournament
+  // list from docs/meta.json.
   async getResolvedDeck(deckId) {
-    const record = await this.store.get(deckId);
+    const record = isMetaDeckId(deckId) ? await this.metaDeckRecord(deckId) : await this.store.get(deckId);
     if (!record) throw new Error(`Deck not found: ${deckId}`);
     return this.resolveDeck(record);
   }
@@ -594,6 +706,7 @@ class Engine {
     const legendName = legendRow ? legendRow.Name.trim() : null;
     const legendRec = legendName ? this.cardDatabase.get(legendName.toLowerCase()) : null;
     const allowedDomains = legendDomain ? legendDomain.split('/').map(s => s.trim()) : [];
+    let champion = null;
 
     for (const row of rows) {
       const name = row.Name.trim();
@@ -637,7 +750,12 @@ class Engine {
       }
 
       const card = this.playableCard(row, rec);
-      for (let i = 0; i < qty; i++) cards.push(card);
+      let copies = qty;
+      if (!champion && qty > 0 && this.isChampionFor(rec, legendName)) {
+        champion = card;
+        copies--;
+      }
+      for (let i = 0; i < copies; i++) cards.push(card);
     }
 
     // A deck without Rune rows still plays with a standard 12, split
@@ -649,6 +767,7 @@ class Engine {
 
     return {
       Cards: cards,
+      Champion: champion,
       Runes: runes,
       Battlefields: battlefields,
       Legend: { Name: legendName, Ability: legendRec ? legendRec.Ability : null },
@@ -659,6 +778,16 @@ class Engine {
       BannedExcluded: [...new Set(bannedFound)],
       SkippedOffDomain: skippedOffDomain,
     };
+  }
+
+  // The Chosen Champion: a Champion unit of the Legend's champion ("Rengar,
+  // Trophy Hunter" for "Rengar, Pridestalker"). A deck's first such row is
+  // the chosen one - the editor and the list import put it right after the
+  // Legend. One copy starts the game in the Champion Zone instead of the
+  // Main Deck and can be played from there like a card in hand.
+  isChampionFor(rec, legendName) {
+    if (!rec || rec.Type !== 'Unit' || rec.Supertype !== 'Champion' || !legendName) return false;
+    return rec.Champions.includes(legendName.split(',')[0].trim());
   }
 
   // A Main Deck card as the engine plays it: stats from the deck row,
@@ -701,7 +830,9 @@ class Engine {
   //  - 2 battlefields: each player brings one of their 3 (picked at random;
   //    a best-of-3 never repeats one). Battlefield abilities come from the
   //    card database.
-  //  - Opening hand of 4, then a mulligan of up to 2 cards.
+  //  - Opening hand of 4, then a mulligan of up to 2 cards. The Chosen
+  //    Champion waits in the Champion Zone, playable any time like a card
+  //    in hand.
   //  - Runes: channel 2 a turn (3 on the second player's first turn) from
   //    the shuffled Rune Deck. Energy is paid by exhausting runes, Power by
   //    recycling runes of the card's domain to the bottom of the Rune Deck
@@ -736,6 +867,7 @@ class Engine {
       DeckName: deck.Name,
       Library: shuffle(deck.Cards, this.rng),
       Hand: [],
+      ChampionZone: deck.Champion ? [deck.Champion] : [],
       Trash: [],
       RuneDeck: shuffle(deck.Runes, this.rng),
       Runes: [],          // on the board: { domain, exhausted }
@@ -1011,11 +1143,13 @@ class Engine {
       .sort((a, b) => b.Energy - a.Energy)
       .slice(0, MULLIGAN_MAX);
     if (setAside.length > 0) {
-      player.Hand = player.Hand.filter(c => !setAside.includes(c));
+      // Copies of a card share one object: take out one per set-aside card.
+      for (const c of setAside) player.Hand.splice(player.Hand.indexOf(c), 1);
       player.Hand.push(...player.Library.splice(0, setAside.length));
       player.Library = shuffle(player.Library.concat(setAside), this.rng);
     }
-    this.note(g, player, `opening hand: ${player.Hand.map(c => c.Name).join(', ')}${setAside.length ? ` (mulliganed ${setAside.map(c => c.Name).join(', ')})` : ''}.`);
+    const champion = player.ChampionZone.length ? ` Chosen Champion: ${player.ChampionZone[0].Name}.` : '';
+    this.note(g, player, `opening hand: ${player.Hand.map(c => c.Name).join(', ')}${setAside.length ? ` (mulliganed ${setAside.map(c => c.Name).join(', ')})` : ''}.${champion}`);
   }
 
   removeFromLocation(u, g) {
@@ -1478,11 +1612,21 @@ class Engine {
     return { returnToHand };
   }
 
-  // Plays a card from hand: pays, then (spells) gives the opponent a chance
-  // to counter, then resolves it. `ctx` carries the combat for reactions.
+  // What a player can play: the hand, plus the Chosen Champion while it's
+  // still in the Champion Zone.
+  playable(p) {
+    return p.ChampionZone.length ? p.Hand.concat(p.ChampionZone) : p.Hand;
+  }
+
+  // Plays a card from hand (or the Champion Zone): pays, then (spells) gives
+  // the opponent a chance to counter, then resolves it. `ctx` carries the
+  // combat for reactions.
   playCard(card, p, opp, g, { accelerate = false, combat = null, at = -1, targetBf = -1 } = {}) {
     this.pay(p, this.cardCost(card, accelerate), g);
-    p.Hand.splice(p.Hand.indexOf(card), 1);
+    const fromHand = p.Hand.includes(card);
+    const zone = fromHand ? p.Hand : p.ChampionZone;
+    zone.splice(zone.indexOf(card), 1);
+    const from = fromHand ? '' : ' from the Champion Zone';
     p.PlayLog.push(card.Name);
     p.CardsPlayedThisTurn++;
     const ctx = { p, opp, g, combat, targetBf, source: card.Name };
@@ -1513,7 +1657,7 @@ class Engine {
       } else {
         this.deployUnit(unit, p, opp, g);
       }
-      this.note(g, p, `plays ${card.Name}${accelerate ? ' (accelerated, ready)' : ''} ${unit.at >= 0 ? `to ${this.bfName(g, unit.at)}` : 'to base'}.`);
+      this.note(g, p, `plays ${card.Name}${from}${accelerate ? ' (accelerated, ready)' : ''} ${unit.at >= 0 ? `to ${this.bfName(g, unit.at)}` : 'to base'}.`);
       this.attachLooseGear(p, opp, g);
       this.runOps(this.opsOf(card), { ...ctx, self: unit });
       for (const other of this.unitsOf(p, g)) {
@@ -1570,7 +1714,7 @@ class Engine {
   // ambusher in hand, when there's a held battlefield to protect.
   reactionReserve(p, g) {
     if (!g.battlefields.some(bf => bf.controller === p)) return 0;
-    const held = p.Hand.filter(c => (c.Type === 'Spell' && this.isCombatTrick(c) && this.isQuick(c))
+    const held = this.playable(p).filter(c => (c.Type === 'Spell' && this.isCombatTrick(c) && this.isQuick(c))
       || (c.Type === 'Unit' && c.Keywords && (c.Keywords.Ambush || c.Keywords.Reaction)));
     if (!held.length) return 0;
     return Math.min(...held.map(c => c.Energy));
@@ -1599,7 +1743,7 @@ class Engine {
       const reserve = this.reactionReserve(p, g);
       const targetBf = this.firstAttackTarget(p, opp, g);
       let best = null;
-      for (const card of p.Hand) {
+      for (const card of this.playable(p)) {
         if (!this.usefulNow(card, p, opp, g)) continue;
         const isHeldReaction = (card.Type === 'Unit' && card.Keywords && (card.Keywords.Ambush || card.Keywords.Reaction) && reserve > 0 && card.Energy === reserve);
         if (isHeldReaction) continue;
@@ -1762,7 +1906,7 @@ class Engine {
       if (winning) return;
       let best = null;
       let bestValue = 0;
-      for (const card of side.Hand) {
+      for (const card of this.playable(side)) {
         const quickSpell = card.Type === 'Spell' && this.isQuick(card);
         const ambusher = card.Type === 'Unit' && combat.defender === side && card.Keywords && (card.Keywords.Ambush || card.Keywords.Reaction);
         if (!quickSpell && !ambusher) continue;
@@ -2316,22 +2460,28 @@ class Engine {
   //  TEXT-LIST DECK IMPORT  (parse -> resolve against the card database ->
   //  save through the deck store)
   // --------------------------------------------------------------------
+  // One { Quantity, Name, Section } per card line. Section is 'champion'
+  // under a "Champion:" header (the Chosen Champion of an official list),
+  // 'sideboard' under "Sideboard:" (not part of the deck), 'main' otherwise.
   parseDeckText(text) {
-    const sectionHeaderOnly = /^(?:Legend|Legends|Battlefield|Battlefields|Rune|Runes|Main ?Deck|Unit|Units|Spell|Spells|Gear)\s*:?\s*$/i;
-    const sectionHeaderWithContent = /^(?:Legend|Legends|Battlefield|Battlefields|Rune|Runes|Main ?Deck|Unit|Units|Spell|Spells|Gear)\s*:\s*(.+)$/i;
-    const leadingQty = /^(\d+)\s*x?\s+(.+)$/i;
+    const header = /^(Legends?|Champion|Chosen Champion|Battlefields?|Runes?|Rune Pool|Main ?Deck|Units?|Spells?|Gear|Side ?board|Side ?Deck)\s*(?::\s*(.*))?$/i;
+    const leadingQty = /^x?(\d+)\s*x?\s+(.+)$/i;
     const trailingQty = /^(.+?)\s*x\s*(\d+)$/i;
 
     const lines = (text || '').split(/\r\n|\n|\r/);
     const result = [];
+    let section = 'main';
     for (const raw of lines) {
       let line = raw.trim();
       if (!line) continue;
       if (line.startsWith('#')) continue;
-      if (sectionHeaderOnly.test(line)) continue;
 
-      const withContent = line.match(sectionHeaderWithContent);
-      if (withContent) line = withContent[1].trim();
+      const head = line.match(header);
+      if (head) {
+        const label = head[1].toLowerCase();
+        section = label.includes('champion') ? 'champion' : (label.startsWith('side') ? 'sideboard' : 'main');
+        line = (head[2] || '').trim();
+      }
       if (!line) continue;
 
       let qty = 1;
@@ -2349,27 +2499,35 @@ class Engine {
       name = name.replace(/’|‘/g, "'").replace(/“|”/g, '"');
       name = name.replace(/^[\s"]+|[\s"]+$/g, '');
 
-      if (name) result.push({ Quantity: qty, Name: name });
+      if (name) result.push({ Quantity: qty, Name: name, Section: section });
     }
     return result;
   }
 
   resolveDeckList(parsed, maxCopies = 3) {
     const merged = new Map();
+    const warnings = [];
+    let championKey = null;
+    const sideboard = parsed.filter(p => p.Section === 'sideboard').reduce((s, p) => s + p.Quantity, 0);
+    if (sideboard) warnings.push(`Sideboard (${sideboard} cards) left out - only the deck itself is saved.`);
     for (const p of parsed) {
+      if (p.Section === 'sideboard') continue;
       const normKey = normalizeCardName(p.Name);
       if (!normKey) continue;
+      if (p.Section === 'champion' && !championKey) championKey = normKey;
       if (merged.has(normKey)) {
         merged.get(normKey).Quantity += p.Quantity;
       } else {
         merged.set(normKey, { Name: p.Name, Quantity: p.Quantity });
       }
     }
+    // The Chosen Champion goes right after the Legend, where the engine
+    // looks for it.
+    const entries = [...merged.entries()].sort(([a], [b]) => (b === championKey) - (a === championKey)).map(([, e]) => e);
 
     const rows = [];
-    const warnings = [];
 
-    for (const entry of merged.values()) {
+    for (const entry of entries) {
       let rec = this.cardDatabase.get(entry.Name.toLowerCase());
       if (!rec) rec = this.cardDatabase.get(normalizeCardName(entry.Name));
       if (!rec) {
@@ -2387,6 +2545,7 @@ class Engine {
       }
       rows.push(this.rowFromRecord(rec, qty));
     }
+    rows.sort((a, b) => (b.Type === 'Legend') - (a.Type === 'Legend'));
 
     const counts = this.deckCounts(rows);
     warnings.push(...counts.warnings);
@@ -2647,17 +2806,20 @@ class Engine {
 
   // What the app shows about a card: its official image, keywords and what
   // the simulator models of it ('text' = curated from the official text,
-  // 'partial' = only part of it, 'tag' = the deck row's Tag, 'none').
+  // 'partial' = only part of it, 'keywords' = it has no text beyond its
+  // keywords, 'tag' = the deck row's Tag, 'none').
   cardInfo(cardName, tag = '') {
     const rec = this.cardDatabase.get((cardName || '').toLowerCase()) || this.cardDatabase.get(normalizeCardName(cardName));
     if (!rec) return null;
     const tagAbility = rec.Ability ? null : abilityFromTag(tag, rec.Type, {});
     let modeled = 'none';
     if (rec.Ability) modeled = rec.AbilityPartial ? 'partial' : 'text';
+    else if (rec.Vanilla) modeled = 'keywords';
     else if (parseTag(tag)) modeled = 'tag';
     return {
       name: rec.Name,
       type: rec.Type,
+      supertype: rec.Supertype,
       code: rec.Code,
       imageUrl: cardImageUrl(rec.Code),
       keywords: describeKeywords(rec.Keywords),
@@ -2707,6 +2869,9 @@ class Engine {
     const problems = [];
     const legendRow = rows.find(r => r.Type === 'Legend');
     const domains = legendRow && legendRow.Domain ? legendRow.Domain.split('/').map(s => s.trim()) : [];
+    const legendName = legendRow ? legendRow.Name.trim() : null;
+    const championRow = rows.find(r => (parseInt(r.Quantity, 10) || 0) > 0 && this.isChampionFor(this.cardDatabase.get((r.Name || '').trim().toLowerCase()), legendName));
+    if (legendName && !championRow) problems.push(`No Chosen Champion: add a Champion unit of ${legendName.split(',')[0]}.`);
 
     for (const r of rows) {
       const name = (r.Name || '').trim();
@@ -2727,8 +2892,17 @@ class Engine {
       battlefieldCount: counts.battlefieldCount,
       runeTotal: counts.runeTotal,
       mainDeckTotal: counts.mainDeckTotal,
+      champion: championRow ? championRow.Name : null,
       problems,
     };
+  }
+
+  // The rows a deck could choose as its Chosen Champion (the editor offers
+  // them; the chosen one is moved first, see isChampionFor).
+  championOptions(rows) {
+    const legendRow = rows.find(r => r.Type === 'Legend');
+    const legendName = legendRow ? legendRow.Name.trim() : null;
+    return rows.filter(r => this.isChampionFor(this.cardDatabase.get((r.Name || '').trim().toLowerCase()), legendName)).map(r => r.Name);
   }
 
   // Saves an edited deck. With `id`, overwrites that deck (keeping its
@@ -2763,6 +2937,400 @@ class Engine {
 
   async deleteDeck(id) {
     await this.store.remove(id);
+  }
+
+  // --------------------------------------------------------------------
+  //  META  (docs/meta.json, built by tools/build-meta-data.mjs from Riot's
+  //  organized-play "Top Decks" articles: each event's Day 1 / Day 2 Legend
+  //  counts and its Top 8 and Best-Of lists)
+  // --------------------------------------------------------------------
+  async loadMeta() {
+    if (!this.meta) {
+      try {
+        this.meta = await fetch('meta.json').then(r => r.json());
+      } catch {
+        this.meta = { events: [] };
+      }
+    }
+    return this.meta;
+  }
+
+  async metaEventById(eventId) {
+    const meta = await this.loadMeta();
+    const event = meta.events.find(e => e.id === eventId);
+    if (!event) throw new Error(`Tournament not found: ${eventId}`);
+    return event;
+  }
+
+  // "meta:<event>/<n>" -> that list as a deck record (not saved anywhere).
+  async metaDeckRecord(deckId) {
+    const [eventId, n] = deckId.slice(META_PREFIX.length).split('/');
+    const event = await this.metaEventById(eventId);
+    const deck = event.decks[parseInt(n, 10)];
+    if (!deck) return null;
+    return { id: deckId, name: this.metaDeckName(event, deck), category: null, isMyDeck: false, rows: this.metaDeckRows(deck) };
+  }
+
+  metaDeckName(event, deck) {
+    const place = deck.top8 && deck.overall ? `#${deck.overall}` : (deck.bestOf ? 'Best-Of' : '');
+    return `${deck.legend.split(',')[0]} - ${deck.player} (${event.name}${place ? ` ${place}` : ''})`;
+  }
+
+  // Deck rows in the engine's order: Legend, Chosen Champion, the rest.
+  metaDeckRows(deck) {
+    const rows = [];
+    const add = (name, qty) => {
+      const rec = this.cardDatabase.get(name.toLowerCase());
+      if (!rec) return;
+      const row = rows.find(r => r.Name === rec.Name);
+      if (row) row.Quantity += qty;
+      else rows.push(this.rowFromRecord(rec, qty));
+    };
+    add(deck.legend, 1);
+    if (deck.champion) add(deck.champion, 1);
+    for (const name of deck.battlefields) add(name, 1);
+    for (const [qty, name] of deck.runes) add(name, qty);
+    for (const [qty, name] of deck.main) add(name, qty);
+    return rows;
+  }
+
+  // A tournament list that's whole and legal today: every card known, 3
+  // battlefields, 12 runes, nothing banned since. The field test and the
+  // journal comparison only play these.
+  metaDeckPlayable(deck) {
+    if ((deck.unknown && deck.unknown.length) || deck.battlefields.length !== 3) return false;
+    if (deck.runes.reduce((s, [qty]) => s + qty, 0) !== RUNE_DECK_SIZE) return false;
+    const names = [deck.legend, deck.champion, ...deck.battlefields, ...deck.main.map(([, name]) => name)].filter(Boolean);
+    return !names.some(name => this.bannedSet.has(name.toLowerCase()));
+  }
+
+  // How much of a deck's card text the engine plays: Main Deck copies
+  // (and the Chosen Champion) whose text is fully modeled (curated, or only
+  // keywords), partly modeled, or not at all.
+  coverageOf(resolved) {
+    const counts = { full: 0, partial: 0, none: 0 };
+    for (const card of resolved.Champion ? resolved.Cards.concat([resolved.Champion]) : resolved.Cards) {
+      const rec = this.cardDatabase.get(card.Name.toLowerCase());
+      if (rec && rec.Ability) counts[rec.AbilityPartial ? 'partial' : 'full']++;
+      else if (rec && rec.Vanilla) counts.full++;
+      else counts.none++;
+    }
+    const total = counts.full + counts.partial + counts.none;
+    const legendRec = resolved.LegendName ? this.cardDatabase.get(resolved.LegendName.toLowerCase()) : null;
+    return {
+      ...counts,
+      total,
+      fullPct: total ? Math.round(100 * counts.full / total) : 0,
+      partialPct: total ? Math.round(100 * counts.partial / total) : 0,
+      legendModeled: !!(legendRec && legendRec.Ability),
+    };
+  }
+
+  async metaEvents() {
+    const meta = await this.loadMeta();
+    return {
+      generated: meta.generated || null,
+      events: meta.events.map(e => ({ id: e.id, name: e.name, published: e.published, url: e.url, players: e.players, day2Players: e.day2Players, decks: e.decks.length })),
+    };
+  }
+
+  // One event: the field (each Legend's Day 1 / Day 2 players and share, and
+  // how its share changed from Day 1 to Day 2) and its lists.
+  async metaEvent(eventId) {
+    const event = await this.metaEventById(eventId);
+    const pct = (n, total) => (total ? round1(100 * n / total) : 0);
+    const share = event.share.map(r => ({
+      legend: r.legend,
+      label: r.legend || r.label,
+      day1: r.day1,
+      day2: r.day2,
+      day1Pct: pct(r.day1, event.players),
+      day2Pct: pct(r.day2, event.day2Players),
+      top8: event.decks.filter(d => d.top8 && d.legend === r.legend).length,
+    }));
+    share.forEach(r => { r.conversion = r.day1Pct ? Math.round(100 * r.day2Pct / r.day1Pct) / 100 : null; });
+    share.sort((a, b) => b.day2 - a.day2 || b.day1 - a.day1);
+
+    const decks = event.decks.map((d, i) => {
+      const id = `${META_PREFIX}${event.id}/${i}`;
+      const resolved = this.resolveDeck({ id, name: '', rows: this.metaDeckRows(d) });
+      return {
+        id,
+        name: this.metaDeckName(event, d),
+        player: d.player,
+        legend: d.legend,
+        champion: d.champion,
+        top8: !!d.top8,
+        bestOf: !!d.bestOf,
+        overall: d.overall,
+        legendRank: d.legendRank,
+        // Cards banned since the event are left out when it's simulated.
+        banned: resolved.BannedExcluded,
+        incomplete: !this.metaDeckPlayable(d),
+        coverage: this.coverageOf(resolved),
+      };
+    });
+    const sharePos = new Map(share.map((r, i) => [r.legend, i]));
+    decks.sort((a, b) => (b.top8 - a.top8) || (a.top8 ? (a.overall || 99) - (b.overall || 99) : 0)
+      || ((sharePos.get(a.legend) ?? 99) - (sharePos.get(b.legend) ?? 99)) || a.player.localeCompare(b.player));
+
+    return { id: event.id, name: event.name, title: event.title, published: event.published, url: event.url, players: event.players, day2Players: event.day2Players, share, decks };
+  }
+
+  // The most played Legends across the last `events` events: their Day 2
+  // share (Day 1 when an event has no Day 2 count) and Top 8 lists per event,
+  // oldest first.
+  async metaTrend({ events = 6, legends = 10 } = {}) {
+    const meta = await this.loadMeta();
+    const recent = meta.events.slice(0, events).reverse();
+    const weight = new Map();
+    recent.forEach((e, i) => {
+      for (const r of e.share) if (r.legend) weight.set(r.legend, (weight.get(r.legend) || 0) + (i + 1) * (e.day2Players ? r.day2 / e.day2Players : 0));
+    });
+    const top = [...weight.entries()].sort((a, b) => b[1] - a[1]).slice(0, legends).map(([l]) => l);
+    return {
+      events: recent.map(e => ({ id: e.id, name: e.name, published: e.published })),
+      rows: top.map(legend => ({
+        legend,
+        points: recent.map(e => {
+          const r = e.share.find(x => x.legend === legend);
+          return {
+            day2Pct: r && e.day2Players ? round1(100 * r.day2 / e.day2Players) : null,
+            top8: e.decks.filter(d => d.top8 && d.legend === legend).length,
+          };
+        }),
+      })),
+    };
+  }
+
+  // A tournament list's decklist and Sideboard, for the card viewer.
+  async metaDecklist(deckId) {
+    const record = await this.metaDeckRecord(deckId);
+    if (!record) throw new Error(`Deck not found: ${deckId}`);
+    const [eventId, n] = deckId.slice(META_PREFIX.length).split('/');
+    const deck = (await this.metaEventById(eventId)).decks[parseInt(n, 10)];
+    const resolved = this.resolveDeck(record);
+    return {
+      ...this.decklistPayload(resolved),
+      champion: deck.champion,
+      sideboard: (deck.sideboard || []).map(([quantity, name]) => ({ quantity, name })),
+      unknown: deck.unknown || [],
+      banned: resolved.BannedExcluded,
+      coverage: this.coverageOf(resolved),
+    };
+  }
+
+  // Saves a tournament list as one of the user's opponent decks.
+  async saveMetaDeck(deckId, { category, name }) {
+    const record = await this.metaDeckRecord(deckId);
+    if (!record) throw new Error(`Deck not found: ${deckId}`);
+    return this.saveDeck({ category, name: name || record.name.replace(/[()#]/g, ''), rows: record.rows });
+  }
+
+  // My deck against the event's field: the best-placed list of each of its
+  // most played Legends, `games` games each (same seed for every opponent),
+  // and the winrate weighted by each Legend's Day 2 share - what the deck
+  // would have faced on Day 2. `onProgress(done, total)` lets the UI update
+  // between opponents.
+  async fieldTest(myDeckId, eventId, { games = RUN_SIZES.field, legends = FIELD_LEGENDS, seed, onProgress } = {}) {
+    const myDeck = await this.getResolvedDeck(myDeckId);
+    const event = await this.metaEvent(eventId);
+    const usedSeed = normalizeSeed(seed);
+    const fieldOf = r => r.day2 || r.day1;
+    const candidates = event.share.filter(r => r.legend && event.decks.some(d => d.legend === r.legend && !d.incomplete));
+    const picks = candidates.slice(0, legends);
+    const fieldTotal = event.share.reduce((s, r) => s + fieldOf(r), 0);
+
+    const rows = [];
+    for (const [i, r] of picks.entries()) {
+      const list = event.decks.find(d => d.legend === r.legend && !d.incomplete);
+      const opp = await this.getResolvedDeck(list.id);
+      this.startRun(usedSeed);
+      const batch = this.gameBatch(myDeck, opp, games);
+      rows.push({
+        legend: r.legend,
+        deckId: list.id,
+        deckName: list.name,
+        weight: fieldTotal ? round1(100 * fieldOf(r) / fieldTotal) : 0,
+        winrate: batch.Winrate,
+        winrateLow: batch.Interval.low,
+        winrateHigh: batch.Interval.high,
+        wins: batch.Wins,
+        draws: batch.Draws,
+        total: batch.GameCount,
+        coverage: list.coverage,
+      });
+      if (onProgress) onProgress(i + 1, picks.length);
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    const weightSum = rows.reduce((s, r) => s + r.weight, 0);
+    const expected = weightSum ? round1(rows.reduce((s, r) => s + r.weight * r.winrate, 0) / weightSum) : 0;
+    return {
+      eventId: event.id,
+      eventName: event.name,
+      myDeckName: myDeck.Name,
+      seed: usedSeed,
+      gamesPerOpponent: games,
+      rows,
+      expectedWinrate: expected,
+      fieldCovered: round1(weightSum),
+    };
+  }
+
+  // --------------------------------------------------------------------
+  //  REAL-GAME JOURNAL  (the Journal tab: games played for real, their
+  //  stats, and how the simulator's prediction compares)
+  // --------------------------------------------------------------------
+
+  // An entry with every field a trimmed string, as both stores keep it.
+  cleanJournalEntry(e) {
+    const out = {};
+    for (const f of JOURNAL_FIELDS) out[f] = e[f] === undefined || e[f] === null ? '' : String(e[f]).trim();
+    if (!['Win', 'Loss', 'Draw'].includes(out.result)) out.result = '';
+    if (!['Yes', 'No'].includes(out.wentFirst)) out.wentFirst = '';
+    return out;
+  }
+
+  // Newest game first.
+  async journalEntries() {
+    const all = (await this.journal.all()).map(e => this.cleanJournalEntry(e));
+    return all.sort((a, b) => b.date.localeCompare(a.date) || b.updated.localeCompare(a.updated));
+  }
+
+  async saveJournalEntry(entry) {
+    const e = this.cleanJournalEntry(entry);
+    if (!e.result) throw new Error('Pick the result (win, loss or draw).');
+    if (!e.opponentLegend) throw new Error("Pick the opponent's Legend.");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw new Error('The date should look like 2026-10-22.');
+    if (!e.id) e.id = `g${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+    e.updated = new Date().toISOString();
+    await this.journal.put(e);
+    return e;
+  }
+
+  async deleteJournalEntry(id) {
+    await this.journal.remove(id);
+  }
+
+  async exportJournal() {
+    return { app: 'riftbound-simulator', kind: 'journal', exported: new Date().toISOString(), entries: await this.journalEntries() };
+  }
+
+  // Merges an exported journal (from another device) into this one: new
+  // games are added, a game both have keeps the copy edited last.
+  async importJournal(data) {
+    const incoming = Array.isArray(data) ? data : (data && Array.isArray(data.entries) ? data.entries : null);
+    if (!incoming) throw new Error("That file isn't an exported journal.");
+    const current = new Map((await this.journalEntries()).map(e => [e.id, e]));
+    const result = { added: 0, updated: 0, unchanged: 0, skipped: 0 };
+    for (const raw of incoming) {
+      const e = this.cleanJournalEntry(raw || {});
+      if (!/^[A-Za-z0-9_-]{1,64}$/.test(e.id) || !e.result || !e.opponentLegend) {
+        result.skipped++;
+        continue;
+      }
+      const mine = current.get(e.id);
+      if (mine && mine.updated >= e.updated) {
+        result.unchanged++;
+        continue;
+      }
+      await this.journal.put(e);
+      result[mine ? 'updated' : 'added']++;
+    }
+    return result;
+  }
+
+  // W/L/D and winrate overall, going first vs second, and per opponent
+  // Legend, my deck and event (most played first), plus the last 10 results.
+  journalStats(entries) {
+    const tally = list => {
+      const wins = list.filter(e => e.result === 'Win').length;
+      const draws = list.filter(e => e.result === 'Draw').length;
+      const interval = winrateInterval(wins, list.length);
+      return { n: list.length, wins, losses: list.length - wins - draws, draws, winrate: percent(wins, list.length), winrateLow: interval.low, winrateHigh: interval.high };
+    };
+    const groupBy = key => {
+      const groups = new Map();
+      for (const e of entries) {
+        const k = e[key] || '(not set)';
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(e);
+      }
+      return [...groups.entries()].map(([k, list]) => ({ key: k, ...tally(list) })).sort((a, b) => b.n - a.n || a.key.localeCompare(b.key));
+    };
+    return {
+      ...tally(entries),
+      first: tally(entries.filter(e => e.wentFirst === 'Yes')),
+      second: tally(entries.filter(e => e.wentFirst === 'No')),
+      byOpponent: groupBy('opponentLegend'),
+      byDeck: groupBy('myDeck'),
+      byEvent: groupBy('event'),
+      recent: entries.slice(0, 10).map(e => e.result[0]).join(''),
+    };
+  }
+
+  // The real winrate of `myDeckId` against each opponent Legend in the
+  // journal next to the simulator's, from `games` games against a deck of
+  // that Legend: a saved opponent deck when there is one, else the latest
+  // tournament list. The first look at how well the simulator predicts real
+  // games (Phase 4 calibrates on it).
+  async journalVsSim(myDeckId, { games = RUN_SIZES.field, seed, onProgress } = {}) {
+    const myDeck = await this.getResolvedDeck(myDeckId);
+    const all = await this.journalEntries();
+    let entries = all.filter(e => e.myDeck === myDeckId);
+    if (!entries.length) entries = all.filter(e => e.myLegend && e.myLegend === myDeck.LegendName);
+    const usedSeed = normalizeSeed(seed);
+    const saved = await this.store.all();
+    const meta = await this.loadMeta();
+
+    const byLegend = this.journalStats(entries).byOpponent.filter(g => g.key !== '(not set)');
+    const rows = [];
+    for (const [i, g] of byLegend.entries()) {
+      let oppId = null;
+      let source = null;
+      const deck = saved.find(d => !d.isMyDeck && this.legendNameOf(d) === g.key);
+      if (deck) {
+        oppId = deck.id;
+        source = deck.name;
+      } else {
+        for (const event of meta.events) {
+          const usable = d => d.legend === g.key && this.metaDeckPlayable(d);
+          let n = event.decks.findIndex(d => usable(d) && d.top8);
+          if (n < 0) n = event.decks.findIndex(usable);
+          if (n >= 0) {
+            oppId = `${META_PREFIX}${event.id}/${n}`;
+            source = this.metaDeckName(event, event.decks[n]);
+            break;
+          }
+        }
+      }
+      const row = { legend: g.key, real: g, sim: null, deckId: oppId, deckName: source, coverage: null };
+      if (oppId) {
+        const opp = await this.getResolvedDeck(oppId);
+        this.startRun(usedSeed);
+        const batch = this.gameBatch(myDeck, opp, games);
+        row.sim = { winrate: batch.Winrate, winrateLow: batch.Interval.low, winrateHigh: batch.Interval.high, total: batch.GameCount };
+        row.coverage = this.coverageOf(opp);
+      }
+      rows.push(row);
+      if (onProgress) onProgress(i + 1, byLegend.length);
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    return { myDeckName: myDeck.Name, seed: usedSeed, gamesPerOpponent: games, games: entries.length, rows };
+  }
+
+  // Every Legend in the card database, for the journal's opponent picker.
+  legendNames() {
+    const names = new Set();
+    for (const rec of this.cardDatabase.values()) if (rec.Type === 'Legend') names.add(rec.Name);
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }
+
+  // The battlefields in the card database, for the journal form.
+  battlefieldNames() {
+    const names = new Set();
+    for (const rec of this.cardDatabase.values()) if (rec.Type === 'Battlefield' && !rec.IsToken) names.add(rec.Name);
+    return [...names].sort((a, b) => a.localeCompare(b));
   }
 
   // --------------------------------------------------------------------

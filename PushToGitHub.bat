@@ -30,7 +30,20 @@ if errorlevel 1 (
     git remote add origin https://github.com/FedericoViavattene/RfitSimulator.git
 )
 
-REM Refresh the phone app's starting decks (docs\decks.json) from Decks\*.csv.
+REM Bring in what GitHub already has that this PC doesn't - the weekly data
+REM refresh (new cards, tournament results) commits straight to GitHub - so
+REM this PC's changes go on top of it.
+git pull --rebase --autostash origin main
+if errorlevel 1 (
+    echo.
+    echo Could not bring in the latest changes from GitHub, so nothing was pushed.
+    echo Run "git status" to see what's going on, or ask Claude Code for help.
+    pause
+    exit /b 1
+)
+
+REM Refresh the phone app's starting data (docs\decks.json, docs\journal.json)
+REM from Decks\*.csv and Journal\Games.csv.
 powershell -NoProfile -ExecutionPolicy Bypass -File "UpdatePhoneDecks.ps1"
 
 git add -A

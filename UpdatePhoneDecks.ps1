@@ -1,33 +1,46 @@
 <#
 .SYNOPSIS
-    Rebuilds docs/decks.json - the decks the phone app starts with - from the
-    Decks\*.csv files, and bumps the service worker's CACHE_NAME in docs/sw.js
-    when that snapshot changed, so installed phones fetch the new copy.
+    Rebuilds the phone app's starting data from the PC's files:
+    docs/decks.json from the Decks\*.csv files and docs/journal.json from
+    Journal\Games.csv. Bumps the service worker's CACHE_NAME in docs/sw.js
+    when either snapshot changed, so installed phones fetch the new copy.
 
 .NOTES
     PushToGitHub.bat runs this before every push. Run it by hand with:
         powershell -NoProfile -ExecutionPolicy Bypass -File UpdatePhoneDecks.ps1
-    The phone only seeds its decks from decks.json the first time the app
-    opens on that device, so a phone that already has decks keeps them.
+    The phone merges both snapshots into what it already has on every start
+    (see mergeSeedDecks / mergeSeedJournal in docs/engine.js), so nothing
+    added or changed on the phone is lost.
 #>
 
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'DeckFiles.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'JournalFile.psm1') -Force
 
-$decksJsonPath = Join-Path $PSScriptRoot 'docs\decks.json'
 $swPath = Join-Path $PSScriptRoot 'docs\sw.js'
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 
-$records = Get-DeckRecords -DecksRoot (Join-Path $PSScriptRoot 'Decks')
-$json = ConvertTo-Json -InputObject $records -Depth 5 -Compress
-
-$current = if (Test-Path $decksJsonPath) { [System.IO.File]::ReadAllText($decksJsonPath, $utf8NoBom) } else { '' }
-if ($json -eq $current) {
-    Write-Host "docs/decks.json is already up to date ($($records.Count) decks)."
-    return
+# Writes $Json to $Path if it differs; returns $true when it did.
+function Update-Snapshot {
+    param([string]$Path, [string]$Json)
+    $current = if (Test-Path $Path) { [System.IO.File]::ReadAllText($Path, $utf8NoBom) } else { '' }
+    if ($Json -eq $current) { return $false }
+    [System.IO.File]::WriteAllText($Path, $Json, $utf8NoBom)
+    return $true
 }
 
-[System.IO.File]::WriteAllText($decksJsonPath, $json, $utf8NoBom)
+$records = Get-DeckRecords -DecksRoot (Join-Path $PSScriptRoot 'Decks')
+$decksChanged = Update-Snapshot -Path (Join-Path $PSScriptRoot 'docs\decks.json') -Json (ConvertTo-Json -InputObject $records -Depth 5 -Compress)
+
+$entries = Get-JournalEntries -Path (Join-Path $PSScriptRoot 'Journal\Games.csv')
+$journalJson = if ($entries.Count) { ConvertTo-Json -InputObject $entries -Depth 3 -Compress } else { '[]' }
+$journalChanged = Update-Snapshot -Path (Join-Path $PSScriptRoot 'docs\journal.json') -Json $journalJson
+
+$status = "$($records.Count) decks, $($entries.Count) journal games"
+if (-not ($decksChanged -or $journalChanged)) {
+    Write-Host "docs/decks.json and docs/journal.json are already up to date ($status)."
+    return
+}
 
 $sw = [System.IO.File]::ReadAllText($swPath, $utf8NoBom)
 $match = [regex]::Match($sw, "CACHE_NAME = 'riftbound-sim-v(\d+)'")
@@ -36,4 +49,4 @@ $nextVersion = [int]$match.Groups[1].Value + 1
 $sw = $sw.Replace($match.Value, "CACHE_NAME = 'riftbound-sim-v$nextVersion'")
 [System.IO.File]::WriteAllText($swPath, $sw, $utf8NoBom)
 
-Write-Host "docs/decks.json updated ($($records.Count) decks); docs/sw.js cache bumped to riftbound-sim-v$nextVersion."
+Write-Host "Phone data updated ($status); docs/sw.js cache bumped to riftbound-sim-v$nextVersion."

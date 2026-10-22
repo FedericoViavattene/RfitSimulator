@@ -8,18 +8,26 @@
     node tools/build-card-data.mjs gallery.json    (uses a saved copy of the
                                                     gallery's Next.js data)
 
-  For every card already in docs/carddatabase.json it adds:
-  - code      the base print's collector code (e.g. "UNL-024"), used by the
-              app to show the official card image (which carries the text)
-  - keywords  keywords printed as their own line on the card, e.g.
-              { "Assault": 2, "Ganking": true, "Accelerate": { cost } }
-  - equip     the [Equip] cost of Equipment
-  - ability   the hand-curated, structured ability from
-              tools/card-abilities.json, if that card's official text still
-              matches the fingerprint recorded there
+  Cards of a new set are added with their stats from the gallery (type,
+  energy, power, might, domains, tags, token or not). For every card it
+  writes:
+  - code       the base print's collector code (e.g. "UNL-024"), used by the
+               app to show the official card image (which carries the text)
+  - supertype  "Champion", "Signature" or "Token" when the card has one
+  - keywords   keywords printed as their own line on the card, e.g.
+               { "Assault": 2, "Ganking": true, "Accelerate": { cost } }
+  - vanilla    true when the card has no rules text beyond those keywords
+               (and [Equip]), so the engine plays all of it
+  - equip      the [Equip] cost of Equipment
+  - official   the gallery's name, when this database spells it differently
+  - ability    the hand-curated, structured ability from
+               tools/card-abilities.json, if that card's official text still
+               matches the fingerprint recorded there
 
   The rules text itself is NOT copied into the repo - only the mechanics the
   engine uses. Existing stats (type/energy/power/might/domains) are kept.
+  A gallery card without a card type yet (a preview Riot hasn't finished)
+  is left out until it has one.
 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -92,11 +100,13 @@ function parseCost(s) {
 // Keywords printed on a line of their own ("[Assault 2]", "[Tank]", ...).
 // Keywords inside conditions ("[Empowered][>] I have [Deflect]") or used as
 // an ability's speed ("[Action][>] {exhaust}: ...") don't count.
+const KEYWORD_LINE = /^(\[[A-Za-z][A-Za-z -]*?(?: \d+)?\]\s*)+$/;
+
 function parseKeywords(card, domains) {
   const keywords = {};
   for (const raw of textLines(card)) {
     const reminderFree = raw.replace(/\([^)]*\)/g, '').trim();
-    if (!/^(\[[A-Za-z][A-Za-z -]*?(?: \d+)?\]\s*)+$/.test(reminderFree)) continue;
+    if (!KEYWORD_LINE.test(reminderFree)) continue;
     for (const m of reminderFree.matchAll(/\[([A-Za-z][A-Za-z -]*?)(?: (\d+))?\]/g)) {
       const name = m[1];
       if (name === 'Accelerate') {
@@ -115,6 +125,14 @@ function parseKeywords(card, domains) {
     }
   }
   return keywords;
+}
+
+// No rules text beyond keyword lines and a plain [Equip] cost.
+function isVanilla(card) {
+  return textLines(card).every(raw => {
+    const line = raw.replace(/\([^)]*\)/g, '').trim();
+    return !line || KEYWORD_LINE.test(line) || /^\[Equip\]\s*(?:—\s*)?(?::rb_[a-z]+(?:_\d+)?:\s*)+$/.test(line);
+  });
 }
 
 // "[Equip] — {rune_chaos}, Recycle 2 cards..." / "[Equip] {energy_1}"
@@ -146,6 +164,45 @@ function cardKey(name) {
 // subtitle there; a few spellings differ.
 const NAME_FIXES = { 'sky cruiser': 'sky crusier', 'yi, honed': 'master yi, honed', 'yi, meditative': 'master yi, meditative' };
 
+// Entries an older import got wrong, dropped once the real card is in.
+const BROKEN_NAMES = { 'B': 'B.F. Sword', 'Corina Veraza': 'Corinna Veraza', 'Dr': 'Dr. Mundo, Expert' };
+
+const typeOf = c => (c.cardType?.type || [])[0]?.label || '';
+const supertypeOf = c => (c.cardType?.superType || []).map(t => t.label).find(l => ['Champion', 'Signature', 'Token'].includes(l)) || null;
+const tagsOf = c => c.tags?.tags || [];
+
+// The name this database uses for a gallery card: "Champion, Title" for a
+// Legend (the champion is the tag that names a champion unit, e.g. "Ziggs"
+// rather than "Yordle"), the bare name for a signature card subtitled with
+// its champion, "Name, Subtitle" otherwise.
+function ourName(c, championNames) {
+  if (typeOf(c) === 'Legend') {
+    const tags = tagsOf(c);
+    const champ = tags.find(t => championNames.has(t)) || tags[tags.length - 1];
+    return champ ? `${champ}, ${c.name}` : c.name;
+  }
+  if (c.subtitle && supertypeOf(c) === 'Signature' && tagsOf(c).includes(c.subtitle)) return c.name;
+  return c.subtitle ? `${c.name}, ${c.subtitle}` : c.name;
+}
+
+const statOf = (c, field) => {
+  const v = c[field]?.value?.id;
+  return typeof v === 'number' ? v : parseInt(v, 10) || 0;
+};
+
+// A new card's entry, with its stats from the gallery.
+function newEntry(c) {
+  return {
+    champions: tagsOf(c),
+    domains: (c.domain?.values || []).map(v => v.label),
+    energy: statOf(c, 'energy'),
+    isToken: supertypeOf(c) === 'Token',
+    might: statOf(c, 'might'),
+    power: statOf(c, 'power'),
+    type: typeOf(c),
+  };
+}
+
 function indexGallery(cards) {
   const index = new Map();
   const add = (key, card) => {
@@ -175,14 +232,47 @@ async function main() {
   const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
   const curated = JSON.parse(fs.readFileSync(ABILITIES_PATH, 'utf8'));
 
-  const report = { matched: 0, unmatched: [], abilities: 0, changedText: [], newHashes: 0, curatedMissing: [] };
+  const report = { matched: 0, unmatched: [], added: {}, incomplete: [], abilities: 0, changedText: [], newHashes: 0, curatedMissing: [] };
+
+  const championNames = new Set(gallery.filter(c => supertypeOf(c) === 'Champion' && typeOf(c) === 'Unit').map(c => c.name));
+  // Every gallery card under this database's name for it.
+  const byOurName = new Map();
+  for (const c of gallery) {
+    const k = cardKey(ourName(c, championNames));
+    if (!byOurName.has(k)) byOurName.set(k, []);
+    byOurName.get(k).push(c);
+  }
+  const printsOf = name => index.get(cardKey(name)) || index.get(NAME_FIXES[cardKey(name)] || '') || byOurName.get(cardKey(name));
+
+  // Cards of a new set: gallery cards no database entry matches yet.
+  const matchedIds = new Set();
+  for (const name of Object.keys(db)) (printsOf(name) || []).forEach(c => matchedIds.add(c.id));
+  for (const prints of byOurName.values()) {
+    if (prints.some(c => matchedIds.has(c.id))) continue;
+    const card = basePrint(prints);
+    const name = ourName(card, championNames);
+    if (!typeOf(card)) {
+      report.incomplete.push(name);
+      continue;
+    }
+    if (db[name]) continue;
+    db[name] = newEntry(card);
+    const set = card.set?.value?.id || '?';
+    report.added[set] = (report.added[set] || 0) + 1;
+  }
+  for (const [broken, real] of Object.entries(BROKEN_NAMES)) {
+    if (db[broken] && db[real]) delete db[broken];
+  }
 
   for (const [name, rec] of Object.entries(db)) {
-    let prints = index.get(cardKey(name)) || index.get(NAME_FIXES[cardKey(name)] || '');
+    const prints = printsOf(name);
     delete rec.legendAbility; // replaced by `ability`
     delete rec.code;
+    delete rec.supertype;
     delete rec.keywords;
+    delete rec.vanilla;
     delete rec.equip;
+    delete rec.official;
     delete rec.ability;
     if (!prints) {
       report.unmatched.push(name);
@@ -192,8 +282,13 @@ async function main() {
     const card = basePrint(prints);
     const code = (card.publicCode || '').split('/')[0];
     if (code) rec.code = code;
+    const supertype = supertypeOf(card);
+    if (supertype) rec.supertype = supertype;
+    const official = ourName(card, championNames);
+    if (cardKey(official) !== cardKey(name) && rec.type !== 'Legend') rec.official = official;
     const keywords = parseKeywords(card, rec.domains || []);
     if (Object.keys(keywords).length) rec.keywords = keywords;
+    if (isVanilla(card)) rec.vanilla = true;
     if (rec.type === 'Gear') {
       const equip = parseEquip(card);
       if (equip) rec.equip = equip;
@@ -222,11 +317,15 @@ async function main() {
     if (!db[name]) report.curatedMissing.push(name);
   }
 
-  // One card per line: small to download on the phone, readable in diffs.
-  const lines = Object.entries(db).map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`);
+  // One card per line, sorted by name: small to download on the phone,
+  // readable in diffs.
+  const lines = Object.entries(db).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`);
   fs.writeFileSync(DB_PATH, `{\n${lines.join(',\n')}\n}\n`);
   fs.writeFileSync(ABILITIES_PATH, JSON.stringify(curated, null, 2) + '\n');
 
+  const added = Object.entries(report.added).map(([set, n]) => `${n} from ${set}`).join(', ');
+  if (added) console.log(`New cards added: ${added}.`);
+  if (report.incomplete.length) console.log(`Not added yet (no card type in the gallery): ${report.incomplete.join(', ')}`);
   console.log(`Cards matched to the official gallery: ${report.matched} of ${Object.keys(db).length}.`);
   if (report.unmatched.length) console.log(`Not found in the gallery (kept as they were): ${report.unmatched.join(', ')}`);
   console.log(`Curated abilities applied: ${report.abilities}${report.newHashes ? ` (${report.newHashes} new text fingerprints recorded)` : ''}.`);

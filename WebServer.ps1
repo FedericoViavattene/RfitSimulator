@@ -12,8 +12,10 @@
       saves one and DELETE /api/decks?id=... deletes one (used by "Import a
       deck" and the deck editor), so on the PC the CSV files stay the source
       of truth instead of the browser's own storage.
+    - GET/PUT/DELETE /api/journal do the same for the real-game journal,
+      Journal\Games.csv (one entry per PUT, DELETE /api/journal?id=...).
     engine.js detects /api/decks and uses it; on the phone it isn't there, so
-    decks live in the browser's IndexedDB instead.
+    decks and the journal live in the browser's IndexedDB instead.
 
     This does NOT make the simulator reachable from the internet or from
     other devices - it only listens on http://localhost, which only your own
@@ -42,8 +44,10 @@ $Script:Port      = 8787
 $Script:RootPath  = $PSScriptRoot
 $Script:WebRoot   = Join-Path $RootPath 'docs'
 $Script:DecksRoot = Join-Path $RootPath 'Decks'
+$Script:JournalPath = Join-Path $RootPath 'Journal\Games.csv'
 
 Import-Module (Join-Path $PSScriptRoot 'DeckFiles.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'JournalFile.psm1') -Force
 
 # ============================================================================
 #  RESPONSES
@@ -204,6 +208,20 @@ try {
             elseif ($method -eq 'DELETE' -and $path -eq '/api/decks') {
                 $id = $request.QueryString['id']
                 $deleted = Remove-DeckRecord -DecksRoot $Script:DecksRoot -Id $id
+                Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ deleted = $deleted; id = $id })
+            }
+            elseif ($method -eq 'GET' -and $path -eq '/api/journal') {
+                Send-JsonResponse -Response $response -Data (Get-JournalEntries -Path $Script:JournalPath)
+            }
+            elseif ($method -eq 'PUT' -and $path -eq '/api/journal') {
+                $entry = Get-RequestBody -Request $request
+                if (-not $entry) { throw "No journal entry was sent." }
+                $replaced = Save-JournalEntry -Path $Script:JournalPath -Entry $entry
+                Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ saved = $true; id = $entry.id; replaced = $replaced })
+            }
+            elseif ($method -eq 'DELETE' -and $path -eq '/api/journal') {
+                $id = $request.QueryString['id']
+                $deleted = Remove-JournalEntry -Path $Script:JournalPath -Id $id
                 Send-JsonResponse -Response $response -Data ([PSCustomObject]@{ deleted = $deleted; id = $id })
             }
             elseif ($method -eq 'GET' -and $path -eq '/favicon.ico') {

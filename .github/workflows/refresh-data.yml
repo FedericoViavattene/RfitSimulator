@@ -1,0 +1,59 @@
+name: Weekly data refresh
+
+# Every Monday: refresh the card data from Riot's card gallery (new sets,
+# errata) and the tournament data from Riot's organized-play "Top Decks"
+# articles. When something changed, commit it to main - bumping the service
+# worker cache so installed phones fetch it - and rebuild GitHub Pages.
+# Run it by hand from the repo's Actions tab ("Run workflow").
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Refresh card data
+        run: |
+          echo '### Card data' >> "$GITHUB_STEP_SUMMARY"
+          node tools/build-card-data.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Refresh tournament data
+        run: |
+          echo '### Tournament data' >> "$GITHUB_STEP_SUMMARY"
+          node tools/build-meta-data.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- docs tools; then
+            echo 'Nothing changed.' | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # Installed phones only fetch new files when CACHE_NAME changes.
+          node -e "const fs = require('fs'); const f = 'docs/sw.js'; fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/riftbound-sim-v(\d+)/, (m, n) => 'riftbound-sim-v' + (Number(n) + 1)));"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs tools
+          git commit -m 'Weekly data refresh: cards and tournaments'
+          git push
+          # A push made with the workflow's own token may not start a Pages
+          # build by itself, so ask for one.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null \
+            || echo 'Could not request a Pages build - the site updates with the next push.'

@@ -1429,3 +1429,405 @@ input[type="text"].editor-tag {
   border-color: rgba(232, 184, 75, 0.4);
   color: var(--warn);
 }
+
+.card-view-modeled.keywords { color: var(--win); }
+
+/* ===================== Top nav on narrow screens (5 tabs) ===================== */
+
+@media (max-width: 560px) {
+  .top-nav {
+    gap: 5px;
+  }
+
+  .top-nav-btn {
+    min-width: 0;
+    padding: 10px 2px;
+    font-size: 0.8rem;
+  }
+
+  .top-nav-icon {
+    display: none;
+  }
+}
+
+/* ===================== Shared bits for the Meta and Journal tabs ===================== */
+
+input[type="date"], input[type="number"] {
+  width: 100%;
+  padding: 9px 10px;
+  background: #1e222b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color-scheme: dark;
+}
+
+.segmented {
+  display: flex;
+  gap: 4px;
+}
+
+.segmented button {
+  flex: 1;
+  margin-top: 0;
+  padding: 9px 4px;
+  background: #1e222b;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.segmented button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.meta-player {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.coverage-chip {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.coverage-chip.good { color: var(--win); border-color: rgba(62, 207, 106, 0.4); }
+.coverage-chip.fair { color: var(--warn); border-color: rgba(232, 184, 75, 0.4); }
+.coverage-chip.low { color: var(--loss); border-color: rgba(239, 91, 91, 0.4); }
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===================== Meta tab ===================== */
+
+.meta-header-line {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.meta-header-line a {
+  color: var(--accent);
+}
+
+.share-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  padding-bottom: 4px;
+}
+
+.share-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(60px, 32%) 3.2em;
+  align-items: center;
+  column-gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.share-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-bar {
+  height: 8px;
+  background: #1e222b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.share-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.share-num {
+  text-align: right;
+  font-weight: 700;
+}
+
+.share-sub {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.share-sub.up { color: var(--win); }
+.share-sub.down { color: var(--loss); }
+
+.meta-group {
+  margin: 14px 0 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.meta-group:first-child {
+  margin-top: 0;
+}
+
+.meta-deck-list {
+  grid-template-columns: 1fr;
+}
+
+.meta-deck-row > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta-deck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 4px;
+}
+
+.meta-deck-actions > button {
+  width: auto;
+  margin-top: 0;
+  padding: 10px 16px;
+}
+
+.meta-save {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.meta-save select {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.field-test-head {
+  text-align: center;
+  margin: 16px 0 10px;
+}
+
+.field-test-warning {
+  padding: 4px 0 4px 10px;
+  margin: 0 0 10px;
+}
+
+.field-test-row .ghost-btn {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+}
+
+.trend-table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  min-width: 100%;
+}
+
+.trend-table th, .trend-table td {
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.trend-table th {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.trend-table .trend-legend {
+  text-align: left;
+  font-weight: 600;
+  position: sticky;
+  left: 0;
+  background: var(--card-bg);
+}
+
+.trend-table th:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--card-bg);
+}
+
+.trend-table sup {
+  margin-left: 2px;
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.trend-empty {
+  color: var(--text-dim);
+}
+
+@media (max-width: 480px) {
+  .field-test-row {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .field-test-row .matrix-name {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+
+  .field-test-row .coverage-chip {
+    margin-right: auto;
+  }
+
+  .field-test-row .matrix-range {
+    display: none;
+  }
+}
+
+/* ===================== Journal tab ===================== */
+
+.journal-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+}
+
+.journal-form .field {
+  margin-bottom: 10px;
+  min-width: 0;
+}
+
+.journal-form .journal-notes {
+  grid-column: 1 / -1;
+}
+
+.journal-score-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journal-score-inputs span {
+  color: var(--text-dim);
+}
+
+@media (max-width: 520px) {
+  .journal-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.journal-headline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.journal-headline .winrate-number {
+  font-size: 2.2rem;
+}
+
+.journal-record {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  min-width: 4.5em;
+  text-align: right;
+}
+
+.journal-recent .badge {
+  margin-right: 3px;
+}
+
+.journal-list {
+  grid-template-columns: 1fr;
+}
+
+.journal-empty {
+  padding: 8px 10px !important;
+  color: var(--text-dim);
+}
+
+.compare-head, .compare-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) 1fr 1.2fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+  padding: 6px 0;
+}
+
+.compare-head {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.compare-row {
+  border-top: 1px solid var(--border);
+}
+
+.compare-row .matrix-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compare-gap {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.compare-gap.big {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* ===================== Chosen Champion in the deck editor ===================== */
+
+.champion-chip {
+  align-self: flex-start;
+  width: auto;
+  margin-top: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.champion-chip.chosen {
+  border-color: rgba(232, 184, 75, 0.5);
+  color: var(--warn);
+}
+
+button.champion-chip:hover:not(:disabled) {
+  filter: none;
+  color: var(--text);
+  border-color: var(--accent);
+}

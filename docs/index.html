@@ -28,6 +28,12 @@
       <button type="button" class="top-nav-btn active" data-panel="simulate">
         <span class="top-nav-icon">&#9658;</span> Simulate
       </button>
+      <button type="button" class="top-nav-btn" data-panel="meta">
+        <span class="top-nav-icon">&#9733;</span> Meta
+      </button>
+      <button type="button" class="top-nav-btn" data-panel="journal">
+        <span class="top-nav-icon">&#9776;</span> Journal
+      </button>
       <button type="button" class="top-nav-btn" data-panel="decks">
         <span class="top-nav-icon">&#9998;</span> Decks
       </button>
@@ -243,14 +249,192 @@
       </section>
     </section>
 
+    <!-- ============ META PANEL (tournament results) ============ -->
+    <section class="top-panel hidden" id="panel-meta">
+      <section class="card">
+        <h2>Tournament meta</h2>
+        <p class="import-help">
+          From Riot's official organized-play "Top Decks" articles: how many players brought each
+          Legend, and the published lists (the Top 8 and the best list of each Legend).
+          <span id="metaGenerated"></span>
+        </p>
+        <div class="field">
+          <label for="metaEvent">Tournament</label>
+          <select id="metaEvent"></select>
+        </div>
+        <div class="meta-header" id="metaHeader"></div>
+      </section>
+
+      <nav class="pill-nav" id="metaPillNav">
+        <button type="button" class="pill active" data-tab="field">Field</button>
+        <button type="button" class="pill" data-tab="lists">Lists</button>
+        <button type="button" class="pill" data-tab="test">Test my deck</button>
+        <button type="button" class="pill" data-tab="trend">Trend</button>
+      </nav>
+
+      <div id="metaPanels">
+        <div class="result-panel" data-tab="field">
+          <div class="card">
+            <h2>Legends played</h2>
+            <p class="import-help">Day 1 is everyone who played; Day 2 the players who made the cut. A "Day 2 / Day 1" above 1&times; means the Legend did better than its share of the field.</p>
+            <div id="metaShare"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="lists">
+          <div class="card">
+            <h2>Published lists</h2>
+            <p class="import-help">Tap a list to see it, simulate against it or save it as one of your opponent decks. "Text modeled" is how much of the list's card text the simulator plays - the rest only counts for its cost, Might and keywords.</p>
+            <div id="metaDecks"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="test">
+          <div class="card">
+            <h2>Test your deck against this field</h2>
+            <p class="import-help">Plays <span data-run-size="field"></span> games against the best-placed list of each of the event's most played Legends, then weighs each result by how many Day 2 players brought that Legend.</p>
+            <div class="field">
+              <label for="fieldTestDeck">Your deck</label>
+              <select id="fieldTestDeck"></select>
+            </div>
+            <button type="button" id="fieldTestBtn">Run the field test</button>
+            <div id="fieldTestStatus" class="status"></div>
+            <div id="fieldTestResult"></div>
+          </div>
+        </div>
+
+        <div class="result-panel hidden" data-tab="trend">
+          <div class="card">
+            <h2>Trend</h2>
+            <p class="import-help">Each Legend's share of Day 2 over the last events (oldest first); the small number is how many Top 8 lists it had.</p>
+            <div id="metaTrend"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ JOURNAL PANEL (real games) ============ -->
+    <section class="top-panel hidden" id="panel-journal">
+      <section class="card" id="journalFormCard">
+        <h2 id="journalFormTitle">Log a real game</h2>
+        <p class="import-help" id="journalStorageNote">Games are saved on this device.</p>
+        <div class="journal-form">
+          <div class="field">
+            <label for="jDate">Date</label>
+            <input type="date" id="jDate">
+          </div>
+          <div class="field">
+            <label id="jResultLabel">Result</label>
+            <div class="segmented" id="jResult" role="radiogroup" aria-labelledby="jResultLabel">
+              <button type="button" data-value="Win">Win</button>
+              <button type="button" data-value="Loss">Loss</button>
+              <button type="button" data-value="Draw">Draw</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="jMyDeck">Your deck</label>
+            <select id="jMyDeck"></select>
+          </div>
+          <div class="field">
+            <label for="jOpponentLegend">Opponent's Legend</label>
+            <input type="text" id="jOpponentLegend" list="legendNames" autocomplete="off" placeholder="e.g. Kennen, Heart of the Tempest">
+          </div>
+          <div class="field">
+            <label for="jOpponentDeck">Opponent's deck <span class="field-hint">(optional)</span></label>
+            <input type="text" id="jOpponentDeck" autocomplete="off" placeholder="e.g. Kennen Order/Chaos control">
+          </div>
+          <div class="field">
+            <label id="jFirstLabel">You went</label>
+            <div class="segmented" id="jWentFirst" role="radiogroup" aria-labelledby="jFirstLabel">
+              <button type="button" data-value="Yes">First</button>
+              <button type="button" data-value="No">Second</button>
+              <button type="button" data-value="">Not noted</button>
+            </div>
+          </div>
+          <div class="field journal-score">
+            <label for="jMyScore">Final score <span class="field-hint">(you - them, optional)</span></label>
+            <div class="journal-score-inputs">
+              <input type="number" id="jMyScore" min="0" max="8" inputmode="numeric" aria-label="Your points">
+              <span>-</span>
+              <input type="number" id="jOpponentScore" min="0" max="8" inputmode="numeric" aria-label="Opponent's points">
+            </div>
+          </div>
+          <div class="field">
+            <label for="jEvent">Event</label>
+            <input type="text" id="jEvent" list="eventKinds" autocomplete="off" placeholder="e.g. Local, Skirmish, RQ Los Angeles">
+          </div>
+          <div class="field">
+            <label for="jMyBattlefield">Your battlefield <span class="field-hint">(optional)</span></label>
+            <input type="text" id="jMyBattlefield" list="battlefieldNames" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="jOpponentBattlefield">Their battlefield <span class="field-hint">(optional)</span></label>
+            <input type="text" id="jOpponentBattlefield" list="battlefieldNames" autocomplete="off">
+          </div>
+          <div class="field journal-notes">
+            <label for="jNotes">Notes <span class="field-hint">(what decided the game)</span></label>
+            <textarea id="jNotes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="editor-actions">
+          <button type="button" id="jSave">Save game</button>
+          <button type="button" class="ghost-btn hidden" id="jCancel">Cancel edit</button>
+          <button type="button" class="ghost-btn danger hidden" id="jDelete">Delete this game</button>
+        </div>
+        <div id="jStatus" class="status"></div>
+      </section>
+
+      <section class="card">
+        <h2>Your record</h2>
+        <div id="journalStats"></div>
+      </section>
+
+      <section class="card">
+        <h2>Real games vs the simulator</h2>
+        <p class="import-help">Your real winrate with a deck against each Legend you've logged, next to what the simulator predicts (<span data-run-size="field"></span> games against a saved opponent deck of that Legend, or its latest tournament list). The closer they are, the more the simulator can be trusted for that matchup.</p>
+        <div class="field">
+          <label for="jCompareDeck">Your deck</label>
+          <select id="jCompareDeck"></select>
+        </div>
+        <button type="button" id="jCompareBtn">Compare</button>
+        <div id="jCompareStatus" class="status"></div>
+        <div id="jCompareResult"></div>
+      </section>
+
+      <section class="card">
+        <h2>Games</h2>
+        <p class="import-help">Tap a game to edit it. <span id="journalSyncNote"></span></p>
+        <ul class="game-list journal-list" id="journalList"></ul>
+        <div class="editor-actions">
+          <button type="button" class="ghost-btn" id="jExport">Export games&hellip;</button>
+          <button type="button" class="ghost-btn" id="jImportBtn">Import games&hellip;</button>
+          <input type="file" id="jImportFile" accept="application/json,.json" class="visually-hidden" tabindex="-1">
+        </div>
+        <div id="jSyncStatus" class="status"></div>
+      </section>
+
+      <datalist id="legendNames"></datalist>
+      <datalist id="battlefieldNames"></datalist>
+      <datalist id="eventKinds">
+        <option value="Casual"></option>
+        <option value="Local"></option>
+        <option value="Summoner Skirmish"></option>
+        <option value="Showdown"></option>
+        <option value="Regional Qualifier"></option>
+        <option value="Regional Championship"></option>
+        <option value="Online"></option>
+      </datalist>
+    </section>
+
     <!-- ============ DECKS PANEL (deck editor) ============ -->
     <section class="top-panel hidden" id="panel-decks">
       <section class="card" id="editorCard">
         <h2>Edit a deck</h2>
         <p class="import-help">
-          Change card counts, add or remove cards, and fill in Tags
+          Change card counts, add or remove cards, pick the Chosen Champion (it starts in the
+          Champion Zone, playable any time), and fill in Tags
           (<code>Remove:2</code>, <code>Buff:2</code>, <code>Draw:1</code>, <code>Shield:2</code>) -
-          the simplified card effects the simulator understands.
+          the simplified effects the simulator uses for cards whose text it doesn't model.
           <span id="editorStorageNote">Changes are saved on this device.</span>
         </p>
         <div class="field">
@@ -303,8 +487,9 @@
         <h2>Import a deck from a text list</h2>
         <p class="import-help">
           Paste a decklist - one card per line, like <code>1 Rengar, Pridestalker</code> or
-          <code>3x Inferna</code> (section labels like <code>Legend:</code> or <code>Battlefields:</code>
-          are fine too, they're just ignored). Every card's real Type/Energy/Power/Might/Domain is
+          <code>3x Inferna</code>. Section labels like <code>Legend:</code> or <code>Battlefields:</code>
+          are fine too; a card under <code>Champion:</code> becomes the Chosen Champion and the
+          <code>Sideboard:</code> is left out, as in Riot's published lists. Every card's real Type/Energy/Power/Might/Domain is
           looked up automatically from the official card gallery data - you only need the name and
           the quantity to be right. <span id="importStorageNote">Imported decks are saved on this device only.</span>
         </p>
@@ -352,6 +537,16 @@
       </div>
       <div class="replay-tabs hidden" id="replayTabs"></div>
       <div class="deck-picker-body replay-body" id="replayBody"></div>
+    </div>
+  </div>
+
+  <div class="deck-picker-overlay hidden" id="metaDeckOverlay">
+    <div class="deck-picker-modal" role="dialog" aria-labelledby="metaDeckTitle">
+      <div class="deck-picker-header">
+        <h3 id="metaDeckTitle">Tournament list</h3>
+        <button type="button" class="deck-picker-close" id="metaDeckClose" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="deck-picker-body" id="metaDeckBody"></div>
     </div>
   </div>
 
