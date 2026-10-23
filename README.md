@@ -448,7 +448,9 @@ A 1v1 duel, following the Core Rules / Quick Start:
 - **Burn Out** (431): drawing from an empty deck shuffles the trash back in and the opponent gains 1 point - which can be the winning point.
 - **End of turn:** damage heals and "this turn" effects end; **Temporary** units die at the start of their controller's Beginning Phase, before scoring.
 - **The AI** (same for both players): plays the most expensive useful card it can afford, keeping combat tricks, counters and ambushers for the fight (and some Energy back for them when it has a battlefield to protect); uses Legend/gear abilities; attacks every battlefield it doesn't control that its ready units (plus affordable tricks) can take, easiest first; then guards a threatened battlefield.
-- **Not modeled yet:** Hidden, Legion, Level/XP, Empower costs, Vision/Predict, Repeat costs, moving enemy units, returning cards to hand, and most "gold" tokens.
+- **Moving and returning units:** "move an enemy unit" sends it from a battlefield to its base (off the battlefield you attack next, or out of the fight); "move a friendly unit" lets a unit played this turn attack a battlefield it can take on its own; "return a unit to its owner's hand" takes it off the board (a token is gone for good). "When I move" triggers on attacks, guarding and these moves.
+- **Legion:** its discount or extra effect applies once you've played another card this turn.
+- **Not modeled yet:** Hidden, Level/XP, Empower costs, Vision/Predict, Repeat costs, pulling an enemy unit into a battlefield, swapping locations, and most "gold" tokens.
 - **Seeded randomness:** shuffles, battlefields and the first player come from a seeded generator, so a seed replays a run exactly.
 
 ### Loss diagnostics

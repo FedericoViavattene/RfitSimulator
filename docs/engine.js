@@ -450,6 +450,24 @@ function addCosts(a, b) {
 }
 
 // ============================================================================
+//  CARD ABILITIES
+//  The vocabulary of tools/card-abilities.json (copied into each card's
+//  `ability` in docs/carddatabase.json):
+//  - onPlay: ops run when the card is played (a spell's effect).
+//  - triggers, each a list of ops: onAttack, onDefend (battlefield), onMove
+//    (the unit moves: attacking, guarding, or moved by an effect), onConquer
+//    (a battlefield: whoever conquers it; a unit: it conquers), onHold,
+//    onWinCombat, onCombatEnd, onDeath, onFriendlyUnitPlayed, onSpellPlayed
+//    (its controller plays a spell), onSecondCard, startOfBeginning
+//    (battlefield).
+//  - legion: { discount: { energy }, onPlay: [ops] } - [Legion], once its
+//    player has played another card this turn.
+//  - activate, resource, static: see activateLegend/activateGearOn, the
+//    cost code and describeStatic.
+//  The ops are runOp's cases; describeOp says each one in words.
+// ============================================================================
+
+// ============================================================================
 //  ABILITY DESCRIPTIONS (what the simulator understands of a card, in words)
 // ============================================================================
 function costText(spec) {
@@ -476,7 +494,13 @@ function describeOp(o) {
     case 'fight': return 'a friendly unit and an enemy unit deal damage to each other';
     case 'stun': return `stun ${o.attackerOnly ? 'an attacking' : 'an'} enemy unit`;
     case 'weaken': return o.all ? `enemy units get -${o.n} Might this turn` : `an enemy unit gets -${o.n} Might this turn`;
-    case 'token': return `play ${o.count || 1} ${o.ready ? 'ready ' : ''}${o.might}-Might token${s(o.count || 1)}${o.temporary ? ' (Temporary)' : ''}${o.deflect ? ' (Deflect)' : ''}`;
+    case 'token': return `play ${o.count || 1} ${o.ready ? 'ready ' : ''}${o.might}-Might token${s(o.count || 1)}${o.temporary ? ' (Temporary)' : ''}${o.deflect ? ' (Deflect)' : ''}${o.here ? ' here' : ''}`;
+    case 'bounce': return o.who === 'friendly'
+      ? "return a friendly unit to its owner's hand"
+      : `return an enemy unit${o.where === 'battlefield' ? ' at a battlefield' : ''}${o.maxMight !== undefined ? ` with ${o.maxMight} Might or less` : ''} to its owner's hand`;
+    case 'move': return o.who === 'enemy'
+      ? `move an enemy unit${o.here ? ' here' : ' at a battlefield'} to its base`
+      : `move a friendly unit from base to attack a battlefield${o.ready ? ' and ready it' : ''}`;
     case 'counter': return `counter a spell${o.maxEnergy !== undefined ? ` costing up to ${o.maxEnergy} Energy and ${o.maxPower} Power` : ''}${o.onlyIfTargetsFriendly ? ' that targets your unit' : ''}${o.requiresPriorSpell ? ' (if the opponent already cast a spell this turn)' : ''}`;
     case 'buff': return o.self ? 'buff it (+1 Might)' : `buff ${o.count || 1} ${o.others ? 'other ' : ''}friendly unit${s(o.count || 1)}${o.where === 'base' ? ' in base' : ''} (+1 Might)`;
     case 'empower': return `it becomes Empowered (+${o.n} Might)`;
@@ -493,6 +517,7 @@ function describeOp(o) {
 
 const TRIGGER_TEXT = {
   onAttack: 'When it attacks',
+  onMove: 'When it moves',
   onDefend: 'When you defend here',
   onHold: 'When held',
   onConquer: 'When conquered',
@@ -500,7 +525,8 @@ const TRIGGER_TEXT = {
   onCombatEnd: 'After a fight it survives',
   onDeath: 'When it dies',
   onFriendlyUnitPlayed: 'When you play a unit',
-  onSecondCard: 'When you play your second card in a turn',
+  onSpellPlayed: 'When you play a spell',
+  onSecondCard:'When you play your second card in a turn',
   startOfBeginning: 'At the start of each Beginning Phase',
 };
 
@@ -526,7 +552,13 @@ function describeAbility(ability, type) {
     parts.push(type === 'Spell' ? text.charAt(0).toUpperCase() + text.slice(1) : `When played: ${text}`);
   }
   for (const [key, label] of Object.entries(TRIGGER_TEXT)) {
-    if (ability[key] && ability[key].length) parts.push(`${label}: ${ability[key].map(describeOp).join(', then ')}`);
+    const text = key === 'onConquer' && type !== 'Battlefield' ? 'When it conquers' : label;
+    if (ability[key] && ability[key].length) parts.push(`${text}: ${ability[key].map(describeOp).join(', then ')}`);
+  }
+  if (ability.legion) {
+    const { discount, onPlay } = ability.legion;
+    if (discount) parts.push(`Legion: costs ${costText(discount)} less if you've played another card this turn`);
+    if (onPlay && onPlay.length) parts.push(`Legion: when played after another card this turn, ${onPlay.map(describeOp).join(', then ')}`);
   }
   if (ability.activate) parts.push(`Exhaust${ability.activate.cost ? ` and pay ${costText(ability.activate.cost)}` : ''}: ${ability.activate.ops.map(describeOp).join(', then ')}`);
   if (ability.resource) parts.push(`Exhaust: add ${ability.resource.energy ? `${ability.resource.energy} Energy` : `1 ${ability.resource.power} Power`}`);
@@ -1071,10 +1103,18 @@ class Engine {
     }
   }
 
-  cardCost(card, accelerate = false) {
+  // `p` (the player paying) brings in [Legion] discounts.
+  cardCost(card, accelerate = false, p = null) {
     let cost = { energy: card.Energy, symbols: powerSymbols(card) };
+    const legion = card.Ability && card.Ability.legion;
+    if (p && legion && legion.discount && this.legionActive(p)) cost.energy = Math.max(0, cost.energy - (legion.discount.energy || 0));
     if (accelerate && card.Keywords && card.Keywords.Accelerate) cost = addCosts(cost, costFromSpec(card.Keywords.Accelerate));
     return cost;
+  }
+
+  // [Legion]: "if you've played another card this turn".
+  legionActive(p) {
+    return p.CardsPlayedThisTurn >= 1;
   }
 
   // --- points --------------------------------------------------------------
@@ -1109,6 +1149,10 @@ class Engine {
     if (g.winner) return;
     const bfAb = g.battlefields[b].card && g.battlefields[b].card.Ability;
     if (bfAb && bfAb.onConquer) this.runOps(bfAb.onConquer, { p: player, opp: opponent, g, b, source: this.bfName(g, b) });
+    for (const u of this.unitsAt(g, b, player)) {
+      if (g.winner) return;
+      if (u.ability && u.ability.onConquer) this.runOps(u.ability.onConquer, { p: player, opp: opponent, g, b, self: u, source: u.card.Name });
+    }
   }
 
   updateControl(g, b) {
@@ -1175,6 +1219,40 @@ class Engine {
     if (u.ability && u.ability.onDeath) {
       const opp = g.players.find(x => x !== u.owner);
       this.runOps(u.ability.onDeath, { p: u.owner, opp, g, self: u, diedAlone, source: u.card.Name });
+    }
+  }
+
+  // "Return to its owner's hand": the unit leaves the board (no Deathknell);
+  // its gear stays, unattached; a token just ceases to exist.
+  returnToHand(u, g, source) {
+    if (u.dead) return;
+    u.dead = true; // off the board: fights and every unit list skip it
+    this.removeFromLocation(u, g);
+    for (const gear of u.gear) gear.holder = null;
+    if (!u.token) u.owner.Hand.push(u.card);
+    this.note(g, u.owner, `${u.card.Name} returns to hand (${source}).`);
+  }
+
+  // An effect moves a unit to its base, out of any fight it was in.
+  moveToBase(u, g, combat) {
+    this.removeFromLocation(u, g);
+    if (combat) {
+      for (const side of [combat.attackers, combat.defenders]) {
+        const i = side.indexOf(u);
+        if (i >= 0) side.splice(i, 1);
+      }
+    }
+    u.at = -1;
+    u.owner.Base.push(u);
+    this.fireMove([u], -1, g);
+  }
+
+  // "When I move" triggers, once the whole move is done.
+  fireMove(units, b, g) {
+    for (const u of units) {
+      if (g.winner) return;
+      if (u.dead || !u.ability || !u.ability.onMove) continue;
+      this.runOps(u.ability.onMove, { p: u.owner, opp: g.players.find(x => x !== u.owner), g, self: u, b, source: u.card.Name });
     }
   }
 
@@ -1277,6 +1355,40 @@ class Engine {
       if (this.payToChoose(ctx, u)) return u;
     }
     return null;
+  }
+
+  // The unit "return a friendly unit to its owner's hand" gives up: one
+  // outside the current fight, a card rather than a token, the cheapest.
+  friendlyToReturn(ctx) {
+    const { p, g, combat } = ctx;
+    const inFight = u => !!combat && (combat.attackers.includes(u) || combat.defenders.includes(u));
+    const rank = u => (inFight(u) ? 2 : 0) + (u.token ? 1 : 0);
+    const cost = u => u.card.Energy + u.card.Power;
+    return this.unitsOf(p, g).sort((a, b) => rank(a) - rank(b) || cost(a) - cost(b))[0] || null;
+  }
+
+  // A spell that also returns one of its player's units ("a friendly unit
+  // and an enemy unit") can't be cast without one.
+  lacksFriendly(card, p, g) {
+    return this.opsOf(card).some(o => o.op === 'bounce' && o.who === 'friendly') && this.unitsOf(p, g).length === 0;
+  }
+
+  // "Move a friendly unit" on this player's turn: a unit still exhausted in
+  // base (played this turn) that beats a battlefield's defense alone
+  // attacks it - the opponent's battlefields first, then the best defended.
+  movePlan(p, opp, g) {
+    const atk = u => this.baseMight(u, g) + u.assault + u.tempAssault;
+    const movers = p.Base.filter(u => u.exhausted);
+    let best = null;
+    g.battlefields.forEach((bf, b) => {
+      if (bf.controller === p) return;
+      const defense = this.defenseEstimate(g, b, opp);
+      const unit = movers.filter(u => atk(u) > defense).sort((x, y) => atk(x) - atk(y))[0];
+      if (!unit) return;
+      const score = (bf.controller === opp ? 1000 : 0) + defense;
+      if (!best || score > best.score) best = { unit, b, score };
+    });
+    return best;
   }
 
   // --- running ability ops ---------------------------------------------------
@@ -1440,11 +1552,51 @@ class Engine {
         return;
       }
       case 'token': {
+        // "here": where the card is, if that's a battlefield; base otherwise.
+        const at = op.here && ctx.self && !ctx.self.dead ? ctx.self.at : -1;
         for (let i = 0; i < (op.count || 1); i++) {
           const u = this.newUnit(this.tokenCard(op.might, op.deflect), p, { ready: !!op.ready, temporary: !!op.temporary, token: true });
-          p.Base.push(u);
+          if (at >= 0) {
+            u.at = at;
+            g.battlefields[at].units.push(u);
+          } else {
+            p.Base.push(u);
+          }
         }
-        this.note(g, p, `plays ${op.count || 1} ${op.ready ? 'ready ' : ''}${op.might}-Might token(s)${op.temporary ? ' with Temporary' : ''} (${ctx.source}).`);
+        this.note(g, p, `plays ${op.count || 1} ${op.ready ? 'ready ' : ''}${op.might}-Might token(s)${op.temporary ? ' with Temporary' : ''}${at >= 0 ? ` at ${this.bfName(g, at)}` : ''} (${ctx.source}).`);
+        return;
+      }
+      case 'bounce': {
+        if (op.who === 'friendly') {
+          const u = this.friendlyToReturn(ctx);
+          if (u) this.returnToHand(u, g, ctx.source);
+          return;
+        }
+        const fits = u => op.maxMight === undefined || this.baseMight(u, g) <= op.maxMight;
+        let pool = this.enemyPool(ctx, false).filter(fits);
+        if (!pool.length && !ctx.combat) pool = this.enemiesAtBattlefields(p, g).filter(fits);
+        const u = this.pickEnemy(ctx, pool.sort((a, b) => this.baseMight(b, g) - this.baseMight(a, g)));
+        if (u) this.returnToHand(u, g, ctx.source);
+        return;
+      }
+      case 'move': {
+        if (op.who === 'enemy') {
+          // Off a battlefield to its base: out of the fight, or off the
+          // battlefield this player attacks next.
+          let pool = this.enemyPool(ctx, false).filter(u => u.at >= 0);
+          if (op.here) pool = pool.filter(u => ctx.self && u.at === ctx.self.at);
+          const u = this.pickEnemy(ctx, pool.sort((a, b) => this.baseMight(b, g) - this.baseMight(a, g)));
+          if (!u) return;
+          this.note(g, p, `moves ${u.card.Name} to its base (${ctx.source}).`);
+          this.moveToBase(u, g, ctx.combat);
+          return;
+        }
+        if (ctx.combat) return;
+        const plan = this.movePlan(p, opp, g);
+        if (!plan) return;
+        this.note(g, p, `moves ${plan.unit.card.Name} (${ctx.source}).`);
+        this.resolveAttack(p, opp, g, plan.b, [plan.unit]);
+        if (op.ready && !plan.unit.dead) plan.unit.exhausted = false;
         return;
       }
       case 'buff': {
@@ -1561,7 +1713,8 @@ class Engine {
   }
 
   targetsEnemies(card) {
-    return this.opsOf(card).some(o => ['damage', 'damageMulti', 'kill', 'fight', 'stun', 'weaken', 'removeMight'].includes(o.op) && !o.all);
+    return this.opsOf(card).some(o => (['damage', 'damageMulti', 'kill', 'fight', 'stun', 'weaken', 'removeMight'].includes(o.op) && !o.all)
+      || (o.op === 'bounce' && o.who !== 'friendly') || (o.op === 'move' && o.who === 'enemy'));
   }
 
   // Is this card worth casting in the main phase right now?
@@ -1570,6 +1723,7 @@ class Engine {
     if (this.isCombatTrick(card)) return false;
     const ops = this.opsOf(card);
     if (ops.length === 0) return true; // untagged: its effect isn't modeled, its cost is
+    if (this.lacksFriendly(card, p, g)) return false;
     const enemies = this.enemiesAtBattlefields(p, g);
     for (const o of ops) {
       if (['draw', 'token', 'buff', 'channel', 'discard', 'mill'].includes(o.op)) return true;
@@ -1577,6 +1731,8 @@ class Engine {
       if (['damage', 'kill', 'weaken', 'damageMulti', 'stun'].includes(o.op) && enemies.length) return true;
       if (o.op === 'removeMight' && this.unitsOf(opp, g).length) return true;
       if (o.op === 'fight' && this.bestFight(p, opp, g)) return true;
+      if (o.op === 'bounce' && o.who !== 'friendly' && enemies.some(u => o.maxMight === undefined || this.baseMight(u, g) <= o.maxMight)) return true;
+      if (o.op === 'move' && (o.who === 'enemy' ? enemies.length > 0 : !!this.movePlan(p, opp, g))) return true;
       if (o.op === 'damageAll' && o.scope === 'allBattlefields') {
         const mine = this.unitsOf(p, g).filter(u => u.at >= 0 && this.baseMight(u, g) <= o.n).length;
         const theirs = enemies.filter(u => this.baseMight(u, g) <= o.n).length;
@@ -1599,11 +1755,11 @@ class Engine {
       if (counter.maxPower !== undefined && card.Power > counter.maxPower) return false;
       if (counter.onlyIfTargetsFriendly && !this.targetsEnemies(card)) return false;
       if (counter.requiresPriorSpell && caster.SpellsPlayedThisTurn < 1) return false;
-      return this.canPay(opp, this.cardCost(c), g);
+      return this.canPay(opp, this.cardCost(c, false, opp), g);
     }).sort((a, b) => a.Energy - b.Energy);
     if (!options.length) return null;
     const counterCard = options[0];
-    this.pay(opp, this.cardCost(counterCard), g);
+    this.pay(opp, this.cardCost(counterCard, false, opp), g);
     opp.Hand.splice(opp.Hand.indexOf(counterCard), 1);
     opp.Trash.push(counterCard);
     if (opp.Label === 'You') opp.PlayLog.push(counterCard.Name);
@@ -1622,7 +1778,10 @@ class Engine {
   // the opponent a chance to counter, then resolves it. `ctx` carries the
   // combat for reactions.
   playCard(card, p, opp, g, { accelerate = false, combat = null, at = -1, targetBf = -1 } = {}) {
-    this.pay(p, this.cardCost(card, accelerate), g);
+    this.pay(p, this.cardCost(card, accelerate, p), g);
+    // [Legion] looks at the cards played before this one.
+    const legion = card.Ability && card.Ability.legion && this.legionActive(p) ? card.Ability.legion : null;
+    const legionOps = (legion && legion.onPlay) || [];
     const fromHand = p.Hand.includes(card);
     const zone = fromHand ? p.Hand : p.ChampionZone;
     zone.splice(zone.indexOf(card), 1);
@@ -1635,11 +1794,16 @@ class Engine {
       this.note(g, p, `casts ${card.Name}${combat ? ' in the fight' : ''}.`);
       const countered = this.counterWindow(p, opp, card, g);
       p.SpellsPlayedThisTurn++;
+      // "When you play a spell" resolves first, even if the spell is countered.
+      for (const u of this.unitsOf(p, g)) {
+        if (u.ability && u.ability.onSpellPlayed) this.runOps(u.ability.onSpellPlayed, { ...ctx, self: u, source: u.card.Name });
+      }
       if (countered) {
         if (countered.returnToHand) p.Hand.push(card);
         else p.Trash.push(card);
       } else {
         this.runOps(this.opsOf(card), ctx);
+        this.runOps(legionOps, ctx);
         p.Trash.push(card);
       }
     } else if (card.Type === 'Gear') {
@@ -1648,6 +1812,7 @@ class Engine {
       this.note(g, p, `plays ${card.Name}.`);
       this.attachLooseGear(p, opp, g);
       this.runOps(this.opsOf(card), ctx);
+      this.runOps(legionOps, ctx);
     } else {
       const unit = this.newUnit(card, p, { ready: accelerate });
       if (at >= 0) {
@@ -1660,6 +1825,7 @@ class Engine {
       this.note(g, p, `plays ${card.Name}${from}${accelerate ? ' (accelerated, ready)' : ''} ${unit.at >= 0 ? `to ${this.bfName(g, unit.at)}` : 'to base'}.`);
       this.attachLooseGear(p, opp, g);
       this.runOps(this.opsOf(card), { ...ctx, self: unit });
+      this.runOps(legionOps, { ...ctx, self: unit });
       for (const other of this.unitsOf(p, g)) {
         if (other !== unit && other.ability && other.ability.onFriendlyUnitPlayed) this.runOps(other.ability.onFriendlyUnitPlayed, { ...ctx, self: other, source: other.card.Name });
       }
@@ -1747,7 +1913,7 @@ class Engine {
         if (!this.usefulNow(card, p, opp, g)) continue;
         const isHeldReaction = (card.Type === 'Unit' && card.Keywords && (card.Keywords.Ambush || card.Keywords.Reaction) && reserve > 0 && card.Energy === reserve);
         if (isHeldReaction) continue;
-        const cost = this.cardCost(card);
+        const cost = this.cardCost(card, false, p);
         if (!this.canPay(p, cost, g)) continue;
         if (this.energySources(p, g) - cost.energy < reserve && card.Energy > 0) continue;
         if (!best || card.Energy + card.Power > best.Energy + best.Power) best = card;
@@ -1755,7 +1921,7 @@ class Engine {
       if (!best) break;
       const wantsAccelerate = best.Type === 'Unit' && best.Keywords && best.Keywords.Accelerate
         && best.Might > 0 && g.battlefields.some(bf => bf.controller !== p)
-        && this.canPay(p, this.cardCost(best, true), g);
+        && this.canPay(p, this.cardCost(best, true, p), g);
       this.playCard(best, p, opp, g, { accelerate: wantsAccelerate, targetBf });
     }
     if (g.winner) return;
@@ -1862,6 +2028,7 @@ class Engine {
       g.battlefields[b].units.push(u);
     }
     this.note(g, p, `moves ${ready.map(u => u.card.Name).join(', ')} to guard ${this.bfName(g, b)}.`);
+    this.fireMove(ready, b, g);
   }
 
   // Where a fight stands right now: does the attack wipe the defenders, do
@@ -1893,6 +2060,10 @@ class Engine {
       if ((o.op === 'damage' || o.op === 'kill' || o.op === 'weaken') && enemies.length) value += Math.min(o.n || 99, Math.max(...enemies.map(u => this.baseMight(u, g))));
       if (o.op === 'damageAll' && o.scope === 'enemyCombat') value += o.n * enemies.length;
       if (o.op === 'removeMight' && enemies.length) value += o.n;
+      // Taking an enemy unit out of the fight is worth its Might.
+      const out = enemies.filter(u => (o.op === 'bounce' && o.who !== 'friendly' && (o.maxMight === undefined || this.baseMight(u, g) <= o.maxMight))
+        || (o.op === 'move' && o.who === 'enemy'));
+      if (out.length) value += Math.max(...out.map(u => this.baseMight(u, g)));
     }
     return value;
   }
@@ -1910,7 +2081,7 @@ class Engine {
         const quickSpell = card.Type === 'Spell' && this.isQuick(card);
         const ambusher = card.Type === 'Unit' && combat.defender === side && card.Keywords && (card.Keywords.Ambush || card.Keywords.Reaction);
         if (!quickSpell && !ambusher) continue;
-        if (!this.canPay(side, this.cardCost(card), g)) continue;
+        if (!this.canPay(side, this.cardCost(card, false, side), g) || this.lacksFriendly(card, side, g)) continue;
         const value = this.trickValue(card, side, g, combat);
         if (value > bestValue) { best = card; bestValue = value; }
       }
@@ -1949,6 +2120,8 @@ class Engine {
     }
     const defenders = this.unitsAt(g, b, opp);
     this.note(g, p, `attacks ${this.bfName(g, b)} with ${force.map(u => u.card.Name).join(', ')}${defenders.length ? ` against ${defenders.map(u => u.card.Name).join(', ')}` : ' (undefended)'}.`);
+    this.fireMove(force, b, g);
+    if (g.winner) return;
     if (defenders.length === 0) {
       this.conquer(p, opp, g, b);
       return;

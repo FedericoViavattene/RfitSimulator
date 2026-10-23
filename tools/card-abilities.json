@@ -469,6 +469,425 @@
       },
       "hash": "9ec010e6"
     },
+    "Catalyst of Aeons": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "channel",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "f0ab4b50"
+    },
+    "Charm": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "move",
+            "who": "enemy"
+          }
+        ]
+      },
+      "hash": "d9da5863"
+    },
+    "Clairvoyance": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "20b701fd"
+    },
+    "Concentrate": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "4c1c8b4b"
+    },
+    "Confront": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "9f60a430"
+    },
+    "Consult the Past": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "c37f60a"
+    },
+    "Deadly Flourish": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "cb7c7898"
+    },
+    "Defiant Dance": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 2
+          },
+          {
+            "op": "weaken",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "baeab599"
+    },
+    "Dredge Up": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "e8075bb7"
+    },
+    "Falling Star": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 3
+          },
+          {
+            "op": "damage",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "995d0d77"
+    },
+    "Grim Resolve": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "aefd0a70"
+    },
+    "Guards!": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 2,
+            "count": 1
+          }
+        ]
+      },
+      "hash": "8e46c677"
+    },
+    "Gust": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "bounce",
+            "maxMight": 3,
+            "where": "battlefield"
+          }
+        ]
+      },
+      "hash": "b1045f48"
+    },
+    "Guttural Roar": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "pump",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "5f241065"
+    },
+    "Lightning Rush": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          },
+          {
+            "op": "mill",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "b7ac66fb"
+    },
+    "Mobilize": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "channel",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "404f0b26"
+    },
+    "Production Surge": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 1
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "efc8d4b3"
+    },
+    "Rebuke": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "bounce",
+            "where": "battlefield"
+          }
+        ]
+      },
+      "hash": "ca41a345"
+    },
+    "Relentless Pursuit": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "move",
+            "who": "friendly"
+          }
+        ]
+      },
+      "hash": "71329672"
+    },
+    "Ride the Wind": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "move",
+            "who": "friendly",
+            "ready": true
+          }
+        ]
+      },
+      "hash": "b2f28fcb"
+    },
+    "Riposte": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "counter"
+          }
+        ]
+      },
+      "hash": "9fd07983"
+    },
+    "Sabotage": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "opponent"
+          }
+        ]
+      },
+      "hash": "c05c74d4"
+    },
+    "Salvage": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "4434a166"
+    },
+    "Shock Blast": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 4
+          }
+        ]
+      },
+      "hash": "da4ca446"
+    },
+    "Shuriken Flip": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 2
+          },
+          {
+            "op": "move",
+            "who": "friendly"
+          }
+        ]
+      },
+      "hash": "dc6d25b8"
+    },
+    "Singularity": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 6
+          },
+          {
+            "op": "damage",
+            "n": 6
+          }
+        ]
+      },
+      "hash": "8cd105ff"
+    },
+    "Skyward Strike": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "move",
+            "who": "enemy"
+          }
+        ]
+      },
+      "hash": "c9705958"
+    },
+    "Smoke Screen": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "weaken",
+            "n": 4
+          }
+        ]
+      },
+      "hash": "a8d311b9"
+    },
+    "Stacked Deck": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "c4e5a376"
+    },
+    "Star-Crossed": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "bounce",
+            "who": "friendly"
+          },
+          {
+            "op": "bounce"
+          }
+        ]
+      },
+      "hash": "4aa2ef2b"
+    },
+    "Unchecked Power": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damageAll",
+            "n": 12,
+            "scope": "allBattlefields"
+          }
+        ]
+      },
+      "hash": "45f72db1"
+    },
+    "Up from the Deep": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 1,
+            "count": 2
+          }
+        ]
+      },
+      "hash": "8416f692"
+    },
+    "Wages of Pain": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "damage",
+            "n": 3
+          }
+        ]
+      },
+      "hash": "d5d14c67"
+    },
     "Heart of Dark Ice": {
       "ability": {
         "activate": {
@@ -545,6 +964,31 @@
       "partial": true,
       "ability": {},
       "hash": "ea06e83a"
+    },
+    "Forge of the Future": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "token",
+            "might": 1,
+            "count": 1
+          }
+        ]
+      },
+      "hash": "866bb9d8"
+    },
+    "Poro Snax": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "64b97b79"
     },
     "Ancient Warmonger": {
       "ability": {
@@ -953,6 +1397,290 @@
       },
       "hash": "c6b01359"
     },
+    "Elder Dragon": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "kill"
+          }
+        ]
+      },
+      "hash": "58720f43"
+    },
+    "Ezreal, Prodigy": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "self"
+          },
+          {
+            "op": "draw",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "6c12330e"
+    },
+    "Ferrous Forerunner": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "token",
+            "might": 3,
+            "count": 2
+          }
+        ]
+      },
+      "hash": "3300d90c"
+    },
+    "Harnessed Dragon": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "kill"
+          }
+        ]
+      },
+      "hash": "e5309da9"
+    },
+    "Janna, Savior": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "move",
+            "who": "enemy",
+            "here": true
+          }
+        ]
+      },
+      "hash": "4ea2cc30"
+    },
+    "Kai'Sa, Survivor": {
+      "ability": {
+        "onConquer": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "f8a19ebc"
+    },
+    "Kennen, Keeper of Balance": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "optional",
+            "cost": {
+              "energy": 2
+            },
+            "then": [
+              {
+                "op": "stun"
+              }
+            ]
+          }
+        ],
+        "onAttack": [
+          {
+            "op": "optional",
+            "cost": {
+              "energy": 2
+            },
+            "then": [
+              {
+                "op": "stun"
+              }
+            ]
+          }
+        ]
+      },
+      "hash": "42440ad0"
+    },
+    "Kennen, Storm of Shuriken": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "mill",
+            "n": 2
+          }
+        ]
+      },
+      "hash": "bd854a6"
+    },
+    "Lecturing Yordle": {
+      "ability": {
+        "onPlay": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "e1428208"
+    },
+    "Lucian, Merciless": {
+      "partial": true,
+      "ability": {
+        "onConquer": [
+          {
+            "op": "ready",
+            "who": "self"
+          }
+        ]
+      },
+      "hash": "5f821dd9"
+    },
+    "Noxus Hopeful": {
+      "ability": {
+        "legion": {
+          "discount": {
+            "energy": 2
+          }
+        }
+      },
+      "hash": "d61857c4"
+    },
+    "Ravenbloom Student": {
+      "ability": {
+        "onSpellPlayed": [
+          {
+            "op": "pump",
+            "n": 1,
+            "self": true
+          }
+        ]
+      },
+      "hash": "74a81e3d"
+    },
+    "Red Brambleback": {
+      "partial": true,
+      "ability": {
+        "onConquer": [
+          {
+            "op": "buff",
+            "count": 1
+          }
+        ]
+      },
+      "hash": "667e124c"
+    },
+    "Ruined Rex": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "damage",
+            "n": 4
+          }
+        ]
+      },
+      "hash": "baeb9d9"
+    },
+    "Sett, Brawler": {
+      "partial": true,
+      "ability": {
+        "onPlay": [
+          {
+            "op": "buff",
+            "self": true
+          }
+        ],
+        "onConquer": [
+          {
+            "op": "buff",
+            "self": true
+          }
+        ]
+      },
+      "hash": "723f7419"
+    },
+    "Shadow Order Disciple": {
+      "ability": {
+        "onMove": [
+          {
+            "op": "mill",
+            "n": 1
+          },
+          {
+            "op": "pump",
+            "n": 1,
+            "self": true
+          }
+        ]
+      },
+      "hash": "bb2f9d0c"
+    },
+    "Soaring Scout": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "channel",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "af649850"
+    },
+    "Stellacorn Herder": {
+      "ability": {
+        "onMove": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "176b7a10"
+    },
+    "Traveling Merchant": {
+      "ability": {
+        "onMove": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "self"
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "a17dfcaa"
+    },
+    "Vanguard Captain": {
+      "ability": {
+        "legion": {
+          "onPlay": [
+            {
+              "op": "token",
+              "might": 1,
+              "count": 2,
+              "here": true
+            }
+          ]
+        }
+      },
+      "hash": "21ae481"
+    },
+    "Watchful Sentry": {
+      "ability": {
+        "onDeath": [
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "5fca6b8e"
+    },
     "Draven, Glorious Executioner": {
       "ability": {
         "onWinCombat": [
@@ -1132,6 +1860,22 @@
         ]
       },
       "hash": "42840abc"
+    },
+    "Zaun Warrens": {
+      "ability": {
+        "onConquer": [
+          {
+            "op": "discard",
+            "n": 1,
+            "who": "self"
+          },
+          {
+            "op": "draw",
+            "n": 1
+          }
+        ]
+      },
+      "hash": "4ca40a5a"
     }
   }
 }

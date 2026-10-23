@@ -127,11 +127,16 @@ function parseKeywords(card, domains) {
   return keywords;
 }
 
-// No rules text beyond keyword lines and a plain [Equip] cost.
+// No rules text beyond keyword lines and a plain [Equip] cost (energy or
+// rune icons, e.g. ":rb_energy_1:" or ":rb_rune_order:"). A gear's keyword
+// lines ([Ganking], [Tank], [Quick-Draw]...) are for the unit carrying it,
+// which the engine doesn't hand over, so a gear with one isn't vanilla.
 function isVanilla(card) {
+  const gear = typeOf(card) === 'Gear';
   return textLines(card).every(raw => {
     const line = raw.replace(/\([^)]*\)/g, '').trim();
-    return !line || KEYWORD_LINE.test(line) || /^\[Equip\]\s*(?:—\s*)?(?::rb_[a-z]+(?:_\d+)?:\s*)+$/.test(line);
+    if (!line || /^\[Equip\]\s*(?:—\s*)?(?::rb_[a-z]+(?:_[a-z0-9]+)?:\s*)+$/.test(line)) return true;
+    return !gear && KEYWORD_LINE.test(line);
   });
 }
 
