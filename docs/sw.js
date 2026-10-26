@@ -1,7 +1,7 @@
 /*
   sw.js — service worker for the Riftbound Deck Simulator PWA.
 
-  IMPORTANT for future updates: bump CACHE_NAME (e.g. 'riftbound-sim-v2')
+  IMPORTANT for future updates: bump CACHE_NAME (e.g. 'riftbound-sim-v3')
   every time index.html/app.js/engine.js/style.css or the bundled data files
   change. That's what makes an update show up on the phone: a new cache name
   makes every device throw away its old cached copies and fetch fresh ones
